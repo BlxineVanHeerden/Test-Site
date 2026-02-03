@@ -68,8 +68,13 @@ function generateInvoice() {
     doc.text("Invoice", 20, 20);
   }
 
-  // Logo
-  if (logoDataUrl) doc.addImage(logoDataUrl, "PNG", 150, 10, 40, 0);
+  // Logo - limit size
+if (logoDataUrl) {
+  const maxWidth = 40;  // max width in PDF units
+  const maxHeight = 30; // max height
+  doc.addImage(logoDataUrl, "PNG", 150, 10, maxWidth, maxHeight);
+}
+
 
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
@@ -132,3 +137,4 @@ window.addEventListener("DOMContentLoaded", () => {
     reader.readAsDataURL(file);
   });
 });
+
