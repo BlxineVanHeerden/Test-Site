@@ -1,6 +1,5 @@
 const { jsPDF } = window.jspdf;
 let invoiceCounter = 1;
-let logoDataUrl = null;
 
 // Helper to get element
 function $(id) { return document.getElementById(id); }
@@ -70,17 +69,8 @@ function generateInvoice() {
     doc.text("Invoice", 20, 20);
   }
 
-  // Logo top-left
-  if (logoDataUrl) {
-    const maxWidth = 50;
-    const maxHeight = 30;
-    const x = 20;
-    const y = 10;
-    doc.addImage(logoDataUrl, "PNG", x, y, maxWidth, maxHeight);
-  }
-
-  // Your info below logo
-  let yourInfoY = 10 + 30 + 5; // top + logo height + padding
+  // Your info
+  let yourInfoY = 20; // starting below the header
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
   doc.text(`From: ${yourName} (${yourEmail})`, 20, yourInfoY);
@@ -142,15 +132,4 @@ window.addEventListener("DOMContentLoaded", () => {
   $("previewBtn").addEventListener("click", generateInvoice);
   $("toggleBreakdownBtn").addEventListener("click", toggleBreakdown);
   $("markPaidBtn").addEventListener("click", markAsPaid);
-
-  $("logoUpload").addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      logoDataUrl = event.target.result;
-      generateInvoice(); // auto refresh preview
-    };
-    reader.readAsDataURL(file);
-  });
 });
