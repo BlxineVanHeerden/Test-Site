@@ -1,23 +1,34 @@
-async function generateAd() {
-  const business = document.getElementById("business").value;
-  if (!business) {
-    alert("Please enter your business or product!");
+async function generateAdImage() {
+  const prompt = document.getElementById("prompt").value.trim();
+  const status = document.getElementById("status");
+  const resultImage = document.getElementById("resultImage");
+
+  if (!prompt) {
+    alert("Please enter a prompt describing your ad!");
     return;
   }
 
-  document.getElementById("adResult").innerText = "Generating ad...";
+  status.innerText = "Generating image... ⏳";
+  resultImage.src = "";
 
   try {
-    const response = await fetch("/api/generate", {
+    const res = await fetch("/api/image-generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ business })
+      body: JSON.stringify({ prompt })
     });
 
-    const data = await response.json();
-    document.getElementById("adResult").innerText = data.ad;
+    const data = await res.json();
+
+    if (data.imageUrl) {
+      resultImage.src = data.imageUrl;
+      status.innerText = "Image generated! 🎉";
+    } else {
+      status.innerText = "Failed to generate image 😢";
+      console.error(data);
+    }
   } catch (err) {
+    status.innerText = "Error generating image 😢";
     console.error(err);
-    document.getElementById("adResult").innerText = "Error generating ad";
   }
 }
