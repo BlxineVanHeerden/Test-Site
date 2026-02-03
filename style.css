@@ -37,3 +37,12 @@ iframe {
 .hidden {
   display: none;
 }
+.button-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.button-row button {
+  flex: 1;
+}
