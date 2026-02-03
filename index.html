@@ -17,11 +17,17 @@
   <div id="healthTips"></div>
 </div>
 
-<!-- ACTION BUTTONS -->
+<button onclick="generateInvoice()">Preview Invoice</button>
+
+<!-- ACTION BUTTONS: OLD SPOT, SIDE BY SIDE -->
 <div class="button-row">
   <button onclick="toggleBreakdown()">Toggle Breakdown</button>
   <button onclick="markAsPaid()">Mark as Paid</button>
 </div>
+
+<div id="breakdown" class="hidden"></div>
+
+<iframe id="invoicePreview"></iframe>
 
 <div id="breakdown" class="hidden"></div>
 
@@ -54,3 +60,4 @@
 <script src="script.js"></script>
 </body>
 </html>
+
