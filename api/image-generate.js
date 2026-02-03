@@ -61,4 +61,7 @@ export default async function handler(req, res) {
     console.error("Error generating image:", err);
     return res.status(500).json({ error: "Image generation failed" });
   }
-}
+}console.log("Starting image generation for prompt:", prompt);
+console.log("Using API key:", !!process.env.REPLICATE_API_KEY);
+console.log("Using model version:", version);
+
