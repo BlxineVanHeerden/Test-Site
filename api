@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
 
-// 🔑 Put your Hugging Face token here
-const HUGGING_FACE_API_KEY = "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";";
+const HUGGING_FACE_API_KEY = process.env.HUGGING_FACE_API_KEY;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -17,7 +16,7 @@ export default async function handler(req, res) {
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${HUGGING_FACE_API_KEY}`,
+          Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -27,9 +26,9 @@ export default async function handler(req, res) {
     );
 
     const data = await response.json();
-    console.log("Hugging Face response:", data);
+    console.log("Hugging Face response:", data); // check logs if something breaks
 
-    // Hugging Face sometimes returns an object with generated_text
+    // Handle Hugging Face response formats
     let ad = "No response from AI";
     if (data?.generated_text) ad = data.generated_text;
     else if (Array.isArray(data) && data[0]?.generated_text) ad = data[0].generated_text;
