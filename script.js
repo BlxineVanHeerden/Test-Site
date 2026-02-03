@@ -4,46 +4,58 @@ function $(id) {
   return document.getElementById(id);
 }
 
-// ✅ MULTI-LINE ITEM PARSER
+/*
+ITEM FORMAT (one per line):
+Item name | qty | price
+*/
 function parseItems(raw) {
-  if (!raw.trim()) return [];
+  return raw
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => {
+      const parts = line.split("|").map(p => p.trim());
+      if (parts.length !== 3) return null;
 
-  return raw.split("\n").map(line => {
-    const parts = line.split("|").map(p => p.trim());
-    if (parts.length !== 3) return null;
+      const name = parts[0];
+      const qty = Number(parts[1]);
+      const price = Number(parts[2]);
 
-    const [name, qty, price] = parts;
-    return {
-      name,
-      qty: Number(qty) || 1,
-      price: Number(price) || 0,
-      total: (Number(qty) || 1) * (Number(price) || 0)
-    };
-  }).filter(Boolean);
+      if (!name || isNaN(qty) || isNaN(price)) return null;
+
+      return {
+        name,
+        qty,
+        price,
+        total: qty * price
+      };
+    })
+    .filter(Boolean);
 }
 
 function generateInvoice() {
   const invoiceType = $("invoiceType").value;
-  const yourName = $("yourName").value;
-  const clientName = $("clientName").value;
-  const items = parseItems($("items").value);
+  const yourName = $("yourName").value || "-";
+  const clientName = $("clientName").value || "-";
   const taxRate = Number($("taxRate").value) || 0;
 
-  const subtotal = items.reduce((s, i) => s + i.total, 0);
+  const items = parseItems($("items").value);
+
+  const subtotal = items.reduce((sum, item) => sum + item.total, 0);
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount;
 
   updateHealthScore(items, taxRate, clientName);
   renderBreakdown(subtotal, taxAmount, total);
 
-  // PDF
   const doc = new jsPDF();
+
   doc.setFontSize(18);
   doc.text(invoiceType, 105, 20, null, null, "center");
 
   doc.setFontSize(12);
-  doc.text(`From: ${yourName || "-"}`, 20, 40);
-  doc.text(`To: ${clientName || "-"}`, 20, 50);
+  doc.text(`From: ${yourName}`, 20, 40);
+  doc.text(`To: ${clientName}`, 20, 50);
 
   let y = 70;
   items.forEach(item => {
@@ -55,27 +67,29 @@ function generateInvoice() {
     y += 8;
   });
 
-  doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 20, y + 10);
-  doc.text(`Tax: $${taxAmount.toFixed(2)}`, 20, y + 20);
-  doc.text(`Total: $${total.toFixed(2)}`, 20, y + 30);
+  y += 5;
+  doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 20, y);
+  doc.text(`Tax: $${taxAmount.toFixed(2)}`, 20, y + 10);
+  doc.text(`Total: $${total.toFixed(2)}`, 20, y + 20);
 
   $("invoicePreview").src = doc.output("bloburl");
 }
 
-// ✅ HEALTH SCORE
-function updateHealthScore(items, tax, client) {
+function updateHealthScore(items, taxRate, clientName) {
   let score = 100;
   let tips = [];
 
-  if (!client) {
+  if (clientName === "-") {
     score -= 20;
     tips.push("Add client details");
   }
+
   if (items.length === 0) {
     score -= 30;
-    tips.push("Add at least one invoice item");
+    tips.push("Add at least one item");
   }
-  if (tax === 0) {
+
+  if (taxRate === 0) {
     score -= 10;
     tips.push("Consider adding tax");
   }
@@ -84,10 +98,9 @@ function updateHealthScore(items, tax, client) {
   $("healthTips").innerHTML = tips.map(t => `⚠️ ${t}`).join("<br>");
 }
 
-// ✅ BREAKDOWN
-function renderBreakdown(sub, tax, total) {
+function renderBreakdown(subtotal, tax, total) {
   $("breakdown").innerHTML = `
-    <p>Subtotal: $${sub.toFixed(2)}</p>
+    <p>Subtotal: $${subtotal.toFixed(2)}</p>
     <p>Tax: $${tax.toFixed(2)}</p>
     <strong>Total: $${total.toFixed(2)}</strong>
   `;
@@ -97,12 +110,6 @@ function toggleBreakdown() {
   $("breakdown").classList.toggle("hidden");
 }
 
-// ✅ MARK AS PAID
 function markAsPaid() {
-  const client = $("clientName").value;
-  if (!client) {
-    alert("Add client name first");
-    return;
-  }
   alert("Invoice marked as paid ✔");
 }
