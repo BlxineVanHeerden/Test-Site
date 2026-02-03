@@ -7,6 +7,7 @@ module.exports = async function handler(req, res) {
   if (!prompt) return res.status(400).json({ error: "No prompt provided" });
 
   try {
+    // Start prediction using fast SD 512-v2-1
     const start = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
@@ -38,7 +39,7 @@ module.exports = async function handler(req, res) {
         return res.status(500).json({ error: "Image generation failed" });
       }
 
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 2000)); // wait 2 seconds
     }
 
     if (!output) return res.status(500).json({ error: "Image generation timed out" });
