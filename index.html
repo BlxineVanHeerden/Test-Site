@@ -43,12 +43,11 @@ Maintenance - 150"
 <label>Tax %:</label>
 <input id="taxRate" type="number" value="0" />
 
-<button onclick="generateInvoice()">Preview Invoice</button>
-
 <!-- BUTTONS -->
 <div class="button-row">
-  <button onclick="toggleBreakdown()">Toggle Breakdown</button>
-  <button onclick="markAsPaid()">Mark as Paid</button>
+  <button id="previewBtn">Preview Invoice</button>
+  <button id="toggleBreakdownBtn">Toggle Breakdown</button>
+  <button id="markPaidBtn">Mark as Paid</button>
 </div>
 
 <div id="breakdown" class="hidden"></div>
