@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 
 const HUGGING_FACE_API_KEY = process.env.HUGGING_FACE_API_KEY;
+const HUGGING_FACE_MODEL = "bigscience/bloom-560m";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -12,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/gpt2", // free text-generation model
+      `https://api-inference.huggingface.co/models/${HUGGING_FACE_MODEL}`,
       {
         method: "POST",
         headers: {
@@ -20,24 +21,24 @@ export default async function handler(req, res) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          inputs: `Write a short, catchy advertisement for a business called: ${business}`
+          inputs: `Write a short, catchy advertisement for a business called: ${business}`,
+          parameters: { max_new_tokens: 50 } // limit output
         })
       }
     );
 
     const data = await response.json();
-    console.log("Hugging Face response:", data); // check logs if something breaks
+    console.log("Hugging Face response:", data);
 
-    // Handle Hugging Face response formats
     let ad = "No response from AI";
-    if (data?.generated_text) ad = data.generated_text;
-    else if (Array.isArray(data) && data[0]?.generated_text) ad = data[0].generated_text;
+    // Bloom returns an array of generated text objects
+    if (Array.isArray(data) && data[0]?.generated_text) ad = data[0].generated_text;
     else if (Array.isArray(data) && typeof data[0] === "string") ad = data[0];
+    else if (data?.error) ad = "Hugging Face error: " + data.error;
 
     res.status(200).json({ ad });
-
   } catch (err) {
-    console.error("Hugging Face error:", err);
+    console.error("Hugging Face fetch error:", err);
     res.status(500).json({ ad: "Error generating ad" });
   }
 }
