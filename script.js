@@ -1,19 +1,28 @@
+const { jsPDF } = window.jspdf;
+let invoiceCounter = 1;
 let logoDataUrl = null;
 
-// Logo upload handling
-$("logoUpload")?.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+// Helper
+function $(id) { return document.getElementById(id); }
 
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    logoDataUrl = event.target.result; // store base64 image
-    generateInvoice(); // refresh PDF with logo
-  };
-  reader.readAsDataURL(file);
-});
+// Parse items (line by line)
+function parseItems(raw) {
+  return raw
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line !== "")
+    .map(line => {
+      const parts = line.split("-");
+      if (parts.length !== 2) return null;
+      const name = parts[0].trim();
+      const price = Number(parts[1].trim());
+      if (!name || isNaN(price)) return null;
+      return { name, price };
+    })
+    .filter(Boolean);
+}
 
-// In generateInvoice()
+// Generate invoice
 function generateInvoice() {
   const yourName = $("yourName").value || "-";
   const yourEmail = $("yourEmail").value || "-";
@@ -28,6 +37,7 @@ function generateInvoice() {
     return;
   }
 
+  // Invoice number & date
   const invoiceNumber = invoiceCounter++;
   const invoiceDate = new Date().toLocaleDateString();
   $("invoiceNumber").innerText = invoiceNumber;
@@ -42,7 +52,7 @@ function generateInvoice() {
 
   const doc = new jsPDF();
 
-  // Template-specific styles
+  // Templates
   if (template === "classic") {
     doc.setFont("times", "normal");
     doc.setFontSize(18);
@@ -58,11 +68,8 @@ function generateInvoice() {
     doc.text("Invoice", 20, 20);
   }
 
-  // Add logo if uploaded
-  if (logoDataUrl) {
-    // position: x=150, y=10, width=40, auto-height
-    doc.addImage(logoDataUrl, "PNG", 150, 10, 40, 0);
-  }
+  // Logo
+  if (logoDataUrl) doc.addImage(logoDataUrl, "PNG", 150, 10, 40, 0);
 
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
@@ -84,3 +91,44 @@ function generateInvoice() {
 
   $("invoicePreview").src = doc.output("bloburl");
 }
+
+// Health score
+function updateHealthScore(items, taxRate, clientName) {
+  let score = 100;
+  let tips = [];
+  if (!clientName || clientName === "-") { score -= 20; tips.push("Add client details"); }
+  if (items.length === 0) { score -= 30; tips.push("Add at least one item"); }
+  if (taxRate === 0) { score -= 10; tips.push("Consider adding tax"); }
+
+  $("healthScore").innerText = `${score}/100`;
+  $("healthTips").innerHTML = tips.map(t => `⚠️ ${t}`).join("<br>");
+}
+
+// Breakdown
+function renderBreakdown(subtotal, tax, total) {
+  $("breakdown").innerHTML = `
+    <p>Subtotal: $${subtotal.toFixed(2)}</p>
+    <p>Tax: $${tax.toFixed(2)}</p>
+    <strong>Total: $${total.toFixed(2)}</strong>
+  `;
+}
+
+function toggleBreakdown() { $("breakdown").classList.toggle("hidden"); }
+function markAsPaid() { alert("Invoice marked as paid ✔"); }
+
+// Attach event listeners after DOM ready
+window.addEventListener("DOMContentLoaded", () => {
+  $("previewBtn").addEventListener("click", generateInvoice);
+  $("toggleBreakdownBtn").addEventListener("click", toggleBreakdown);
+  $("markPaidBtn").addEventListener("click", markAsPaid);
+  $("logoUpload").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      logoDataUrl = event.target.result;
+      generateInvoice();
+    };
+    reader.readAsDataURL(file);
+  });
+});
