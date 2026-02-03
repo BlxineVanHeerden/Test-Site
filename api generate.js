@@ -1,16 +1,12 @@
 import fetch from "node-fetch";
 
-const HUGGING_FACE_API_KEY = process.env.HUGGING_FACE_API_KEY;
+const HUGGING_FACE_API_KEY = process.env.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;
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ ad: "Method not allowed" });
-  }
+async function generateAdFromHF(business) {
+  const maxRetries = 3;
+  let attempt = 0;
 
-  const { business } = req.body;
-  if (!business) return res.json({ ad: "No business provided." });
-
-  try {
+  while (attempt < maxRetries) {
     const response = await fetch(
       "https://api-inference.huggingface.co/pipeline/text-generation",
       {
@@ -30,17 +26,31 @@ export default async function handler(req, res) {
     const data = await response.json();
     console.log("Hugging Face response:", data);
 
-    // Safely get the ad
-    let ad = "No response from AI";
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      ad = data[0].generated_text;
-    } else if (data?.error) {
-      ad = "Hugging Face error: " + data.error;
+    if (data?.error && data.error.includes("loading")) {
+      // Model is still loading, wait 2 seconds and retry
+      await new Promise(res => setTimeout(res, 2000));
+      attempt++;
+    } else if (Array.isArray(data) && data[0]?.generated_text) {
+      return data[0].generated_text;
+    } else {
+      return "No response from AI";
     }
+  }
 
+  return "Hugging Face model still loading, try again in a few seconds.";
+}
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ ad: "Method not allowed" });
+
+  const { business } = req.body;
+  if (!business) return res.json({ ad: "No business provided." });
+
+  try {
+    const ad = await generateAdFromHF(business);
     res.status(200).json({ ad });
   } catch (err) {
-    console.error("Server fetch error:", err);
+    console.error("Error generating ad:", err);
     res.status(500).json({ ad: "Error generating ad" });
   }
 }
