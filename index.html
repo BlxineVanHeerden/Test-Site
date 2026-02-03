@@ -1,56 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Invoice Generator</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
 <h1>Invoice Generator</h1>
 
-<label>Invoice Type</label>
-<select id="invoiceType">
-  <option value="Invoice">Invoice</option>
-  <option value="Quote">Quote</option>
-  <option value="Proforma Invoice">Proforma Invoice</option>
-  <option value="Credit Note">Credit Note</option>
-</select>
-
-<div class="form-section">
-  <h2>Your Info</h2>
-  <input id="yourName" placeholder="Business Name" />
-  <input id="yourEmail" placeholder="Email" />
-</div>
-
-<div class="form-section">
-  <h2>Client Info</h2>
-  <input id="clientName" placeholder="Client Name" />
-  <input id="clientEmail" placeholder="Client Email" />
-</div>
-
-<div class="form-section">
-  <h2>Items</h2>
-  <textarea id="items" placeholder="Consulting:2x75, Design:1x300"></textarea>
-</div>
-
-<label>Tax %</label>
-<input id="taxRate" type="number" value="0" />
-
-<button onclick="generateInvoice()">Preview Invoice</button>
-
+<!-- 🔥 INVOICE HEALTH FIRST -->
 <div class="score-box">
   <strong>Invoice Health:</strong>
   <span id="healthScore">–</span>
   <div id="healthTips"></div>
 </div>
 
-<button onclick="markAsPaid()">Mark as Paid</button>
+<!-- ACTION BUTTONS -->
+<div class="button-row">
+  <button onclick="toggleBreakdown()">Toggle Breakdown</button>
+  <button onclick="markAsPaid()">Mark as Paid</button>
+</div>
 
-<h2>Payment Breakdown</h2>
-<button onclick="toggleBreakdown()">Toggle Breakdown</button>
 <div id="breakdown" class="hidden"></div>
+
+<label>Invoice Type</label>
+<select id="invoiceType">
+  <option>Invoice</option>
+  <option>Quote</option>
+  <option>Proforma Invoice</option>
+  <option>Credit Note</option>
+</select>
+
+<h3>Your Info</h3>
+<input id="yourName" placeholder="Business Name">
+<input id="yourEmail" placeholder="Email">
+
+<h3>Client Info</h3>
+<input id="clientName" placeholder="Client Name">
+<input id="clientEmail" placeholder="Client Email">
+
+<h3>Invoice Items (one per line)</h3>
+<textarea id="items" rows="6" placeholder="Item | Qty | Price"></textarea>
+
+<label>Tax %</label>
+<input id="taxRate" type="number" value="0">
+
+<button onclick="generateInvoice()">Preview Invoice</button>
 
 <iframe id="invoicePreview"></iframe>
 
