@@ -40,7 +40,7 @@ iframe {
 .button-row {
   display: flex;
   gap: 10px;
-  margin-bottom: 15px;
+  margin: 10px 0 15px;
 }
 
 .button-row button {
