@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 
-const HUGGING_FACE_API_KEY = "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";
+// 🔑 Put your Hugging Face token here
+const HUGGING_FACE_API_KEY = "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";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -12,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/gpt2",
+      "https://api-inference.huggingface.co/models/gpt2", // free text-generation model
       {
         method: "POST",
         headers: {
@@ -26,13 +27,18 @@ export default async function handler(req, res) {
     );
 
     const data = await response.json();
-    console.log("Hugging Face response:", data); // 🔹 Add this line
+    console.log("Hugging Face response:", data);
 
-    const ad = data[0]?.generated_text || "No response from AI";
+    // Hugging Face sometimes returns an object with generated_text
+    let ad = "No response from AI";
+    if (data?.generated_text) ad = data.generated_text;
+    else if (Array.isArray(data) && data[0]?.generated_text) ad = data[0].generated_text;
+    else if (Array.isArray(data) && typeof data[0] === "string") ad = data[0];
+
     res.status(200).json({ ad });
 
   } catch (err) {
-    console.error("Hugging Face error:", err); // 🔹 Add this line
+    console.error("Hugging Face error:", err);
     res.status(500).json({ ad: "Error generating ad" });
   }
 }
