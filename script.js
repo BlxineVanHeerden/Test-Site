@@ -1,13 +1,21 @@
 const { jsPDF } = window.jspdf;
 
-// Global invoice counter (simple auto-increment)
+// Global invoice counter
 let invoiceCounter = 1;
 
+// Wait for DOM
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("previewBtn").addEventListener("click", generateInvoice);
+  document.getElementById("toggleBreakdownBtn").addEventListener("click", toggleBreakdown);
+  document.getElementById("markPaidBtn").addEventListener("click", markAsPaid);
+});
+
+// Helper to get element
 function $(id) {
   return document.getElementById(id);
 }
 
-// Safe item parser
+// Parse items safely
 function parseItems(raw) {
   return raw
     .split("\n")
@@ -16,12 +24,9 @@ function parseItems(raw) {
     .map(line => {
       const parts = line.split("-");
       if (parts.length !== 2) return null;
-
       const name = parts[0].trim();
       const price = Number(parts[1].trim());
-
       if (!name || isNaN(price)) return null;
-
       return { name, price };
     })
     .filter(Boolean);
@@ -44,7 +49,6 @@ function generateInvoice() {
   // Auto invoice number + date
   const invoiceNumber = invoiceCounter++;
   const invoiceDate = new Date().toLocaleDateString();
-
   $("invoiceNumber").innerText = invoiceNumber;
   $("invoiceDate").innerText = invoiceDate;
 
@@ -81,7 +85,7 @@ function generateInvoice() {
   $("invoicePreview").src = doc.output("bloburl");
 }
 
-// Simple health score
+// Health score
 function updateHealthScore(items, taxRate, clientName) {
   let score = 100;
   let tips = [];
@@ -92,3 +96,31 @@ function updateHealthScore(items, taxRate, clientName) {
   }
   if (items.length === 0) {
     score -= 30;
+    tips.push("Add at least one item");
+  }
+  if (taxRate === 0) {
+    score -= 10;
+    tips.push("Consider adding tax");
+  }
+
+  $("healthScore").innerText = `${score}/100`;
+  $("healthTips").innerHTML = tips.map(t => `⚠️ ${t}`).join("<br>");
+}
+
+// Breakdown toggle
+function renderBreakdown(subtotal, tax, total) {
+  $("breakdown").innerHTML = `
+    <p>Subtotal: $${subtotal.toFixed(2)}</p>
+    <p>Tax: $${tax.toFixed(2)}</p>
+    <strong>Total: $${total.toFixed(2)}</strong>
+  `;
+}
+
+function toggleBreakdown() {
+  $("breakdown").classList.toggle("hidden");
+}
+
+// Mark as paid
+function markAsPaid() {
+  alert("Invoice marked as paid ✔");
+}
