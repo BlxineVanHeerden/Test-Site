@@ -2,10 +2,10 @@ const { jsPDF } = window.jspdf;
 let invoiceCounter = 1;
 let logoDataUrl = null;
 
-// Helper
+// Helper to get element
 function $(id) { return document.getElementById(id); }
 
-// Parse items (line by line)
+// Parse items (line by line, "Item - Price")
 function parseItems(raw) {
   return raw
     .split("\n")
@@ -22,7 +22,7 @@ function parseItems(raw) {
     .filter(Boolean);
 }
 
-// Generate invoice
+// Generate PDF Invoice
 function generateInvoice() {
   const yourName = $("yourName").value || "-";
   const yourEmail = $("yourEmail").value || "-";
@@ -43,10 +43,12 @@ function generateInvoice() {
   $("invoiceNumber").innerText = invoiceNumber;
   $("invoiceDate").innerText = invoiceDate;
 
+  // Calculate totals
   const subtotal = items.reduce((sum, i) => sum + i.price, 0);
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount;
 
+  // Update health & breakdown
   updateHealthScore(items, taxRate, clientName);
   renderBreakdown(subtotal, taxAmount, total);
 
@@ -68,24 +70,28 @@ function generateInvoice() {
     doc.text("Invoice", 20, 20);
   }
 
-// Logo - top-left
-if (logoDataUrl) {
-  const maxWidth = 50;  // max width
-  const maxHeight = 30; // max height
-  const x = 20; // distance from left edge
-  const y = 10; // distance from top
-  doc.addImage(logoDataUrl, "PNG", x, y, maxWidth, maxHeight);
-}
+  // Logo top-left
+  if (logoDataUrl) {
+    const maxWidth = 50;
+    const maxHeight = 30;
+    const x = 20;
+    const y = 10;
+    doc.addImage(logoDataUrl, "PNG", x, y, maxWidth, maxHeight);
+  }
 
-
+  // Your info below logo
+  let yourInfoY = 10 + 30 + 5; // top + logo height + padding
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
-  doc.text(`Invoice #: ${invoiceNumber}`, 20, 40);
-  doc.text(`Date: ${invoiceDate}`, 140, 40);
-  doc.text(`From: ${yourName} (${yourEmail})`, 20, 50);
-  doc.text(`To: ${clientName} (${clientEmail})`, 20, 60);
+  doc.text(`From: ${yourName} (${yourEmail})`, 20, yourInfoY);
+  doc.text(`To: ${clientName} (${clientEmail})`, 20, yourInfoY + 10);
 
-  let y = 80;
+  // Invoice number & date top-right
+  doc.text(`Invoice #: ${invoiceNumber}`, 140, 20);
+  doc.text(`Date: ${invoiceDate}`, 140, 30);
+
+  // Items list
+  let y = yourInfoY + 30;
   items.forEach(item => {
     doc.text(`• ${item.name} - $${item.price.toFixed(2)}`, 20, y);
     y += 8;
@@ -96,10 +102,11 @@ if (logoDataUrl) {
   doc.text(`Tax: $${taxAmount.toFixed(2)}`, 20, y + 10);
   doc.text(`Total: $${total.toFixed(2)}`, 20, y + 20);
 
+  // Show in iframe
   $("invoicePreview").src = doc.output("bloburl");
 }
 
-// Health score
+// Update health score
 function updateHealthScore(items, taxRate, clientName) {
   let score = 100;
   let tips = [];
@@ -111,7 +118,7 @@ function updateHealthScore(items, taxRate, clientName) {
   $("healthTips").innerHTML = tips.map(t => `⚠️ ${t}`).join("<br>");
 }
 
-// Breakdown
+// Render breakdown section
 function renderBreakdown(subtotal, tax, total) {
   $("breakdown").innerHTML = `
     <p>Subtotal: $${subtotal.toFixed(2)}</p>
@@ -120,24 +127,30 @@ function renderBreakdown(subtotal, tax, total) {
   `;
 }
 
-function toggleBreakdown() { $("breakdown").classList.toggle("hidden"); }
-function markAsPaid() { alert("Invoice marked as paid ✔"); }
+// Toggle breakdown visibility
+function toggleBreakdown() {
+  $("breakdown").classList.toggle("hidden");
+}
 
-// Attach event listeners after DOM ready
+// Mark invoice as paid
+function markAsPaid() {
+  alert("Invoice marked as paid ✔");
+}
+
+// Event listeners after DOM loads
 window.addEventListener("DOMContentLoaded", () => {
   $("previewBtn").addEventListener("click", generateInvoice);
   $("toggleBreakdownBtn").addEventListener("click", toggleBreakdown);
   $("markPaidBtn").addEventListener("click", markAsPaid);
+
   $("logoUpload").addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(event) {
       logoDataUrl = event.target.result;
-      generateInvoice();
+      generateInvoice(); // auto refresh preview
     };
     reader.readAsDataURL(file);
   });
 });
-
-
