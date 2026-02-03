@@ -1,65 +1,101 @@
 const { jsPDF } = window.jspdf;
 
-function generateInvoice() {
-  const yourName = document.getElementById("yourName").value;
-  const yourEmail = document.getElementById("yourEmail").value;
-  const clientName = document.getElementById("clientName").value;
-  const clientEmail = document.getElementById("clientEmail").value;
-  const itemsRaw = document.getElementById("items").value;
+let history = JSON.parse(localStorage.getItem("itemHistory") || "[]");
+let clientStats = JSON.parse(localStorage.getItem("clientStats") || "{}");
 
-  if (!yourName || !clientName || !itemsRaw) {
-    alert("Please fill out all required fields!");
-    return;
-  }
-
-  const items = itemsRaw.split(",").map(i => {
-    const [desc, price] = i.split(":");
-    return { desc: desc.trim(), price: parseFloat(price) || 0 };
+function parseItems(raw) {
+  return raw.split(",").map(i => {
+    const [name, rest] = i.split(":");
+    const [qty, price] = rest.split("x");
+    return {
+      name: name.trim(),
+      qty: Number(qty),
+      price: Number(price),
+      total: Number(qty) * Number(price)
+    };
   });
+}
 
-  let total = items.reduce((sum, item) => sum + item.price, 0);
+function generateInvoice() {
+  const type = invoiceType.value;
+  const yourName = yourNameInput();
+  const client = clientName.value;
+  const items = parseItems(itemsInput());
+  const tax = Number(taxRate.value);
+
+  saveItemHistory(items);
+  updateHealthScore(items, tax, client);
+
+  const subtotal = items.reduce((s, i) => s + i.total, 0);
+  const taxAmount = subtotal * (tax / 100);
+  const total = subtotal + taxAmount;
+
+  renderBreakdown(subtotal, taxAmount, total);
 
   const doc = new jsPDF();
-
   doc.setFontSize(18);
-  doc.text("Invoice", 105, 20, null, null, "center");
-  
-  doc.setFontSize(12);
-  doc.text(`From: ${yourName} (${yourEmail})`, 20, 40);
-  doc.text(`To: ${clientName} (${clientEmail})`, 20, 50);
+  doc.text(type, 105, 20, null, null, "center");
 
-  doc.text("Items:", 20, 70);
-  let y = 80;
-  items.forEach(item => {
-    doc.text(`${item.desc} - $${item.price.toFixed(2)}`, 25, y);
+  doc.setFontSize(12);
+  doc.text(`From: ${yourName}`, 20, 40);
+  doc.text(`To: ${client}`, 20, 50);
+
+  let y = 70;
+  items.forEach(i => {
+    doc.text(`${i.name} (${i.qty} × $${i.price}) = $${i.total}`, 20, y);
     y += 10;
   });
 
-  doc.text(`Total: $${total.toFixed(2)}`, 20, y + 10);
+  doc.text(`Subtotal: $${subtotal}`, 20, y + 10);
+  doc.text(`Tax: $${taxAmount}`, 20, y + 20);
+  doc.text(`Total: $${total}`, 20, y + 30);
 
-  // Preview in iframe
-  const pdfData = doc.output("bloburl");
-  document.getElementById("invoicePreview").src = pdfData;
-
-  // Optional: automatically save PDF (can be used for paywall later)
-  // doc.save("invoice.pdf");
+  invoicePreview.src = doc.output("bloburl");
 }
 
-// Optional: PayPal button integration (sandbox mode)
-if (window.paypal) {
-  paypal.Buttons({
-    createOrder: function(data, actions) {
-      return actions.order.create({
-        purchase_units: [{
-          amount: { value: '5.00' } // price per invoice
-        }]
-      });
-    },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function(details) {
-        alert('Payment complete! You can now download the invoice.');
-        generateInvoice(); // Generate PDF after payment
-      });
-    }
-  }).render('#paypal-button-container');
+function saveItemHistory(items) {
+  items.forEach(i => history.push(i.name));
+  localStorage.setItem("itemHistory", JSON.stringify(history.slice(-50)));
+}
+
+function updateHealthScore(items, tax, client) {
+  let score = 100;
+  let tips = [];
+
+  if (!tax) { score -= 10; tips.push("Add tax rate"); }
+  if (items.length < 1) { score -= 20; tips.push("Add items"); }
+  if (!client) { score -= 20; tips.push("Add client info"); }
+
+  healthScore.innerText = score + "/100";
+  healthTips.innerHTML = tips.map(t => "⚠️ " + t).join("<br>");
+}
+
+function renderBreakdown(sub, tax, total) {
+  breakdown.innerHTML = `
+    Subtotal: $${sub}<br>
+    Tax: $${tax}<br>
+    <strong>Total: $${total}</strong>
+  `;
+}
+
+function toggleBreakdown() {
+  breakdown.classList.toggle("hidden");
+}
+
+function markAsPaid() {
+  const client = clientName.value;
+  if (!client) return;
+
+  clientStats[client] = clientStats[client] || [];
+  clientStats[client].push(Date.now());
+
+  localStorage.setItem("clientStats", JSON.stringify(clientStats));
+  alert("Invoice marked as paid");
+}
+
+function yourNameInput() {
+  return document.getElementById("yourName").value;
+}
+function itemsInput() {
+  return document.getElementById("items").value;
 }
