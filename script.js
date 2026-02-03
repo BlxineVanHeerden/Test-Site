@@ -1,101 +1,101 @@
 const { jsPDF } = window.jspdf;
 
-let history = JSON.parse(localStorage.getItem("itemHistory") || "[]");
-let clientStats = JSON.parse(localStorage.getItem("clientStats") || "{}");
+// ---------- HELPERS ----------
+function $(id) {
+  return document.getElementById(id);
+}
 
+// ---------- ITEM PARSING ----------
 function parseItems(raw) {
-  return raw.split(",").map(i => {
-    const [name, rest] = i.split(":");
+  if (!raw.trim()) return [];
+
+  return raw.split(",").map(entry => {
+    const [name, rest] = entry.split(":");
+    if (!name || !rest) return null;
+
     const [qty, price] = rest.split("x");
     return {
       name: name.trim(),
-      qty: Number(qty),
-      price: Number(price),
-      total: Number(qty) * Number(price)
+      qty: Number(qty) || 1,
+      price: Number(price) || 0,
+      total: (Number(qty) || 1) * (Number(price) || 0)
     };
-  });
+  }).filter(Boolean);
 }
 
+// ---------- MAIN ----------
 function generateInvoice() {
-  const type = invoiceType.value;
-  const yourName = yourNameInput();
-  const client = clientName.value;
-  const items = parseItems(itemsInput());
-  const tax = Number(taxRate.value);
+  const invoiceType = $("invoiceType").value;
+  const yourName = $("yourName").value;
+  const clientName = $("clientName").value;
+  const rawItems = $("items").value;
+  const taxRate = Number($("taxRate").value) || 0;
 
-  saveItemHistory(items);
-  updateHealthScore(items, tax, client);
-
+  const items = parseItems(rawItems);
   const subtotal = items.reduce((s, i) => s + i.total, 0);
-  const taxAmount = subtotal * (tax / 100);
+  const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal + taxAmount;
 
+  updateHealthScore(items, taxRate, clientName);
   renderBreakdown(subtotal, taxAmount, total);
 
+  // ---------- PDF ----------
   const doc = new jsPDF();
   doc.setFontSize(18);
-  doc.text(type, 105, 20, null, null, "center");
+  doc.text(invoiceType, 105, 20, null, null, "center");
 
   doc.setFontSize(12);
-  doc.text(`From: ${yourName}`, 20, 40);
-  doc.text(`To: ${client}`, 20, 50);
+  doc.text(`From: ${yourName || "-"}`, 20, 40);
+  doc.text(`To: ${clientName || "-"}`, 20, 50);
 
   let y = 70;
-  items.forEach(i => {
-    doc.text(`${i.name} (${i.qty} × $${i.price}) = $${i.total}`, 20, y);
+  items.forEach(item => {
+    doc.text(
+      `${item.name} (${item.qty} × $${item.price}) = $${item.total.toFixed(2)}`,
+      20,
+      y
+    );
     y += 10;
   });
 
-  doc.text(`Subtotal: $${subtotal}`, 20, y + 10);
-  doc.text(`Tax: $${taxAmount}`, 20, y + 20);
-  doc.text(`Total: $${total}`, 20, y + 30);
+  doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 20, y + 10);
+  doc.text(`Tax: $${taxAmount.toFixed(2)}`, 20, y + 20);
+  doc.text(`Total: $${total.toFixed(2)}`, 20, y + 30);
 
-  invoicePreview.src = doc.output("bloburl");
+  $("invoicePreview").src = doc.output("bloburl");
 }
 
-function saveItemHistory(items) {
-  items.forEach(i => history.push(i.name));
-  localStorage.setItem("itemHistory", JSON.stringify(history.slice(-50)));
-}
-
+// ---------- HEALTH SCORE ----------
 function updateHealthScore(items, tax, client) {
   let score = 100;
   let tips = [];
 
-  if (!tax) { score -= 10; tips.push("Add tax rate"); }
-  if (items.length < 1) { score -= 20; tips.push("Add items"); }
-  if (!client) { score -= 20; tips.push("Add client info"); }
+  if (!client) {
+    score -= 20;
+    tips.push("Add client information");
+  }
+  if (items.length === 0) {
+    score -= 30;
+    tips.push("Add at least one item");
+  }
+  if (tax === 0) {
+    score -= 10;
+    tips.push("Consider adding tax");
+  }
 
-  healthScore.innerText = score + "/100";
-  healthTips.innerHTML = tips.map(t => "⚠️ " + t).join("<br>");
+  $("healthScore").innerText = `${score}/100`;
+  $("healthTips").innerHTML = tips.map(t => `⚠️ ${t}`).join("<br>");
 }
 
-function renderBreakdown(sub, tax, total) {
-  breakdown.innerHTML = `
-    Subtotal: $${sub}<br>
-    Tax: $${tax}<br>
-    <strong>Total: $${total}</strong>
+// ---------- PAYMENT BREAKDOWN ----------
+function renderBreakdown(subtotal, tax, total) {
+  $("breakdown").innerHTML = `
+    <p>Subtotal: $${subtotal.toFixed(2)}</p>
+    <p>Tax: $${tax.toFixed(2)}</p>
+    <strong>Total: $${total.toFixed(2)}</strong>
   `;
 }
 
 function toggleBreakdown() {
-  breakdown.classList.toggle("hidden");
-}
-
-function markAsPaid() {
-  const client = clientName.value;
-  if (!client) return;
-
-  clientStats[client] = clientStats[client] || [];
-  clientStats[client].push(Date.now());
-
-  localStorage.setItem("clientStats", JSON.stringify(clientStats));
-  alert("Invoice marked as paid");
-}
-
-function yourNameInput() {
-  return document.getElementById("yourName").value;
-}
-function itemsInput() {
-  return document.getElementById("items").value;
+  $("breakdown").classList.toggle("hidden");
 }
