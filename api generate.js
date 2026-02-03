@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-const HUGGING_FACE_API_KEY = process.env.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;
+const HUGGING_FACE_API_KEY = process.env.hf_hf_QIbmsQlaVabzTZWZpxairWlwoxWKeEQwGH;
 
 async function generateAdFromHF(business) {
   const maxRetries = 3;
@@ -54,3 +54,4 @@ export default async function handler(req, res) {
     res.status(500).json({ ad: "Error generating ad" });
   }
 }
+
