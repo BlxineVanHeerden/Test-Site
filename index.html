@@ -8,30 +8,54 @@
 </head>
 <body>
 
-  <h1>Invoice Generator</h1>
+<h1>Invoice Generator</h1>
 
-  <h3>Your Info</h3>
-  <input id="yourName" placeholder="Your Name / Business Name" />
-  <input id="yourEmail" placeholder="Email" />
+<!-- INVOICE INFO -->
+<p>
+  <strong>Invoice #:</strong> <span id="invoiceNumber">–</span><br>
+  <strong>Date:</strong> <span id="invoiceDate">–</span>
+</p>
 
-  <h3>Client Info</h3>
-  <input id="clientName" placeholder="Client Name" />
-  <input id="clientEmail" placeholder="Client Email" />
+<!-- HEALTH SCORE -->
+<div>
+  <strong>Invoice Health:</strong> <span id="healthScore">–</span>
+  <div id="healthTips"></div>
+</div>
 
-  <h3>Invoice Items</h3>
-  <textarea
-    id="items"
-    rows="6"
-    placeholder="Example:
+<h3>Your Info</h3>
+<input id="yourName" placeholder="Your Name / Business Name" />
+<input id="yourEmail" placeholder="Email" />
+
+<h3>Client Info</h3>
+<input id="clientName" placeholder="Client Name" />
+<input id="clientEmail" placeholder="Client Email" />
+
+<h3>Invoice Items</h3>
+<textarea
+  id="items"
+  rows="6"
+  placeholder="Example:
 Web Design - 500
 Hosting - 100
 Maintenance - 150"
-  ></textarea>
+></textarea>
 
-  <button onclick="generateInvoice()">Generate Invoice</button>
+<label>Tax %:</label>
+<input id="taxRate" type="number" value="0" />
 
-  <h3>Preview</h3>
-  <iframe id="invoicePreview"></iframe>
+<button onclick="generateInvoice()">Preview Invoice</button>
 
-  <script src="script.js"></script>
-</body
+<!-- BUTTONS -->
+<div class="button-row">
+  <button onclick="toggleBreakdown()">Toggle Breakdown</button>
+  <button onclick="markAsPaid()">Mark as Paid</button>
+</div>
+
+<div id="breakdown" class="hidden"></div>
+
+<h3>Preview</h3>
+<iframe id="invoicePreview"></iframe>
+
+<script src="script.js"></script>
+</body>
+</html>
