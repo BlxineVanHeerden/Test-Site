@@ -8,7 +8,7 @@ async function generateAd() {
   document.getElementById("adResult").innerText = "Generating ad...";
 
   try {
-    const response = await fetch("/generate", {
+    const response = await fetch("/api/generate", {  // must match the file name
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ business })
@@ -18,6 +18,6 @@ async function generateAd() {
     document.getElementById("adResult").innerText = data.ad;
   } catch (err) {
     console.error(err);
-    document.getElementById("adResult").innerText = "Error generating ad. Check the server console.";
+    document.getElementById("adResult").innerText = "Error generating ad";
   }
 }
