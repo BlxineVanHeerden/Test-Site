@@ -1,3 +1,3 @@
-document.getElementById("testBtn").addEventListener("click", function () {
-  document.getElementById("result").textContent = "JavaScript is working!";
+document.getElementById("btn").addEventListener("click", function () {
+  document.getElementById("output").innerText = "JavaScript is working!";
 });
