@@ -1,14 +1,14 @@
 body {
   font-family: Arial, sans-serif;
-  max-width: 750px;
+  max-width: 700px;
   margin: auto;
   padding: 20px;
 }
 
-input, textarea, select, button {
+input, textarea, button {
   width: 100%;
-  margin-bottom: 12px;
   padding: 8px;
+  margin-bottom: 12px;
 }
 
 button {
@@ -26,23 +26,4 @@ iframe {
   width: 100%;
   height: 400px;
   border: 1px solid #ccc;
-}
-
-.score-box {
-  background: #f4f4f4;
-  padding: 10px;
-  margin: 15px 0;
-}
-
-.hidden {
-  display: none;
-}
-.button-row {
-  display: flex;
-  gap: 10px;
-  margin: 10px 0 15px;
-}
-
-.button-row button {
-  flex: 1;
 }
