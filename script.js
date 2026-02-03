@@ -5,11 +5,9 @@ async function generateAd() {
     return;
   }
 
-  // Show loading message
   document.getElementById("adResult").innerText = "Generating ad...";
 
   try {
-    // Call OpenAI API
     const response = await fetch("/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -19,23 +17,7 @@ async function generateAd() {
     const data = await response.json();
     document.getElementById("adResult").innerText = data.ad;
   } catch (err) {
-    document.getElementById("adResult").innerText = "Error generating ad. Try again.";
     console.error(err);
+    document.getElementById("adResult").innerText = "Error generating ad. Check the server console.";
   }
 }
-
-// PayPal button
-paypal.Buttons({
-  createOrder: function(data, actions) {
-    return actions.order.create({
-      purchase_units: [{
-        amount: { value: '1.00' } // $1 to generate ad
-      }]
-    });
-  },
-  onApprove: function(data, actions) {
-    return actions.order.capture().then(function(details) {
-      alert('Payment completed! You can now generate your ad.');
-    });
-  }
-}).render('#paypal-button-container');
