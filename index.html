@@ -4,39 +4,18 @@
   <meta charset="UTF-8">
   <title>AI Ad Generator</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 50px auto;
-      text-align: center;
-    }
-    textarea, button {
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-      font-size: 16px;
-    }
-    img {
-      margin-top: 20px;
-      max-width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    #status {
-      margin-top: 10px;
-      font-weight: bold;
-    }
+    body { font-family: Arial; max-width: 600px; margin: 50px auto; text-align: center; }
+    textarea, button { width: 100%; margin: 10px 0; padding: 10px; font-size: 16px; }
+    img { margin-top: 20px; max-width: 100%; border: 1px solid #ccc; border-radius: 8px; }
+    #status { margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>AI Ad Generator (Text → Image)</h1>
-
-  <textarea id="prompt" rows="3" placeholder="Describe your ad image (e.g., flyer for a pizza shop, colorful, cartoon style)"></textarea>
+  <h1>AI Ad Generator</h1>
+  <textarea id="prompt" rows="3" placeholder="Describe your ad image (e.g., pizza flyer, colorful, cartoon style)"></textarea>
   <button onclick="generateAdImage()">Generate Ad</button>
-
   <div id="status"></div>
   <img id="resultImage" src="">
-  
   <script src="script.js"></script>
 </body>
 </html>
