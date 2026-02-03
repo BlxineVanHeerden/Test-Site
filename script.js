@@ -8,7 +8,7 @@ async function generateAd() {
   document.getElementById("adResult").innerText = "Generating ad...";
 
   try {
-    const response = await fetch("/api/generate", {  // must match the file name
+    const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ business })
