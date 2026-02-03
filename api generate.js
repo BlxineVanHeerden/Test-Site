@@ -7,32 +7,54 @@ export default async function handler(req, res) {
 
   const { prompt } = req.body;
 
-  if (!prompt) {
-    return res.status(400).json({ error: "No prompt provided" });
-  }
+  if (!prompt) return res.status(400).json({ error: "No prompt provided" });
 
   try {
-    const response = await fetch("https://api.replicate.com/v1/predictions", {
+    // 1️⃣ Start async prediction
+    const start = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
         "Authorization": `Token ${process.env.REPLICATE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: "a9758cb76e35e8f0ef8278e8a1b4c86d1c5fdf4aa3d9c0f1d7764f0f3d1f7cc2",
+        version: "db21e45b0c4f48d9ad7f78a4a9fbc9e5f0bfb598f9c3c12345abcde67890ffff", // Replace with latest model version
         input: { prompt },
       }),
     });
 
-    const data = await response.json();
+    const startData = await start.json();
 
-    if (data.output && data.output.length > 0) {
-      res.status(200).json({ imageUrl: data.output[0] });
-    } else {
-      res.status(500).json({ error: "No image generated" });
+    // 2️⃣ Poll for completion
+    let output = null;
+    const predictionUrl = startData.urls.get;
+
+    for (let i = 0; i < 30; i++) { // poll max 30 times
+      const statusRes = await fetch(predictionUrl, {
+        headers: {
+          "Authorization": `Token ${process.env.REPLICATE_API_KEY}`
+        }
+      });
+      const statusData = await statusRes.json();
+
+      if (statusData.status === "succeeded") {
+        output = statusData.output[0];
+        break;
+      } else if (statusData.status === "failed") {
+        return res.status(500).json({ error: "Image generation failed" });
+      }
+
+      await new Promise(r => setTimeout(r, 2000)); // wait 2 seconds before polling again
     }
+
+    if (output) {
+      return res.status(200).json({ imageUrl: output });
+    } else {
+      return res.status(500).json({ error: "Image generation timed out" });
+    }
+
   } catch (err) {
     console.error("Error generating image:", err);
-    res.status(500).json({ error: "Image generation failed" });
+    return res.status(500).json({ error: "Image generation failed" });
   }
 }
