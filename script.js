@@ -4,7 +4,7 @@ async function generateAdImage() {
   const resultImage = document.getElementById("resultImage");
 
   if (!prompt) {
-    alert("Please enter a prompt describing your ad!");
+    alert("Please enter a prompt!");
     return;
   }
 
