@@ -30,8 +30,10 @@ iframe{ width:100%; height:720px; border-radius:14px; border:1px solid #e5e7eb; 
 .remove-btn:hover{ background:#b91c1c;}
 #note{ height:80px; resize:vertical; }
 #dueDate{ padding:5px 8px; }
-.info-icon{display:inline-block; margin-left:4px; color:#1e40af; cursor:pointer; font-weight:bold;}
-.info-icon:hover::after{ content:attr(data-tip); position:absolute; background:#1e40af; color:#fff; padding:4px 8px; border-radius:4px; font-size:12px; white-space:nowrap; top:-28px; left:0; z-index:10;}
+
+.info-icon{display:inline-block; margin-left:4px; color:#1e40af; font-weight:bold; cursor:pointer; position:relative;}
+.tooltip{position:absolute; background:#1e40af; color:#fff; padding:4px 8px; border-radius:4px; font-size:12px; white-space:nowrap; z-index:10; display:none;}
+
 .disabled-btn{ background:#e5e7eb; color:#9ca3af; cursor:not-allowed;}
 .plan-label{display:flex;justify-content:space-between;align-items:center;}
 .plan-label span.price{font-weight:600;color:#1e40af;}
@@ -45,10 +47,10 @@ iframe{ width:100%; height:720px; border-radius:14px; border:1px solid #e5e7eb; 
   <div>
     <label>Plan</label>
     <select id="plan">
-      <option value="Free">Free <span class="price">$0/mo</span></option>
-      <option value="Starter">Starter <span class="price">$5/mo</span></option>
-      <option value="Pro">Pro <span class="price">$15/mo</span></option>
-      <option value="Business">Business <span class="price">$30/mo</span></option>
+      <option value="Free">Free ($0/mo)</option>
+      <option value="Starter">Starter ($5/mo)</option>
+      <option value="Pro">Pro ($15/mo)</option>
+      <option value="Business">Business ($30/mo)</option>
     </select>
   </div>
   <div>
@@ -163,7 +165,18 @@ iframe{ width:100%; height:720px; border-radius:14px; border:1px solid #e5e7eb; 
 <iframe id="preview"></iframe>
 
 <script>
-// Plan settings
+// --- Dynamic Tooltip System ---
+document.querySelectorAll('.info-icon').forEach(icon=>{
+  const tip = document.createElement('div');
+  tip.className='tooltip';
+  tip.innerText = icon.dataset.tip;
+  icon.appendChild(tip);
+
+  icon.addEventListener('mouseenter',()=>tip.style.display='block');
+  icon.addEventListener('mouseleave',()=>tip.style.display='none');
+});
+
+// --- Plan Features ---
 const planFeatures = {
   Free: { maxItems:2, canDownload:false, canSend:false, canSave:false },
   Starter: { maxItems:5, canDownload:true, canSend:false, canSave:true },
@@ -172,24 +185,24 @@ const planFeatures = {
 };
 
 let currentPlan = 'Free';
+const addItemBtn = document.getElementById('addItemBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const sendBtn = document.getElementById('sendBtn');
+const saveBtn = document.getElementById('saveBtn');
 
-// Update feature access based on plan
 function updatePlanFeatures(){
-  const features = planFeatures[currentPlan];
+  const f = planFeatures[currentPlan];
 
-  // Enable/disable buttons
-  document.getElementById('downloadBtn').disabled = !features.canDownload;
-  document.getElementById('sendBtn').disabled = !features.canSend;
-  document.getElementById('saveBtn').disabled = !features.canSave;
-
-  document.getElementById('downloadBtn').className = features.canDownload?'':'disabled-btn';
-  document.getElementById('sendBtn').className = features.canSend?'':'disabled-btn';
-  document.getElementById('saveBtn').className = features.canSave?'':'disabled-btn';
-
-  // Limit items for Free/Starter
-  const addItemBtn = document.getElementById('addItemBtn');
-  addItemBtn.disabled = items.length >= features.maxItems;
+  addItemBtn.disabled = items.length >= f.maxItems;
   addItemBtn.className = addItemBtn.disabled?'disabled-btn':'';
+
+  downloadBtn.disabled = !f.canDownload;
+  sendBtn.disabled = !f.canSend;
+  saveBtn.disabled = !f.canSave;
+
+  downloadBtn.className = f.canDownload?'':'disabled-btn';
+  sendBtn.className = f.canSend?'':'disabled-btn';
+  saveBtn.className = f.canSave?'':'disabled-btn';
 }
 
 document.getElementById('plan').addEventListener('change', e=>{
@@ -197,51 +210,50 @@ document.getElementById('plan').addEventListener('change', e=>{
   updatePlanFeatures();
 });
 
-// Invoice number logic, items, preview etc.
+// --- Invoice Items & Preview ---
 const categories=["Professional Services","Consulting","Construction","Automotive","Healthcare","Education","Retail","Manufacturing","Hospitality","Logistics","Freelance","Agriculture","Media","Legal","Finance","Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"];
 const counters={INV:0,QUO:0,REC:0};
 const docType=document.getElementById("docType");
 const invoicePrefix=document.getElementById("invoicePrefix");
 const invoiceNumber=document.getElementById("invoiceNumber");
-function updateInvoiceNumber(){ counters[docType.value]++; invoicePrefix.value = docType.value; invoiceNumber.value = String(counters[docType.value]).padStart(4,"0"); }
+
+function updateInvoiceNumber(){ counters[docType.value]++; invoicePrefix.value=docType.value; invoiceNumber.value=String(counters[docType.value]).padStart(4,"0"); }
 updateInvoiceNumber();
 docType.addEventListener("change",updateInvoiceNumber);
 
 let items=[];
 const itemsBody=document.getElementById("itemsBody");
+
 function addItem(){
-  const features = planFeatures[currentPlan];
-  if(items.length >= features.maxItems){ alert('Item limit reached for this plan'); return; }
-
-  const index=items.length;
+  if(items.length >= planFeatures[currentPlan].maxItems){ alert('Item limit reached for this plan'); return; }
+  const index = items.length;
   items.push({name:"",cat:"",qty:1,price:0});
-  const tr=document.createElement("tr");
 
-  const nameTd=document.createElement("td");
-  const nameInput=document.createElement("input");
-  nameInput.oninput=e=>{items[index].name=e.target.value; updatePreview();}
+  const tr=document.createElement('tr');
+
+  const nameTd=document.createElement('td');
+  const nameInput=document.createElement('input');
+  nameInput.oninput=e=>{ items[index].name=e.target.value; updatePreview();}
   nameTd.appendChild(nameInput);
 
-  const catTd=document.createElement("td");
-  const catSelect=document.createElement("select");
-  categories.forEach(c=>{
-    const o=document.createElement("option"); o.textContent=c; catSelect.appendChild(o);
-  });
-  catSelect.onchange=e=>{items[index].cat=e.target.value; updatePreview();}
+  const catTd=document.createElement('td');
+  const catSelect=document.createElement('select');
+  categories.forEach(c=>{ const o=document.createElement('option'); o.textContent=c; catSelect.appendChild(o); });
+  catSelect.onchange=e=>{ items[index].cat=e.target.value; updatePreview();}
   catTd.appendChild(catSelect);
 
-  const qtyTd=document.createElement("td");
-  const qtyInput=document.createElement("input"); qtyInput.type="number"; qtyInput.value=1; qtyInput.min=1;
-  qtyInput.oninput=e=>{items[index].qty=Number(e.target.value); updatePreview();}
+  const qtyTd=document.createElement('td');
+  const qtyInput=document.createElement('input'); qtyInput.type='number'; qtyInput.value=1; qtyInput.min=1;
+  qtyInput.oninput=e=>{ items[index].qty=Number(e.target.value); updatePreview();}
   qtyTd.appendChild(qtyInput);
 
-  const priceTd=document.createElement("td");
-  const priceInput=document.createElement("input"); priceInput.type="number"; priceInput.value=0; priceInput.min=0;
-  priceInput.oninput=e=>{items[index].price=Number(e.target.value); updatePreview();}
+  const priceTd=document.createElement('td');
+  const priceInput=document.createElement('input'); priceInput.type='number'; priceInput.value=0; priceInput.min=0;
+  priceInput.oninput=e=>{ items[index].price=Number(e.target.value); updatePreview();}
   priceTd.appendChild(priceInput);
 
-  const actionTd=document.createElement("td");
-  const removeBtn=document.createElement("button"); removeBtn.className="remove-btn"; removeBtn.textContent="Remove";
+  const actionTd=document.createElement('td');
+  const removeBtn=document.createElement('button'); removeBtn.className='remove-btn'; removeBtn.textContent='Remove';
   removeBtn.onclick=()=>{ items.splice(index,1); tr.remove(); updatePreview(); updatePlanFeatures();}
   actionTd.appendChild(removeBtn);
 
@@ -250,19 +262,18 @@ function addItem(){
   updatePlanFeatures();
 }
 
-document.getElementById("addItemBtn").addEventListener("click",addItem);
+addItemBtn.addEventListener('click',addItem);
 addItem();
 
-const terms=document.getElementById("terms");
-const dueDate=document.getElementById("dueDate");
-terms.addEventListener("change",()=>{
-  const d=new Date(); d.setDate(d.getDate()+Number(terms.value));
-  dueDate.value=d.toISOString().split("T")[0]; updatePreview();
+const terms=document.getElementById('terms');
+const dueDate=document.getElementById('dueDate');
+terms.addEventListener('change',()=>{
+  const d=new Date(); d.setDate(d.getDate()+Number(terms.value)); dueDate.value=d.toISOString().split('T')[0]; updatePreview();
 });
-terms.dispatchEvent(new Event("change"));
+terms.dispatchEvent(new Event('change'));
 
 let logoData="";
-document.getElementById("logoInput").addEventListener("change",e=>{
+document.getElementById('logoInput').addEventListener('change',e=>{
   const file=e.target.files[0];
   if(file){ const reader=new FileReader(); reader.onload=ev=>{ logoData=ev.target.result; updatePreview();} reader.readAsDataURL(file);}
 });
@@ -276,12 +287,7 @@ document.getElementById('previewBtn').addEventListener('click',updatePreview);
 function updatePreview(){
   const cur=document.getElementById("currency").value;
   let subtotal=0;
-  const rows=items.map(i=>{
-    const t=i.qty*i.price;
-    subtotal+=t;
-    return `<tr><td>${i.name||"-"}<br><small>${i.cat||""}</small></td><td>${i.qty}</td><td>${cur}${t.toFixed(2)}</td></tr>`;
-  }).join("");
-
+  const rows = items.map(i=>{ const t=i.qty*i.price; subtotal+=t; return `<tr><td>${i.name||"-"}<br><small>${i.cat||""}</small></td><td>${i.qty}</td><td>${cur}${t.toFixed(2)}</td></tr>`; }).join('');
   const disc=subtotal*(document.getElementById("discount").value/100);
   const taxAmt=subtotal*(document.getElementById("tax").value/100);
   const total=subtotal-disc+taxAmt;
@@ -328,12 +334,12 @@ function updatePreview(){
     </div>
     ${document.getElementById("note").value?`<p style="margin-top:12px"><strong>Note:</strong><br>${document.getElementById("note").value}</p>`:""}
   </div>`;
-
   updatePlanFeatures();
 }
 
 updatePlanFeatures();
 updatePreview();
 </script>
+
 </body>
 </html>
