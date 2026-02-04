@@ -28,7 +28,8 @@ table tbody tr:hover{ background-color:#e6f9e6;}
 .totals span{ display:inline-block; min-width:120px; font-weight:600;}
 iframe{ width:100%; height:600px; border:1px solid #ccc; margin-top:20px; border-radius:8px;}
 textarea{ resize:none;}
-.hidden{ display:none;}
+.health-bar-container{ background:#eee; border-radius:10px; height:20px; width:100%; margin-top:5px;}
+.health-bar{ height:100%; background:#66cc66; width:0%; border-radius:10px; transition:width 0.2s;}
 </style>
 </head>
 <body>
@@ -54,7 +55,6 @@ textarea{ resize:none;}
     <input id="yourName" placeholder="Your Name / Business Name" />
     <input id="yourEmail" placeholder="Email" />
     <input id="yourPhone" placeholder="Phone (optional)" />
-    <input id="logoUpload" type="file" accept="image/*"/>
   </div>
 
   <div class="flex-col">
@@ -121,8 +121,10 @@ textarea{ resize:none;}
 
 <!-- Health Score -->
 <div class="section">
-  <strong>Invoice Health:</strong> <span id="healthScore">–</span>
-  <div id="healthTips"></div>
+  <strong>Invoice Health:</strong>
+  <div class="health-bar-container">
+    <div class="health-bar" id="healthBar"></div>
+  </div>
 </div>
 
 <!-- Totals -->
@@ -153,8 +155,7 @@ const discountEl = document.getElementById('discount');
 const discountAmountEl = document.getElementById('discountAmount');
 const grandTotalEl = document.getElementById('grandTotal');
 const currencyEl = document.getElementById('currency');
-const healthScoreEl = document.getElementById('healthScore');
-const healthTipsEl = document.getElementById('healthTips');
+const healthBarEl = document.getElementById('healthBar');
 
 function renderItems() {
   itemsTableBody.innerHTML='';
@@ -181,14 +182,24 @@ function attachInputListeners(){
       const idx=e.target.dataset.index;
       const field=e.target.dataset.field;
       items[idx][field]=field==='name'||field==='category'?e.target.value:parseFloat(e.target.value)||0;
-      renderItems();
+      calculateTotals(); // only recalc totals, no full re-render
+      updateTotalsRow(idx);
+      updateHealthBar();
     };
   });
+}
+
+function updateTotalsRow(idx){
+  const row = itemsTableBody.children[idx];
+  const totalCell = row.children[4];
+  const item = items[idx];
+  totalCell.innerText = currencyEl.value + (item.qty*item.price).toFixed(2);
 }
 
 function removeItem(index){
   items.splice(index,1);
   renderItems();
+  updateHealthBar();
 }
 
 addItemBtn.onclick=()=>{
@@ -208,13 +219,19 @@ function calculateTotals(){
   taxAmountEl.innerText=taxAmount.toFixed(2);
   discountAmountEl.innerText=discountAmount.toFixed(2);
   grandTotalEl.innerText=grandTotal.toFixed(2);
-
-  // Health score
-  if(items.length===0){ healthScoreEl.innerText='0%'; healthTipsEl.innerText='Add items to improve invoice health';}
-  else healthScoreEl.innerText='100%'; healthTipsEl.innerText='Good to go!';
 }
 
-[currencyEl,taxRateEl,discountEl].forEach(el=>el.oninput=renderItems);
+function updateHealthBar(){
+  let score = 0;
+  if(items.length>0) score += 50;
+  const filledItems = items.filter(i=>i.name && i.category && i.qty>0 && i.price>0).length;
+  if(items.length>0) score += Math.round((filledItems/items.length)*50);
+  healthBarEl.style.width = score+'%';
+}
+
+[currencyEl,taxRateEl,discountEl].forEach(el=>{
+  el.oninput=()=>{renderItems();}
+});
 
 // Preview Invoice
 document.getElementById('previewBtn').onclick=()=>{
