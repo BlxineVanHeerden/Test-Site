@@ -18,7 +18,7 @@ button:hover{ background-color:#4da64d;}
 .flex-row{ display:flex; gap:20px; flex-wrap:wrap;}
 .flex-col{ flex:1; min-width:200px;}
 label{ font-weight:600; display:block; margin-bottom:5px;}
-#documentType{ margin-bottom:25px; padding:12px; border-radius:6px; border:1px solid #ccc; font-weight:600; font-size:16px;}
+#documentType, #paymentStatus{ margin-bottom:25px; padding:12px; border-radius:6px; border:1px solid #ccc; font-weight:600; font-size:16px;}
 table{ width:100%; border-collapse:collapse; margin-top:15px; border-radius:8px; overflow:hidden;}
 table th, table td{ padding:12px; text-align:left;}
 table th{ background-color:#66cc66; color:#fff; font-weight:600;}
@@ -29,7 +29,7 @@ table tbody tr:hover{ background-color:#e6f9e6;}
 iframe{ width:100%; height:600px; border:1px solid #ccc; margin-top:20px; border-radius:8px;}
 textarea{ resize:none;}
 .health-bar-container{ background:#eee; border-radius:10px; height:20px; width:100%; margin-top:5px;}
-.health-bar{ height:100%; background:#66cc66; width:0%; border-radius:10px; transition:width 0.2s;}
+.health-bar{ height:100%; width:0%; border-radius:10px; transition:width 0.2s, background-color 0.2s;}
 </style>
 </head>
 <body>
@@ -37,15 +37,24 @@ textarea{ resize:none;}
 
 <h1>Modern Invoice Generator</h1>
 
-<!-- Document Type Selection -->
-<div class="section">
-  <label for="documentType">Select Document Type</label>
-  <select id="documentType">
-    <option value="Invoice">Invoice</option>
-    <option value="Quote">Quote</option>
-    <option value="Receipt">Receipt</option>
-    <option value="Proforma">Proforma Invoice</option>
-  </select>
+<!-- Document Type & Payment Status -->
+<div class="section flex-row">
+  <div class="flex-col">
+    <label for="documentType">Select Document Type</label>
+    <select id="documentType">
+      <option value="Invoice">Invoice</option>
+      <option value="Quote">Quote</option>
+      <option value="Receipt">Receipt</option>
+      <option value="Proforma">Proforma Invoice</option>
+    </select>
+  </div>
+  <div class="flex-col">
+    <label for="paymentStatus">Payment Status</label>
+    <select id="paymentStatus">
+      <option value="Unpaid">Unpaid</option>
+      <option value="Paid">Paid</option>
+    </select>
+  </div>
 </div>
 
 <!-- Invoice / Client Info -->
@@ -157,13 +166,20 @@ const grandTotalEl = document.getElementById('grandTotal');
 const currencyEl = document.getElementById('currency');
 const healthBarEl = document.getElementById('healthBar');
 
+// Categories Dropdown
+const categoryOptions = ['Web Design','Hosting','Maintenance','Consulting','Software','Other'];
+
 function renderItems() {
   itemsTableBody.innerHTML='';
   items.forEach((item,index)=>{
     const row = document.createElement('tr');
     row.innerHTML=`
       <td><input type="text" value="${item.name}" placeholder="Item Name" data-index="${index}" data-field="name"></td>
-      <td><input type="text" value="${item.category}" placeholder="Category" data-index="${index}" data-field="category"></td>
+      <td>
+        <select data-index="${index}" data-field="category">
+          ${categoryOptions.map(cat=>`<option value="${cat}" ${cat===item.category?'selected':''}>${cat}</option>`).join('')}
+        </select>
+      </td>
       <td><input type="number" value="${item.qty}" min="1" data-index="${index}" data-field="qty"></td>
       <td><input type="number" value="${item.price}" min="0" step="0.01" data-index="${index}" data-field="price"></td>
       <td>${currencyEl.value}${(item.qty*item.price).toFixed(2)}</td>
@@ -173,17 +189,18 @@ function renderItems() {
   });
   attachInputListeners();
   calculateTotals();
+  updateHealthBar();
 }
 
 function attachInputListeners(){
-  const inputs = itemsTableBody.querySelectorAll('input');
+  const inputs = itemsTableBody.querySelectorAll('input, select');
   inputs.forEach(input=>{
     input.oninput=(e)=>{
       const idx=e.target.dataset.index;
       const field=e.target.dataset.field;
-      items[idx][field]=field==='name'||field==='category'?e.target.value:parseFloat(e.target.value)||0;
-      calculateTotals(); // only recalc totals, no full re-render
+      items[idx][field]=field==='name'?e.target.value:field==='category'?e.target.value:parseFloat(e.target.value)||0;
       updateTotalsRow(idx);
+      calculateTotals();
       updateHealthBar();
     };
   });
@@ -191,19 +208,17 @@ function attachInputListeners(){
 
 function updateTotalsRow(idx){
   const row = itemsTableBody.children[idx];
-  const totalCell = row.children[4];
   const item = items[idx];
-  totalCell.innerText = currencyEl.value + (item.qty*item.price).toFixed(2);
+  row.children[4].innerText = currencyEl.value + (item.qty*item.price).toFixed(2);
 }
 
 function removeItem(index){
   items.splice(index,1);
   renderItems();
-  updateHealthBar();
 }
 
 addItemBtn.onclick=()=>{
-  items.push({name:'', category:'', qty:1, price:0});
+  items.push({name:'', category:categoryOptions[0], qty:1, price:0});
   renderItems();
 };
 
@@ -226,9 +241,18 @@ function updateHealthBar(){
   if(items.length>0) score += 50;
   const filledItems = items.filter(i=>i.name && i.category && i.qty>0 && i.price>0).length;
   if(items.length>0) score += Math.round((filledItems/items.length)*50);
+
   healthBarEl.style.width = score+'%';
+  if(score<40){
+    healthBarEl.style.backgroundColor='red';
+  } else if(score<80){
+    healthBarEl.style.backgroundColor='yellow';
+  } else{
+    healthBarEl.style.backgroundColor='green';
+  }
 }
 
+// Update totals and table when changing currency, tax, discount
 [currencyEl,taxRateEl,discountEl].forEach(el=>{
   el.oninput=()=>{renderItems();}
 });
@@ -236,6 +260,7 @@ function updateHealthBar(){
 // Preview Invoice
 document.getElementById('previewBtn').onclick=()=>{
   const docType=document.getElementById('documentType').value;
+  const paymentStatus=document.getElementById('paymentStatus').value;
   const name=document.getElementById('yourName').value;
   const email=document.getElementById('yourEmail').value;
   const phone=document.getElementById('yourPhone').value;
@@ -246,7 +271,7 @@ document.getElementById('previewBtn').onclick=()=>{
   const notes=document.getElementById('notes').value;
   const currency=currencyEl.value;
 
-  let html=`<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#66cc66">${docType}</h2>`;
+  let html=`<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#66cc66">${docType} - ${paymentStatus}</h2>`;
   html+=`<strong>From:</strong> ${name} (${email} ${phone})<br>`;
   html+=`<strong>To:</strong> ${client} (${clientEmail} ${clientPhone})<br>`;
   if(dueDate) html+=`<strong>Due Date:</strong> ${dueDate}<br><br>`;
@@ -263,8 +288,7 @@ document.getElementById('previewBtn').onclick=()=>{
   if(notes) html+=`<strong>Notes:</strong> ${notes}<br>`;
   html+=`</div>`;
 
-  const iframe=document.getElementById('invoicePreview');
-  iframe.srcdoc=html;
+  document.getElementById('invoicePreview').srcdoc=html;
 };
 </script>
 </body>
