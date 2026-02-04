@@ -83,6 +83,14 @@ iframe{
   border:1px solid #e5e7eb;
   background:#f9fafb;
 }
+
+.remove-btn{
+  background:#ef4444;
+  font-size:12px;
+  padding:4px 8px;
+  margin-top:4px;
+}
+.remove-btn:hover{background:#b91c1c;}
 </style>
 </head>
 <body>
@@ -117,6 +125,8 @@ iframe{
     <h3>Your Info</h3>
     <input id="fromName" placeholder="Business name">
     <input id="fromEmail" placeholder="Email">
+    <label>Logo (optional)</label>
+    <input type="file" id="logoInput" accept="image/*">
   </div>
   <div>
     <h3>Client Info</h3>
@@ -135,6 +145,7 @@ iframe{
         <th>Category</th>
         <th>Qty</th>
         <th>Price</th>
+        <th>Remove</th>
       </tr>
     </thead>
     <tbody id="itemsBody"></tbody>
@@ -209,6 +220,17 @@ const categories=[
 const counters={INV:0,QUO:0,REC:0};
 const docType=document.getElementById("docType");
 const invoiceNumber=document.getElementById("invoiceNumber");
+const logoInput=document.getElementById("logoInput");
+let logoData="";
+
+logoInput.addEventListener("change",e=>{
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=ev=>{logoData=ev.target.result;}
+    reader.readAsDataURL(file);
+  }
+});
 
 function updateInvoiceNumber(){
   counters[docType.value]++;
@@ -257,7 +279,14 @@ function addItem(){
   priceInput.oninput=e=>items[index].price=Number(e.target.value);
   priceTd.appendChild(priceInput);
 
-  tr.append(nameTd,catTd,qtyTd,priceTd);
+  const removeTd=document.createElement("td");
+  const removeBtn=document.createElement("button");
+  removeBtn.textContent="Remove";
+  removeBtn.className="remove-btn";
+  removeBtn.onclick=()=>{items.splice(index,1);tr.remove();};
+  removeTd.appendChild(removeBtn);
+
+  tr.append(nameTd,catTd,qtyTd,priceTd,removeTd);
   itemsBody.appendChild(tr);
 }
 
@@ -304,6 +333,8 @@ function previewInvoice(){
       <h2 style="color:#1e40af;margin:0">${docType.selectedOptions[0].text} ${invoiceNumber.value}</h2>
       <span class="badge ${badge}">${text}</span>
     </div>
+
+    ${logoData?`<img src="${logoData}" style="height:60px;margin-top:12px">`:''}
 
     <div style="display:flex;justify-content:space-between;margin-top:20px">
       <div>
