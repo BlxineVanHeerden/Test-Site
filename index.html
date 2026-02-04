@@ -5,21 +5,35 @@
 <title>Modern Invoice Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
+  /* Base styles */
   body { font-family: 'Inter', sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
   h1 { text-align:center; color:#1e40af; margin-bottom:30px; }
-  input, select, button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
+  input, select, textarea, button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
+  textarea { resize: vertical; min-height:60px; }
   button { background:#1e40af; color:white; cursor:pointer; transition:0.2s; }
   button:hover{ background:#1e3a8a; }
   .section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
   .row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
   .row-flex > div{ flex:1; min-width:150px; }
+
+  /* Table styling */
   table{ width:100%; border-collapse:collapse; margin-top:10px; border-radius:8px; overflow:hidden; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.05);}
   th, td{ padding:12px; text-align:left; border-bottom:1px solid #d1d5db; color:#111827; }
   th{ background:#e5e7eb; color:#111827; font-weight:600; }
   tr:nth-child(even){ background:#f9fafb; }
+
+  /* Invoice preview */
   #invoicePreview{ width:100%; height:700px; border:1px solid #d1d5db; border-radius:8px; margin-top:20px; }
+
+  /* Health bar */
   .health-bar-container{ width:100%; background:#e5e7eb; border-radius:10px; height:12px; margin-top:5px; }
   .health-bar{ height:100%; width:0%; background:#1e40af; border-radius:10px; transition:0.3s; }
+
+  /* Responsive adjustments */
+  @media (max-width:768px){
+    .row-flex{ flex-direction: column; }
+    #invoicePreview{ height:600px; }
+  }
 </style>
 </head>
 <body>
@@ -86,6 +100,11 @@
       <option value="Paid">Paid</option>
     </select>
   </div>
+</div>
+
+<div class="section">
+  <label>Client Notes:</label>
+  <textarea id="clientNotes" placeholder="Add a note for your client..."></textarea>
 </div>
 
 <div class="section">
@@ -163,7 +182,7 @@ createItemRow(); // initial row
 // Health bar
 const healthBarEl = document.getElementById("healthBar");
 function updateHealth(){
-  let totalFields = items.length*3 + 6;
+  let totalFields = items.length*3 + 7; // added client notes
   let filled = 0;
   items.forEach(it=>{
     if(it.name) filled++;
@@ -171,14 +190,14 @@ function updateHealth(){
     if(it.qty>0) filled++;
     if(it.price>0) filled++;
   });
-  ['yourName','yourEmail','yourPhone','clientName','clientEmail','clientPhone'].forEach(id=>{
+  ['yourName','yourEmail','yourPhone','clientName','clientEmail','clientPhone','clientNotes'].forEach(id=>{
     if(document.getElementById(id).value.trim()!=="") filled++;
   });
   let score=Math.min(100, Math.round((filled/totalFields)*80 + 10));
   healthBarEl.style.width=score+"%";
   healthBarEl.style.backgroundColor = score<40?"#e53e3e":score<70?"#06b6d4":"#1e40af";
 }
-document.querySelectorAll('input, select').forEach(el=>{
+document.querySelectorAll('input, select, textarea').forEach(el=>{
   el.addEventListener("input",updateHealth);
   el.addEventListener("change",updateHealth);
 });
@@ -188,13 +207,16 @@ updateHealth();
 document.getElementById("previewBtn").addEventListener("click",()=>{
   const currency = currencySelect.value;
   let subtotal=0;
+  let notes = document.getElementById("clientNotes").value;
+  
   let html = `
   <div style="font-family:Inter,sans-serif;padding:20px;color:#111827;">
-    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-      <div><h2 style="color:#1e40af;">${document.getElementById("invoiceType").value}</h2>
+    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; margin-bottom:20px;">
+      <div style="flex:1; min-width:200px;">
+        <h2 style="color:#1e40af;">${document.getElementById("invoiceType").value}</h2>
         <p><strong>From:</strong> ${document.getElementById("yourName").value}<br>${document.getElementById("yourEmail").value}<br>${document.getElementById("yourPhone").value}</p>
       </div>
-      <div>
+      <div style="flex:1; min-width:200px;">
         <p><strong>To:</strong> ${document.getElementById("clientName").value}<br>${document.getElementById("clientEmail").value}<br>${document.getElementById("clientPhone").value}</p>
       </div>
     </div>
@@ -225,7 +247,7 @@ document.getElementById("previewBtn").addEventListener("click",()=>{
     </div>
     <div style="margin-top:20px; font-style:italic; color:#4b5563;">
       <p>Notes:</p>
-      <p>Thank you for your business!</p>
+      <p>${notes}</p>
     </div>
   </div>`;
   
