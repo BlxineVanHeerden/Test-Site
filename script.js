@@ -1,12 +1,59 @@
 document.getElementById("invoiceDate").innerText =
   new Date().toLocaleDateString();
 
+let currency = {
+  code: "USD",
+  symbol: "$",
+  flag: "🇺🇸",
+  rate: 1
+};
+
 document.addEventListener("input", recalc);
+
+// Currency change
+currencySelect.addEventListener("change", e => {
+  const opt = e.target.selectedOptions[0];
+  currency.code = opt.value;
+  currency.symbol = opt.dataset.symbol;
+  currency.flag = opt.dataset.flag;
+  currency.rate = Number(opt.dataset.rate);
+
+  currencyFlag.textContent = currency.flag;
+  currencyCode.textContent = currency.code;
+
+  updateCurrencyHints();
+  recalc();
+});
+
+// Auto-detect currency from client email
+clientEmail.addEventListener("blur", () => {
+  const email = clientEmail.value.toLowerCase();
+  if (email.endsWith(".uk")) currencySelect.value = "GBP";
+  else if (email.endsWith(".eu")) currencySelect.value = "EUR";
+  else if (email.endsWith(".ng")) currencySelect.value = "NGN";
+  else return;
+
+  currencySelect.dispatchEvent(new Event("change"));
+});
+
+function updateCurrencyHints() {
+  exchangePreview.textContent =
+    `Approx USD equivalent shown for reference only`;
+
+  const taxTips = {
+    USD: "Sales tax varies by state (usually excluded on invoices).",
+    EUR: "VAT is commonly required for EU invoices.",
+    GBP: "VAT applies if registered in the UK.",
+    NGN: "VAT (7.5%) may apply in Nigeria."
+  };
+
+  taxHint.textContent = taxTips[currency.code] || "";
+}
 
 function addRow() {
   const row = document.createElement("tr");
   row.innerHTML = `
-    <td><input value="Phase"></td>
+    <td><input></td>
     <td><input></td>
     <td><input type="number" value="1"></td>
     <td><input type="number" value="0"></td>
@@ -23,27 +70,28 @@ function removeRow(btn) {
 
 function recalc() {
   let subtotal = 0;
-  let vagueCount = 0;
-  let rows = [...document.querySelectorAll("#itemsBody tr")];
+  let vague = 0;
+  const rows = [...itemsBody.querySelectorAll("tr")];
 
   rows.forEach(r => {
-    const name = r.children[1].querySelector("input").value.toLowerCase();
+    const name = r.children[1].querySelector("input").value;
     const qty = +r.children[2].querySelector("input").value || 0;
     const price = +r.children[3].querySelector("input").value || 0;
     const total = qty * price;
-    r.querySelector(".lineTotal").innerText = `$${total.toFixed(2)}`;
+    r.querySelector(".lineTotal").textContent =
+      `${currency.symbol}${total.toFixed(2)}`;
     subtotal += total;
-    if (name.length < 5) vagueCount++;
+    if (name.length < 5) vague++;
   });
 
   const tax = subtotal * (+taxRate.value / 100);
   const total = subtotal + tax;
 
-  subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
-  taxAmount.textContent = `$${tax.toFixed(2)}`;
-  grandTotal.textContent = `$${total.toFixed(2)}`;
+  subtotal.textContent = `${currency.symbol}${subtotal.toFixed(2)}`;
+  taxAmount.textContent = `${currency.symbol}${tax.toFixed(2)}`;
+  grandTotal.textContent = `${currency.symbol}${total.toFixed(2)}`;
 
-  updateScores(subtotal, vagueCount, rows.length);
+  updateScores(subtotal, vague, rows.length);
 }
 
 function updateScores(subtotal, vague, count) {
@@ -54,7 +102,7 @@ function updateScores(subtotal, vague, count) {
   if (subtotal <= 0) { health -= 40; tips.push("Invoice total is zero"); }
   if (taxRate.value == 0) friction -= 10;
   if (count > 6) readability -= 15;
-  if (vague > 0) { dispute -= vague * 10; tips.push("Clarify vague items"); }
+  if (vague > 0) dispute -= vague * 10;
 
   showScore("healthScore", health);
   showScore("frictionScore", friction);
@@ -80,19 +128,20 @@ function generateInvoice() {
 
   doc.setFontSize(20);
   doc.text("INVOICE", 20, 20);
-
   doc.setFontSize(11);
+
   doc.text(`From: ${yourName.value}`, 20, 35);
   doc.text(`To: ${clientName.value}`, 20, 45);
+  doc.text(`Currency: ${currency.code} ${currency.flag}`, 150, 35);
 
   const rows = [];
-  document.querySelectorAll("#itemsBody tr").forEach(r => {
+  itemsBody.querySelectorAll("tr").forEach(r => {
     rows.push([
       r.children[0].querySelector("input").value,
       r.children[1].querySelector("input").value,
       r.children[2].querySelector("input").value,
-      `$${r.children[3].querySelector("input").value}`,
-      r.querySelector(".lineTotal").innerText
+      `${currency.symbol}${r.children[3].querySelector("input").value}`,
+      r.querySelector(".lineTotal").textContent
     ]);
   });
 
@@ -102,15 +151,11 @@ function generateInvoice() {
     body: rows
   });
 
-  const y = doc.lastAutoTable.finalY + 10;
-  doc.text(`Total: ${grandTotal.textContent}`, 150, y);
+  doc.text(`Total: ${grandTotal.textContent}`, 150, doc.lastAutoTable.finalY + 10);
 
   invoicePreview.src = doc.output("datauristring");
 }
 
-const subtotalEl = document.getElementById("subtotal");
-const taxAmount = document.getElementById("taxAmount");
-const grandTotal = document.getElementById("grandTotal");
 const tipsEl = document.getElementById("tips");
-
+updateCurrencyHints();
 recalc();
