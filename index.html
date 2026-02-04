@@ -75,6 +75,7 @@ th{background:#e5e7eb}
 .blue{background:#bfdbfe;color:#1e40af}
 .green{background:#bbf7d0;color:#166534}
 .red{background:#fecaca;color:#991b1b}
+.yellow{background:#fef3c7;color:#78350f}
 
 iframe{
   width:100%;
@@ -83,14 +84,6 @@ iframe{
   border:1px solid #e5e7eb;
   background:#f9fafb;
 }
-
-.remove-btn{
-  background:#ef4444;
-  font-size:12px;
-  padding:4px 8px;
-  margin-top:4px;
-}
-.remove-btn:hover{background:#b91c1c;}
 </style>
 </head>
 <body>
@@ -125,6 +118,7 @@ iframe{
     <h3>Your Info</h3>
     <input id="fromName" placeholder="Business name">
     <input id="fromEmail" placeholder="Email">
+    <input id="fromPhone" placeholder="Contact number">
     <label>Logo (optional)</label>
     <input type="file" id="logoInput" accept="image/*">
   </div>
@@ -145,7 +139,6 @@ iframe{
         <th>Category</th>
         <th>Qty</th>
         <th>Price</th>
-        <th>Remove</th>
       </tr>
     </thead>
     <tbody id="itemsBody"></tbody>
@@ -220,17 +213,6 @@ const categories=[
 const counters={INV:0,QUO:0,REC:0};
 const docType=document.getElementById("docType");
 const invoiceNumber=document.getElementById("invoiceNumber");
-const logoInput=document.getElementById("logoInput");
-let logoData="";
-
-logoInput.addEventListener("change",e=>{
-  const file=e.target.files[0];
-  if(file){
-    const reader=new FileReader();
-    reader.onload=ev=>{logoData=ev.target.result;}
-    reader.readAsDataURL(file);
-  }
-});
 
 function updateInvoiceNumber(){
   counters[docType.value]++;
@@ -279,14 +261,7 @@ function addItem(){
   priceInput.oninput=e=>items[index].price=Number(e.target.value);
   priceTd.appendChild(priceInput);
 
-  const removeTd=document.createElement("td");
-  const removeBtn=document.createElement("button");
-  removeBtn.textContent="Remove";
-  removeBtn.className="remove-btn";
-  removeBtn.onclick=()=>{items.splice(index,1);tr.remove();};
-  removeTd.appendChild(removeBtn);
-
-  tr.append(nameTd,catTd,qtyTd,priceTd,removeTd);
+  tr.append(nameTd,catTd,qtyTd,priceTd);
   itemsBody.appendChild(tr);
 }
 
@@ -299,6 +274,17 @@ terms.addEventListener("change",()=>{
   dueDate.value=d.toISOString().split("T")[0];
 });
 terms.dispatchEvent(new Event("change"));
+
+// Handle logo
+let logoData="";
+document.getElementById("logoInput").addEventListener("change",e=>{
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=ev=>logoData=ev.target.result;
+    reader.readAsDataURL(file);
+  }
+});
 
 function previewInvoice(){
   const cur=currency.value;
@@ -327,8 +313,18 @@ function previewInvoice(){
   if(status.value==="Sent") badge="blue";
   if(overdue){badge="red";text="Overdue";}
 
+  // Health bar color
+  let healthColor="grey";
+  if(balance<=0) healthColor="green";
+  else if(status.value==="Sent") healthColor="blue";
+  else if(balance>0 && new Date()>due) healthColor="red";
+  else healthColor="yellow";
+
   preview.srcdoc=`
   <div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
+    
+    <div style="height:6px;width:100%;background:${healthColor};border-radius:3px;margin-bottom:16px"></div>
+
     <div style="display:flex;justify-content:space-between;align-items:center">
       <h2 style="color:#1e40af;margin:0">${docType.selectedOptions[0].text} ${invoiceNumber.value}</h2>
       <span class="badge ${badge}">${text}</span>
@@ -338,7 +334,9 @@ function previewInvoice(){
 
     <div style="display:flex;justify-content:space-between;margin-top:20px">
       <div>
-        <strong>${fromName.value}</strong><br>${fromEmail.value}
+        <strong>${fromName.value}</strong><br>
+        ${fromEmail.value}<br>
+        ${fromPhone.value?`Phone: ${fromPhone.value}`:''}
       </div>
       <div>
         <strong>Bill To:</strong><br>
