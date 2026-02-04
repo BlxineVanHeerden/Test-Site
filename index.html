@@ -84,6 +84,16 @@ iframe{
   border:1px solid #e5e7eb;
   background:#f9fafb;
 }
+.remove-btn{
+  background:#ef4444;
+  padding:4px 8px;
+  font-size:12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.remove-btn:hover{
+  background:#b91c1c;
+}
 </style>
 </head>
 <body>
@@ -139,6 +149,7 @@ iframe{
         <th>Category</th>
         <th>Qty</th>
         <th>Price</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody id="itemsBody"></tbody>
@@ -191,7 +202,6 @@ iframe{
   <textarea id="note"></textarea>
 </div>
 
-<!-- Buttons side by side -->
 <div class="button-group">
   <button onclick="previewInvoice()">Preview Invoice</button>
   <button onclick="alert('Download PDF (Premium)')">Download PDF</button>
@@ -232,7 +242,7 @@ function addItem(){
 
   const nameTd=document.createElement("td");
   const nameInput=document.createElement("input");
-  nameInput.oninput=e=>items[index].name=e.target.value;
+  nameInput.oninput=e=>{items[index].name=e.target.value; updatePreview();}
   nameTd.appendChild(nameInput);
 
   const catTd=document.createElement("td");
@@ -242,7 +252,7 @@ function addItem(){
     o.textContent=c;
     catSelect.appendChild(o);
   });
-  catSelect.onchange=e=>items[index].cat=e.target.value;
+  catSelect.onchange=e=>{items[index].cat=e.target.value; updatePreview();}
   catTd.appendChild(catSelect);
 
   const qtyTd=document.createElement("td");
@@ -250,7 +260,7 @@ function addItem(){
   qtyInput.type="number";
   qtyInput.value=1;
   qtyInput.min=1;
-  qtyInput.oninput=e=>items[index].qty=Number(e.target.value);
+  qtyInput.oninput=e=>{items[index].qty=Number(e.target.value); updatePreview();}
   qtyTd.appendChild(qtyInput);
 
   const priceTd=document.createElement("td");
@@ -258,10 +268,21 @@ function addItem(){
   priceInput.type="number";
   priceInput.value=0;
   priceInput.min=0;
-  priceInput.oninput=e=>items[index].price=Number(e.target.value);
+  priceInput.oninput=e=>{items[index].price=Number(e.target.value); updatePreview();}
   priceTd.appendChild(priceInput);
 
-  tr.append(nameTd,catTd,qtyTd,priceTd);
+  const actionTd=document.createElement("td");
+  const removeBtn=document.createElement("button");
+  removeBtn.className="remove-btn";
+  removeBtn.textContent="Remove";
+  removeBtn.onclick=()=>{
+    items.splice(index,1);
+    tr.remove();
+    updatePreview();
+  };
+  actionTd.appendChild(removeBtn);
+
+  tr.append(nameTd,catTd,qtyTd,priceTd,actionTd);
   itemsBody.appendChild(tr);
 }
 
@@ -275,18 +296,24 @@ terms.addEventListener("change",()=>{
 });
 terms.dispatchEvent(new Event("change"));
 
-// Handle logo
 let logoData="";
 document.getElementById("logoInput").addEventListener("change",e=>{
   const file=e.target.files[0];
   if(file){
     const reader=new FileReader();
-    reader.onload=ev=>logoData=ev.target.result;
+    reader.onload=ev=>{ logoData=ev.target.result; updatePreview();}
     reader.readAsDataURL(file);
   }
 });
 
-function previewInvoice(){
+// Update preview dynamically
+["fromName","fromEmail","fromPhone","toName","toEmail","toPhone","discount","tax","paid","note","currency","status","invoiceNumber","dueDate"].forEach(id=>{
+  document.getElementById(id).addEventListener("input",updatePreview);
+});
+docType.addEventListener("change",updatePreview);
+terms.addEventListener("change",updatePreview);
+
+function updatePreview(){
   const cur=currency.value;
   let subtotal=0;
 
@@ -313,12 +340,17 @@ function previewInvoice(){
   if(status.value==="Sent") badge="blue";
   if(overdue){badge="red";text="Overdue";}
 
-  // Health bar color
+  // Health bar dynamic
   let healthColor="grey";
   if(balance<=0) healthColor="green";
   else if(status.value==="Sent") healthColor="blue";
   else if(balance>0 && new Date()>due) healthColor="red";
   else healthColor="yellow";
+
+  // Also check client info
+  if(toName.value || toEmail.value || toPhone.value){
+    healthColor = healthColor==="grey"? "yellow":healthColor;
+  }
 
   preview.srcdoc=`
   <div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
@@ -362,6 +394,7 @@ function previewInvoice(){
     ${note.value?`<p style="margin-top:20px"><strong>Note:</strong><br>${note.value}</p>`:""}
   </div>`;
 }
+
 </script>
 </body>
 </html>
