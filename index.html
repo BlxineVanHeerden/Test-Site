@@ -9,30 +9,30 @@
 
 <style>
 body { font-family: Arial, sans-serif; background:#f4f4f4; margin:20px; }
-.section { background:#fff; padding:15px; margin-bottom:20px; border-radius:4px; }
+.section { background:#fff; padding:15px; margin-bottom:20px; border-radius:6px; }
 h1,h3 { margin-top:0 }
-input, select { width:100%; padding:8px; margin:5px 0; box-sizing: border-box; }
-button { padding:8px 12px; background:#222; color:#fff; border:none; cursor:pointer; }
+input, select { width:100%; padding:8px; margin:6px 0; box-sizing:border-box; }
+button { padding:8px 14px; background:#222; color:#fff; border:none; cursor:pointer; }
 button:hover { background:#555; }
 table { width:100%; border-collapse:collapse; }
 th,td { border:1px solid #ccc; padding:8px; }
 th { background:#222; color:#fff; }
-.score { font-weight:bold; }
-.good { color:green }
-.warn { color:orange }
-.bad { color:red }
-.clientView .internal { display:none }
 iframe { width:100%; height:600px; border:1px solid #ccc }
 .small { font-size:13px; color:#555 }
-.currency-flag { font-size: 1.3em; margin-right:6px; }
+.internal { background:#fafafa }
+.score.good { color:green }
+.score.warn { color:orange }
+.score.bad { color:red }
+.clientView .internal { display:none }
 </style>
 </head>
+
 <body>
 
 <h1>Smart Invoice Generator</h1>
 
 <div class="section">
-<strong>Invoice #:</strong> <span id="invoiceNumber">001</span><br>
+<strong>Invoice #:</strong> 001<br>
 <strong>Date:</strong> <span id="invoiceDate"></span>
 </div>
 
@@ -51,29 +51,22 @@ iframe { width:100%; height:600px; border:1px solid #ccc }
 <div class="section">
 <h3>Currency</h3>
 <select id="currencySelect"></select>
-<p><span id="currencyPreview" class="small"></span></p>
-<p class="small" id="taxHint"></p>
-<p class="small" id="exchangePreview"></p>
+<p class="small" id="currencyInfo"></p>
 </div>
 
 <div class="section">
-<h3>Invoice Items (Phase | Item | Qty | Price)</h3>
+<h3>Invoice Items</h3>
 <table>
 <thead>
 <tr>
-<th>Phase</th><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th>
+<th>Description</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+<th></th>
 </tr>
 </thead>
-<tbody id="itemsBody">
-<tr>
-<td><input value="Phase 1"></td>
-<td><input value="Web Design"></td>
-<td><input type="number" value="1"></td>
-<td><input type="number" value="500"></td>
-<td class="lineTotal">$500.00</td>
-<td><button onclick="removeRow(this)">✕</button></td>
-</tr>
-</tbody>
+<tbody id="itemsBody"></tbody>
 </table>
 <button onclick="addRow()">+ Add Item</button>
 </div>
@@ -82,18 +75,16 @@ iframe { width:100%; height:600px; border:1px solid #ccc }
 <h3>Totals</h3>
 <label>Tax %</label>
 <input id="taxRate" type="number" value="0">
-<p>Subtotal: <strong id="subtotal">$0.00</strong></p>
-<p>Tax: <strong id="taxAmount">$0.00</strong></p>
-<p>Total: <strong id="grandTotal">$0.00</strong></p>
+
+<p>Subtotal: <strong id="subtotalDisplay">0.00</strong></p>
+<p>Tax: <strong id="taxDisplay">0.00</strong></p>
+<p>Total: <strong id="totalDisplay">0.00</strong></p>
 </div>
 
 <div class="section internal">
 <h3>Insights</h3>
 <p>Invoice Health: <span id="healthScore" class="score"></span></p>
-<p>Payment Friction: <span id="frictionScore" class="score"></span></p>
-<p>Readability: <span id="readabilityScore" class="score"></span></p>
-<p>Dispute Risk: <span id="disputeScore" class="score"></span></p>
-<div id="tips"></div>
+<p id="tips"></p>
 </div>
 
 <div class="section">
@@ -102,6 +93,7 @@ iframe { width:100%; height:600px; border:1px solid #ccc }
 </div>
 
 <iframe id="invoicePreview"></iframe>
+
 <script src="script.js"></script>
 </body>
 </html>
