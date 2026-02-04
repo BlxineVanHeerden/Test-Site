@@ -1,81 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Modern Invoice Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<style>
-body { font-family: 'Inter', sans-serif; background: #f4f7f2; margin:0; padding:20px;}
-h1,h2,h3{ color:#222; margin-bottom:10px;}
-.container{ max-width:1000px; margin:auto; background:#fff; padding:25px 30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); margin-top:30px; margin-bottom:30px;}
-input, select, textarea, button{ font-family:'Inter', sans-serif; font-size:14px;}
-input, select, textarea{ width:100%; padding:10px; margin:5px 0 15px 0; border-radius:6px; border:1px solid #ccc; box-sizing:border-box;}
-button{ padding:10px 20px; background-color:#66cc66; color:#fff; border:none; border-radius:6px; cursor:pointer; transition: background-color 0.2s;}
-button:hover{ background-color:#4da64d;}
-.section{ margin-bottom:30px;}
-.flex-row{ display:flex; gap:20px; flex-wrap:wrap;}
-.flex-col{ flex:1; min-width:200px;}
-label{ font-weight:600; display:block; margin-bottom:5px;}
-#documentType, #paymentStatus{ margin-bottom:25px; padding:12px; border-radius:6px; border:1px solid #ccc; font-weight:600; font-size:16px;}
-table{ width:100%; border-collapse:collapse; margin-top:15px; border-radius:8px; overflow:hidden;}
-table th, table td{ padding:12px; text-align:left;}
-table th{ background-color:#66cc66; color:#fff; font-weight:600;}
-table tbody tr:nth-child(even){ background-color:#f2f6f2;}
-table tbody tr:hover{ background-color:#e6f9e6;}
-.totals{ text-align:right; margin-top:20px; font-size:16px;}
-.totals span{ display:inline-block; min-width:120px; font-weight:600;}
-iframe{ width:100%; height:600px; border:1px solid #ccc; margin-top:20px; border-radius:8px;}
-textarea{ resize:none;}
-.health-bar-container{ background:#eee; border-radius:10px; height:20px; width:100%; margin-top:5px;}
-.health-bar{ height:100%; width:0%; border-radius:10px; transition:width 0.2s, background-color 0.2s;}
-</style>
+  <meta charset="UTF-8">
+  <title>Modern Invoice Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f0fdf4; margin: 0; padding: 20px; }
+    h1 { text-align:center; color:#2f855a; }
+    input, select, button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
+    button { background:#2f855a; color:white; cursor:pointer; transition:0.2s; }
+    button:hover{ background:#276749; }
+    .section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    table{ width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td{ padding:10px; text-align:left; border-bottom:1px solid #ccc; }
+    th{ background:#a7f3d0; border-radius:8px; }
+    #invoicePreview{ width:100%; height:500px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
+    .health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:20px; margin-top:5px; }
+    .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
+    .row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
+    .row-flex > div{ flex:1; min-width:150px; }
+  </style>
 </head>
 <body>
-<div class="container">
 
 <h1>Modern Invoice Generator</h1>
 
-<!-- Document Type & Payment Status -->
-<div class="section flex-row">
-  <div class="flex-col">
-    <label for="documentType">Select Document Type</label>
-    <select id="documentType">
-      <option value="Invoice">Invoice</option>
-      <option value="Quote">Quote</option>
-      <option value="Receipt">Receipt</option>
-      <option value="Proforma">Proforma Invoice</option>
-    </select>
-  </div>
-  <div class="flex-col">
-    <label for="paymentStatus">Payment Status</label>
-    <select id="paymentStatus">
-      <option value="Unpaid">Unpaid</option>
-      <option value="Paid">Paid</option>
-    </select>
-  </div>
+<div class="section">
+  <label>Type:</label>
+  <select id="invoiceType">
+    <option value="invoice">Invoice</option>
+    <option value="quote">Quote</option>
+    <option value="receipt">Receipt</option>
+  </select>
 </div>
 
-<!-- Invoice / Client Info -->
-<div class="section flex-row">
-  <div class="flex-col">
+<div class="section row-flex">
+  <div>
     <h3>Your Info</h3>
-    <input id="yourName" placeholder="Your Name / Business Name" />
-    <input id="yourEmail" placeholder="Email" />
-    <input id="yourPhone" placeholder="Phone (optional)" />
+    <input id="yourName" placeholder="Your Name / Business Name">
+    <input id="yourEmail" placeholder="Email">
+    <input id="yourPhone" placeholder="Phone">
   </div>
-
-  <div class="flex-col">
+  <div>
     <h3>Client Info</h3>
-    <input id="clientName" placeholder="Client Name" />
-    <input id="clientEmail" placeholder="Client Email" />
-    <input id="clientPhone" placeholder="Client Phone (optional)" />
-    <input type="date" id="dueDate" placeholder="Payment Due Date"/>
+    <input id="clientName" placeholder="Client Name">
+    <input id="clientEmail" placeholder="Client Email">
+    <input id="clientPhone" placeholder="Client Phone">
   </div>
 </div>
 
-<!-- Invoice Items Section -->
 <div class="section">
   <h3>Invoice Items</h3>
   <table id="itemsTable">
@@ -83,52 +56,38 @@ textarea{ resize:none;}
       <tr>
         <th>Item</th>
         <th>Category</th>
-        <th>Qty</th>
+        <th>Sub-category</th>
+        <th>Quantity</th>
         <th>Price</th>
-        <th>Total</th>
-        <th>Action</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
-  <button id="addItemBtn">Add Product</button>
+  <button id="addItemBtn">Add Item</button>
 </div>
 
-<!-- Currency & Discount -->
-<div class="section flex-row">
-  <div class="flex-col">
-    <label for="currency">Currency</label>
-    <select id="currency">
-      <option value="$">USD - $</option>
-      <option value="€">EUR - €</option>
-      <option value="£">GBP - £</option>
-      <option value="¥">JPY - ¥</option>
-      <option value="₹">INR - ₹</option>
-      <option value="₩">KRW - ₩</option>
-      <option value="R$">BRL - R$</option>
-      <option value="C$">CAD - C$</option>
-      <option value="A$">AUD - A$</option>
+<div class="section row-flex">
+  <div>
+    <label>Currency:</label>
+    <select id="currencySelect"></select>
+  </div>
+  <div>
+    <label>Discount %:</label>
+    <input type="number" id="discount" value="0">
+  </div>
+  <div>
+    <label>Tax %:</label>
+    <input type="number" id="taxRate" value="0">
+  </div>
+  <div>
+    <label>Payment Status:</label>
+    <select id="paymentStatus">
+      <option value="Unpaid">Unpaid</option>
+      <option value="Paid">Paid</option>
     </select>
   </div>
-
-  <div class="flex-col">
-    <label for="discount">Discount %</label>
-    <input type="number" id="discount" value="0" min="0" max="100"/>
-  </div>
-
-  <div class="flex-col">
-    <label for="taxRate">Tax %</label>
-    <input type="number" id="taxRate" value="0" min="0" max="100"/>
-  </div>
 </div>
 
-<!-- Notes Section -->
-<div class="section">
-  <label for="notes">Notes / Terms</label>
-  <textarea id="notes" rows="4" placeholder="Add any notes or payment terms here..."></textarea>
-</div>
-
-<!-- Health Score -->
 <div class="section">
   <strong>Invoice Health:</strong>
   <div class="health-bar-container">
@@ -136,160 +95,165 @@ textarea{ resize:none;}
   </div>
 </div>
 
-<!-- Totals -->
-<div class="section totals">
-  <div><span>Subtotal:</span> <span id="subtotal">0.00</span></div>
-  <div><span>Tax:</span> <span id="taxAmount">0.00</span></div>
-  <div><span>Discount:</span> <span id="discountAmount">0.00</span></div>
-  <div><span>Grand Total:</span> <span id="grandTotal">0.00</span></div>
-</div>
+<button id="previewBtn">Preview Invoice</button>
 
-<div class="section">
-  <button id="previewBtn">Preview Document</button>
-</div>
-
-<h3>Preview</h3>
+<h3>Invoice Preview</h3>
 <iframe id="invoicePreview"></iframe>
-</div>
 
 <script>
-let items = [];
+  // Currency list
+  const currencies = ["USD","EUR","GBP","JPY","AUD","CAD","CNY","INR","BRL","ZAR","NZD"];
+  const currencySelect = document.getElementById('currencySelect');
+  currencies.forEach(c => {
+    const option = document.createElement('option');
+    option.value = c; option.textContent = c;
+    currencySelect.appendChild(option);
+  });
 
-const itemsTableBody = document.querySelector('#itemsTable tbody');
-const addItemBtn = document.getElementById('addItemBtn');
-const subtotalEl = document.getElementById('subtotal');
-const taxRateEl = document.getElementById('taxRate');
-const taxAmountEl = document.getElementById('taxAmount');
-const discountEl = document.getElementById('discount');
-const discountAmountEl = document.getElementById('discountAmount');
-const grandTotalEl = document.getElementById('grandTotal');
-const currencyEl = document.getElementById('currency');
-const healthBarEl = document.getElementById('healthBar');
+  // Category/Subcategory lists
+  const categories = {
+    "Web Design":["UI/UX","Landing Pages","Full Websites"],
+    "Hosting & IT":["Cloud","Server","Maintenance"],
+    "Maintenance & Repairs":["Electrical","Plumbing","Cleaning"],
+    "Consulting & Professional Services":["Business","Legal","HR"],
+    "Marketing & Advertising":["Digital","Print","Events"],
+    "Retail / Wholesale":["Clothing","Electronics","Groceries"],
+    "Manufacturing":["Automotive","Electronics","Textiles"],
+    "Education & Training":["Online","Workshops","Tutoring"],
+    "Healthcare & Wellness":["Medical","Fitness","Spa"],
+    "Finance & Accounting":["Accounting","Auditing","Bookkeeping"],
+    "Real Estate":["Residential","Commercial","Property Management"],
+    "Travel & Hospitality":["Tours","Hotels","Transport"],
+    "Food & Beverage":["Restaurant","Catering","Beverages"],
+    "Art & Entertainment":["Music","Art","Performances"],
+    "Transportation & Logistics":["Shipping","Courier","Freight"],
+    "Legal & Compliance":["Law","Notary","Consulting"],
+    "Non-Profit & Charity":["Fundraising","Volunteering","Campaigns"],
+    "Miscellaneous":["Other"]
+  };
 
-// Categories Dropdown
-const categoryOptions = ['Web Design','Hosting','Maintenance','Consulting','Software','Other'];
+  // Items table logic
+  const itemsTableBody = document.querySelector("#itemsTable tbody");
+  const addItemBtn = document.getElementById("addItemBtn");
+  let items = [];
 
-function renderItems() {
-  itemsTableBody.innerHTML='';
-  items.forEach((item,index)=>{
-    const row = document.createElement('tr');
-    row.innerHTML=`
-      <td><input type="text" value="${item.name}" placeholder="Item Name" data-index="${index}" data-field="name"></td>
+  function addItem(){
+    const rowIndex = items.length;
+    items.push({name:"",category:"",sub:"",qty:0,price:0});
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" placeholder="Item name"></td>
       <td>
-        <select data-index="${index}" data-field="category">
-          ${categoryOptions.map(cat=>`<option value="${cat}" ${cat===item.category?'selected':''}>${cat}</option>`).join('')}
-        </select>
+        <select></select>
       </td>
-      <td><input type="number" value="${item.qty}" min="1" data-index="${index}" data-field="qty"></td>
-      <td><input type="number" value="${item.price}" min="0" step="0.01" data-index="${index}" data-field="price"></td>
-      <td>${currencyEl.value}${(item.qty*item.price).toFixed(2)}</td>
-      <td><button onclick="removeItem(${index})" style="background:#ff4d4f;">Remove</button></td>
+      <td>
+        <select></select>
+      </td>
+      <td><input type="number" value="1" min="1"></td>
+      <td><input type="number" value="0" min="0"></td>
     `;
-    itemsTableBody.appendChild(row);
-  });
-  attachInputListeners();
-  calculateTotals();
-  updateHealthBar();
-}
+    // Populate category select
+    const catSelect = tr.children[1].querySelector("select");
+    const subSelect = tr.children[2].querySelector("select");
+    Object.keys(categories).forEach(cat=>{
+      const option = document.createElement("option");
+      option.value=cat; option.textContent=cat;
+      catSelect.appendChild(option);
+    });
+    // Populate subcategory when category changes
+    function updateSubcats(){
+      subSelect.innerHTML="";
+      categories[catSelect.value].forEach(sub=>{
+        const opt = document.createElement("option");
+        opt.value=sub; opt.textContent=sub;
+        subSelect.appendChild(opt);
+      });
+      items[rowIndex].sub=subSelect.value;
+      updateHealth();
+    }
+    catSelect.addEventListener("change",()=>{
+      items[rowIndex].category=catSelect.value;
+      updateSubcats();
+    });
+    subSelect.addEventListener("change",()=>{
+      items[rowIndex].sub=subSelect.value;
+      updateHealth();
+    });
+    updateSubcats();
 
-function attachInputListeners(){
-  const inputs = itemsTableBody.querySelectorAll('input, select');
-  inputs.forEach(input=>{
-    input.oninput=(e)=>{
-      const idx=e.target.dataset.index;
-      const field=e.target.dataset.field;
-      items[idx][field]=field==='name'?e.target.value:field==='category'?e.target.value:parseFloat(e.target.value)||0;
-      updateTotalsRow(idx);
-      calculateTotals();
-      updateHealthBar();
-    };
-  });
-}
+    // Inputs for name, qty, price
+    const nameInput = tr.children[0].querySelector("input");
+    const qtyInput = tr.children[3].querySelector("input");
+    const priceInput = tr.children[4].querySelector("input");
 
-function updateTotalsRow(idx){
-  const row = itemsTableBody.children[idx];
-  const item = items[idx];
-  row.children[4].innerText = currencyEl.value + (item.qty*item.price).toFixed(2);
-}
+    nameInput.addEventListener("input",()=>{ items[rowIndex].name=nameInput.value; updateHealth(); });
+    qtyInput.addEventListener("input",()=>{ items[rowIndex].qty=parseInt(qtyInput.value)||0; updateHealth(); });
+    priceInput.addEventListener("input",()=>{ items[rowIndex].price=parseFloat(priceInput.value)||0; updateHealth(); });
 
-function removeItem(index){
-  items.splice(index,1);
-  renderItems();
-}
-
-addItemBtn.onclick=()=>{
-  items.push({name:'', category:categoryOptions[0], qty:1, price:0});
-  renderItems();
-};
-
-function calculateTotals(){
-  const subtotal = items.reduce((sum,item)=>sum + (item.qty*item.price),0);
-  const taxRate = parseFloat(taxRateEl.value)||0;
-  const discountRate = parseFloat(discountEl.value)||0;
-  const taxAmount = subtotal*(taxRate/100);
-  const discountAmount = subtotal*(discountRate/100);
-  const grandTotal = subtotal + taxAmount - discountAmount;
-
-  subtotalEl.innerText=subtotal.toFixed(2);
-  taxAmountEl.innerText=taxAmount.toFixed(2);
-  discountAmountEl.innerText=discountAmount.toFixed(2);
-  grandTotalEl.innerText=grandTotal.toFixed(2);
-}
-
-function updateHealthBar(){
-  let score = 0;
-  if(items.length>0) score += 50;
-  const filledItems = items.filter(i=>i.name && i.category && i.qty>0 && i.price>0).length;
-  if(items.length>0) score += Math.round((filledItems/items.length)*50);
-
-  healthBarEl.style.width = score+'%';
-  if(score<40){
-    healthBarEl.style.backgroundColor='red';
-  } else if(score<80){
-    healthBarEl.style.backgroundColor='yellow';
-  } else{
-    healthBarEl.style.backgroundColor='green';
+    itemsTableBody.appendChild(tr);
   }
-}
 
-// Update totals and table when changing currency, tax, discount
-[currencyEl,taxRateEl,discountEl].forEach(el=>{
-  el.oninput=()=>{renderItems();}
-});
+  addItemBtn.addEventListener("click", addItem);
+  addItem(); // add initial row
 
-// Preview Invoice
-document.getElementById('previewBtn').onclick=()=>{
-  const docType=document.getElementById('documentType').value;
-  const paymentStatus=document.getElementById('paymentStatus').value;
-  const name=document.getElementById('yourName').value;
-  const email=document.getElementById('yourEmail').value;
-  const phone=document.getElementById('yourPhone').value;
-  const client=document.getElementById('clientName').value;
-  const clientEmail=document.getElementById('clientEmail').value;
-  const clientPhone=document.getElementById('clientPhone').value;
-  const dueDate=document.getElementById('dueDate').value;
-  const notes=document.getElementById('notes').value;
-  const currency=currencyEl.value;
+  // Health bar logic
+  const healthBarEl = document.getElementById("healthBar");
+  function updateHealth(){
+    let totalFields = items.length*4 + 6; // items + your info + client info
+    let filled = 0;
 
-  let html=`<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#66cc66">${docType} - ${paymentStatus}</h2>`;
-  html+=`<strong>From:</strong> ${name} (${email} ${phone})<br>`;
-  html+=`<strong>To:</strong> ${client} (${clientEmail} ${clientPhone})<br>`;
-  if(dueDate) html+=`<strong>Due Date:</strong> ${dueDate}<br><br>`;
-  html+=`<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-  html+=`<tr style="background-color:#66cc66;color:#fff;"><th>Item</th><th>Category</th><th>Qty</th><th>Price</th><th>Total</th></tr>`;
-  items.forEach(item=>{
-    html+=`<tr><td>${item.name}</td><td>${item.category}</td><td>${item.qty}</td><td>${currency}${item.price.toFixed(2)}</td><td>${currency}${(item.qty*item.price).toFixed(2)}</td></tr>`;
+    items.forEach(it=>{
+      if(it.name) filled++;
+      if(it.category) filled++;
+      if(it.sub) filled++;
+      if(it.qty>0) filled++;
+      if(it.price>0) filled++;
+    });
+
+    ['yourName','yourEmail','yourPhone','clientName','clientEmail','clientPhone'].forEach(id=>{
+      if(document.getElementById(id).value.trim()!=="") filled++;
+    });
+
+    let score=Math.min(100, Math.round((filled/totalFields)*100));
+    healthBarEl.style.width=score+"%";
+    if(score<40) healthBarEl.style.backgroundColor="red";
+    else if(score<70) healthBarEl.style.backgroundColor="yellow";
+    else healthBarEl.style.backgroundColor="green";
+  }
+
+  document.querySelectorAll('input').forEach(inp=>inp.addEventListener("input",updateHealth));
+  document.querySelectorAll('select').forEach(sel=>sel.addEventListener("change",updateHealth));
+  updateHealth();
+
+  // Invoice preview
+  document.getElementById("previewBtn").addEventListener("click",()=>{
+    const currency = currencySelect.value;
+    let subtotal=0;
+    let html=`<h2>${document.getElementById("invoiceType").value}</h2><table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse; width:100%;"><tr><th>Item</th><th>Category</th><th>Sub</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
+    items.forEach(it=>{
+      const total = it.qty*it.price;
+      subtotal+=total;
+      html+=`<tr>
+        <td>${it.name}</td>
+        <td>${it.category}</td>
+        <td>${it.sub}</td>
+        <td>${it.qty}</td>
+        <td>${it.price.toFixed(2)}</td>
+        <td>${total.toFixed(2)}</td>
+      </tr>`;
+    });
+    const discount=parseFloat(document.getElementById("discount").value)||0;
+    const tax=parseFloat(document.getElementById("taxRate").value)||0;
+    const discounted=subtotal*(1-discount/100);
+    const total=discounted*(1+tax/100);
+    html+=`</table><p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p>`;
+    html+=`<p>Discount: ${discount}%</p><p>Tax: ${tax}%</p>`;
+    html+=`<h3>Total: ${total.toFixed(2)} ${currency}</h3>`;
+    html+=`<p>Payment Status: ${document.getElementById("paymentStatus").value}</p>`;
+    document.getElementById("invoicePreview").srcdoc=html;
   });
-  html+=`</table><br>`;
-  html+=`<strong>Subtotal:</strong> ${currency}${subtotalEl.innerText}<br>`;
-  html+=`<strong>Tax:</strong> ${currency}${taxAmountEl.innerText}<br>`;
-  html+=`<strong>Discount:</strong> ${currency}${discountAmountEl.innerText}<br>`;
-  html+=`<strong>Grand Total:</strong> ${currency}${grandTotalEl.innerText}<br>`;
-  if(notes) html+=`<strong>Notes:</strong> ${notes}<br>`;
-  html+=`</div>`;
-
-  document.getElementById('invoicePreview').srcdoc=html;
-};
 </script>
+
 </body>
 </html>
