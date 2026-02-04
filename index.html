@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Smart Invoice Generator</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
 body{
   font-family:Inter,sans-serif;
@@ -36,8 +34,21 @@ button{
   color:#fff;
   cursor:pointer;
   font-weight:600;
+  border:none;
 }
 button:hover{background:#1e3a8a}
+
+.button-group{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.button-group button{
+  flex:1;
+  padding:8px;
+  font-size:14px;
+}
 
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
@@ -70,6 +81,7 @@ iframe{
   height:720px;
   border-radius:14px;
   border:1px solid #e5e7eb;
+  background:#f9fafb;
 }
 </style>
 </head>
@@ -175,7 +187,13 @@ iframe{
   <textarea id="note"></textarea>
 </div>
 
-<button onclick="previewInvoice()">Preview Invoice</button>
+<!-- Buttons side by side -->
+<div class="button-group">
+  <button onclick="previewInvoice()">Preview Invoice</button>
+  <button onclick="alert('Download PDF (Premium)')">Download PDF</button>
+  <button onclick="alert('Send Invoice (Premium)')">Send Invoice</button>
+  <button onclick="alert('Save Invoice (Premium)')">Save</button>
+</div>
 
 <h3>Preview</h3>
 <iframe id="preview"></iframe>
@@ -281,36 +299,40 @@ function previewInvoice(){
   if(overdue){badge="red";text="Overdue";}
 
   preview.srcdoc=`
-  <div style="font-family:Inter;padding:32px">
-    <span class="badge ${badge}">${text}</span>
-    <h2>${docType.selectedOptions[0].text} ${invoiceNumber.value}</h2>
+  <div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="color:#1e40af;margin:0">${docType.selectedOptions[0].text} ${invoiceNumber.value}</h2>
+      <span class="badge ${badge}">${text}</span>
+    </div>
 
-    <p><strong>${fromName.value}</strong><br>
-    ${fromEmail.value}<br><br>
-    <strong>Bill To:</strong><br>
-    ${toName.value}<br>
-    ${toEmail.value}<br>
-    ${toPhone.value}</p>
+    <div style="display:flex;justify-content:space-between;margin-top:20px">
+      <div>
+        <strong>${fromName.value}</strong><br>${fromEmail.value}
+      </div>
+      <div>
+        <strong>Bill To:</strong><br>
+        ${toName.value}<br>${toEmail.value}<br>${toPhone.value}
+      </div>
+    </div>
 
     <table style="width:100%;margin-top:20px">
-      <tr><th>Item</th><th>Qty</th><th>Total</th></tr>
+      <tr style="background:#e5e7eb"><th>Item</th><th>Qty</th><th>Total</th></tr>
       ${rows}
     </table>
 
-    <div style="margin-top:20px;max-width:320px;margin-left:auto">
+    <div style="margin-top:20px;max-width:360px;margin-left:auto;background:#f1f5f9;padding:16px;border-radius:10px">
       <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
       <p>Discount: -${cur}${disc.toFixed(2)}</p>
       <p>Tax: ${cur}${taxAmt.toFixed(2)}</p>
       <p><strong>Total Due: ${cur}${total.toFixed(2)}</strong></p>
       <p>Amount Paid: ${cur}${paid.value}</p>
       <p><strong>Balance: ${cur}${balance.toFixed(2)}</strong></p>
+      <p><strong>Due Date:</strong> ${dueDate.value}</p>
     </div>
 
-    <p><strong>Due Date:</strong> ${dueDate.value}</p>
-    ${note.value?`<p><strong>Note:</strong><br>${note.value}</p>`:""}
+    ${note.value?`<p style="margin-top:20px"><strong>Note:</strong><br>${note.value}</p>`:""}
   </div>`;
 }
 </script>
-
 </body>
 </html>
