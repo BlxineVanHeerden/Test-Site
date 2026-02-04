@@ -2,263 +2,307 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Friendly Invoice Generator</title>
+  <title>Modern Invoice Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #fefefe;
-      --card: #ffffff;
-      --primary: #34d399; /* soft green */
-      --primary-dark: #10b981;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --radius: 12px;
-      --shadow: 0 15px 30px rgba(0,0,0,0.06);
-      --header-bg: #34d399;
-      --header-color: #fff;
-      --row-bg: #f0fdf4;
-      --alt-row-bg: #dcfce7;
-    }
-
-    * { box-sizing: border-box; }
+    /* --- Global Styles --- */
     body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f7fa;
       margin: 0;
-      padding: 40px 20px 150px;
-      background: var(--bg);
-      font-family: 'Inter', Arial, sans-serif;
-      color: var(--text);
+      padding: 0 20px;
     }
-    h1 { font-size: 32px; margin-bottom: 10px; color: var(--primary-dark);}
-    h3 { margin-top: 0; margin-bottom: 12px; }
-    p { margin: 6px 0; color: var(--muted); }
 
-    .container { max-width: 1000px; margin: auto; }
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+    h1, h2, h3 {
+      color: #222;
+      margin-bottom: 10px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-top: 40px;
+      margin-bottom: 40px;
+    }
+
+    input, select, textarea, button {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
     }
 
     input, select, textarea {
       width: 100%;
       padding: 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 14px;
-      outline: none;
-      margin-bottom: 12px;
+      margin: 5px 0 15px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
-    input:focus, select:focus { border-color: var(--primary); }
 
     button {
-      padding: 12px 18px;
-      border-radius: 12px;
+      padding: 10px 20px;
+      background-color: #0077cc;
+      color: #fff;
       border: none;
-      background: var(--primary);
-      color: white;
-      font-weight: 600;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all .2s ease;
+      transition: background-color 0.2s;
     }
-    button:hover { background: var(--primary-dark); transform: translateY(-1px); }
-    button.secondary { background: #f3f4f6; color: #111; }
-    button.secondary:hover { background: #e5e7eb; }
 
-    .actions {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      border-top: 1px solid var(--border);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      box-shadow: 0 -10px 30px rgba(0,0,0,.08);
+    button:hover {
+      background-color: #005fa3;
     }
-    .actions button { flex: 1; }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .flex-col {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* --- Top selection --- */
+    #documentType {
+      margin-bottom: 25px;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    /* --- Table Styles --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: left;
+    }
+
+    table th {
+      background-color: #0077cc;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    table tbody tr:nth-child(even) {
+      background-color: #f2f6fb;
+    }
+
+    table tbody tr:hover {
+      background-color: #e0f0ff;
+    }
+
+    .totals {
+      text-align: right;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    .totals span {
+      display: inline-block;
+      min-width: 120px;
+      font-weight: 600;
+    }
 
     iframe {
       width: 100%;
-      height: 650px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
+      height: 600px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      border-radius: 8px;
     }
 
-    table { width: 100%; border-collapse: separate; border-spacing: 0 6px; margin-top: 20px; }
-    th, td { padding: 12px; text-align: left; }
-    th { background: var(--header-bg); color: var(--header-color); border-radius: var(--radius) var(--radius) 0 0; }
-    td { border-radius: var(--radius); padding: 12px; }
-    .total-row td { font-weight: 700; background: #d1fae5; }
-
-    .item-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-    .item-row input, .item-row select { flex: 1; }
-    .item-row button { flex: 0 0 35px; }
-
-    .notes { width: 100%; height: 80px; padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
+    /* --- Responsive --- */
+    @media(max-width: 700px){
+      .flex-row {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>Friendly Invoice Generator</h1>
-  <p>Create professional invoices that feel approachable.</p>
+  <div class="container">
 
-  <div class="card">
-    <strong>Invoice #:</strong> <span id="invoiceNumber">001</span><br>
-    <strong>Date:</strong> <span id="invoiceDate">–</span>
-  </div>
+    <h1>Modern Invoice Generator</h1>
 
-  <div class="card">
-    <h3>Your Info</h3>
-    <input id="yourName" placeholder="Your Name / Business Name" />
-    <input id="yourEmail" placeholder="Email" />
-  </div>
+    <!-- Document Type Selection -->
+    <div class="section">
+      <label for="documentType">Select Document Type</label>
+      <select id="documentType">
+        <option value="invoice">Invoice</option>
+        <option value="quote">Quote</option>
+        <option value="receipt">Receipt</option>
+        <option value="proforma">Proforma Invoice</option>
+      </select>
+    </div>
 
-  <div class="card">
-    <h3>Client Info</h3>
-    <input id="clientName" placeholder="Client Name" />
-    <input id="clientEmail" placeholder="Client Email" />
-  </div>
+    <!-- Invoice / Client Info -->
+    <div class="section flex-row">
+      <div class="flex-col">
+        <h3>Your Info</h3>
+        <input id="yourName" placeholder="Your Name / Business Name" />
+        <input id="yourEmail" placeholder="Email" />
+        <input id="yourPhone" placeholder="Phone (optional)" />
+      </div>
 
-  <div class="card">
-    <h3>Currency</h3>
-    <select id="currency">
-      <option value="USD">USD - US Dollar</option>
-      <option value="EUR">EUR - Euro</option>
-      <option value="GBP">GBP - British Pound</option>
-      <option value="JPY">JPY - Japanese Yen</option>
-      <option value="INR">INR - Indian Rupee</option>
-      <option value="AUD">AUD - Australian Dollar</option>
-      <option value="CAD">CAD - Canadian Dollar</option>
-      <option value="CHF">CHF - Swiss Franc</option>
-      <option value="CNY">CNY - Chinese Yuan</option>
-    </select>
-  </div>
+      <div class="flex-col">
+        <h3>Client Info</h3>
+        <input id="clientName" placeholder="Client Name" />
+        <input id="clientEmail" placeholder="Client Email" />
+        <input id="clientPhone" placeholder="Client Phone (optional)" />
+      </div>
+    </div>
 
-  <div class="card">
-    <h3>Invoice Items</h3>
-    <div id="itemsContainer"></div>
-    <button type="button" onclick="addItem()">+ Add Item</button>
-    <label>Tax %:</label>
-    <input id="taxRate" type="number" value="0" oninput="updatePreview()" />
-    <label>Discount %:</label>
-    <input id="discountRate" type="number" value="0" oninput="updatePreview()" />
-  </div>
+    <!-- Invoice Items Section (keep same as before) -->
+    <div class="section">
+      <h3>Invoice Items</h3>
+      <table id="itemsTable">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dynamic items will be inserted here -->
+        </tbody>
+      </table>
+      <button id="addItemBtn">Add Product</button>
+    </div>
 
-  <div class="card">
-    <h3>Notes</h3>
-    <textarea id="notes" class="notes" placeholder="Add a friendly message or payment terms..." oninput="updatePreview()"></textarea>
-  </div>
+    <!-- Totals -->
+    <div class="section totals">
+      <div><span>Subtotal:</span> $<span id="subtotal">0.00</span></div>
+      <div><span>Tax (%):</span> <input id="taxRate" type="number" value="0" style="width: 60px; display:inline-block;"> $<span id="taxAmount">0.00</span></div>
+      <div><span>Grand Total:</span> $<span id="grandTotal">0.00</span></div>
+    </div>
 
-  <div class="card">
-    <h3>Invoice Preview</h3>
+    <div class="section">
+      <button id="previewBtn">Preview Document</button>
+    </div>
+
+    <h3>Preview</h3>
     <iframe id="invoicePreview"></iframe>
   </div>
-</div>
 
-<div class="actions">
-  <button class="secondary" onclick="toggleClientView()">Client View</button>
-  <button onclick="generateInvoice()">Preview PDF</button>
-</div>
+  <script>
+    // --- Item Management & Calculator ---
+    const addItemBtn = document.getElementById('addItemBtn');
+    const itemsTableBody = document.querySelector('#itemsTable tbody');
+    const subtotalEl = document.getElementById('subtotal');
+    const taxRateEl = document.getElementById('taxRate');
+    const taxAmountEl = document.getElementById('taxAmount');
+    const grandTotalEl = document.getElementById('grandTotal');
 
-<script>
-const invoiceDate = document.getElementById("invoiceDate");
-invoiceDate.textContent = new Date().toLocaleDateString();
+    let items = [];
 
-function addItem(desc='', price='', category='Service') {
-  const container = document.getElementById("itemsContainer");
-  const row = document.createElement("div");
-  row.classList.add("item-row");
-  row.innerHTML = `
-    <input placeholder="Description" value="${desc}" oninput="updatePreview()">
-    <select onchange="updatePreview()">
-      <option ${category==='Service'?'selected':''}>Service</option>
-      <option ${category==='Product'?'selected':''}>Product</option>
-    </select>
-    <input placeholder="Price" type="number" value="${price}" oninput="updatePreview()">
-    <button onclick="removeItem(this)">❌</button>
-  `;
-  container.appendChild(row);
-  updatePreview();
-}
+    function renderItems() {
+      itemsTableBody.innerHTML = '';
+      items.forEach((item, index) => {
+        const row = document.createElement('tr');
 
-function removeItem(btn) {
-  btn.parentElement.remove();
-  updatePreview();
-}
+        row.innerHTML = `
+          <td><input type="text" value="${item.name}" placeholder="Item Name" data-index="${index}" data-field="name"></td>
+          <td><input type="number" value="${item.qty}" min="1" data-index="${index}" data-field="qty"></td>
+          <td><input type="number" value="${item.price}" min="0" step="0.01" data-index="${index}" data-field="price"></td>
+          <td>$${(item.qty * item.price).toFixed(2)}</td>
+          <td><button onclick="removeItem(${index})" style="background:#ff4d4f;">Remove</button></td>
+        `;
+        itemsTableBody.appendChild(row);
+      });
+      calculateTotals();
+      attachInputListeners();
+    }
 
-function parseItems() {
-  const container = document.getElementById("itemsContainer");
-  const rows = container.querySelectorAll(".item-row");
-  let parsed = [];
-  rows.forEach(r => {
-    const desc = r.children[0].value;
-    const category = r.children[1].value;
-    const price = parseFloat(r.children[2].value) || 0;
-    if(desc) parsed.push({desc, price, category});
-  });
-  return parsed;
-}
+    function attachInputListeners() {
+      const inputs = itemsTableBody.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.oninput = (e) => {
+          const index = e.target.dataset.index;
+          const field = e.target.dataset.field;
+          items[index][field] = field === 'name' ? e.target.value : parseFloat(e.target.value);
+          renderItems();
+        };
+      });
+    }
 
-function calculateTotals(items, taxRate, discountRate) {
-  let subtotal = items.reduce((sum, i) => sum + i.price, 0);
-  let tax = subtotal * (taxRate/100);
-  let discount = subtotal * (discountRate/100);
-  return {subtotal, tax, discount, total: subtotal + tax - discount};
-}
+    function removeItem(index) {
+      items.splice(index,1);
+      renderItems();
+    }
 
-function updatePreview() {
-  const yourName = document.getElementById("yourName").value;
-  const yourEmail = document.getElementById("yourEmail").value;
-  const clientName = document.getElementById("clientName").value;
-  const clientEmail = document.getElementById("clientEmail").value;
-  const currency = document.getElementById("currency").value;
-  const taxRate = parseFloat(document.getElementById("taxRate").value) || 0;
-  const discountRate = parseFloat(document.getElementById("discountRate").value) || 0;
-  const notes = document.getElementById("notes").value;
-  const items = parseItems();
-  const totals = calculateTotals(items, taxRate, discountRate);
+    addItemBtn.onclick = () => {
+      items.push({name:'', qty:1, price:0});
+      renderItems();
+    };
 
-  const iframe = document.getElementById("invoicePreview");
-  const doc = iframe.contentWindow.document;
-  doc.open();
-  doc.write(`<html><head><style>
-      body { font-family: 'Inter', Arial; padding: 20px; color: #111 }
-      h2 { color: var(--primary); }
-      table { width: 100%; border-collapse: separate; border-spacing: 0 6px; margin-top: 20px; }
-      th { background: #34d399; color: white; padding: 12px; border-radius: 8px; }
-      td { background: #f0fdf4; border-radius: 8px; padding: 12px; }
-      .alt-row { background: #dcfce7; }
-      .total-row td { font-weight: 700; background: #bbf7d0; }
-    </style></head><body>
-    <h2>Invoice</h2>
-    <p><strong>${yourName}</strong> (${yourEmail})<br>
-    <strong>Bill To:</strong> ${clientName} (${clientEmail})</p>
-    <table>
-      <tr><th>Description</th><th>Category</th><th>Price (${currency})</th></tr>
-      ${items.map((i, idx)=>`<tr class="${idx%2?'alt-row':''}"><td>${i.desc}</td><td>${i.category}</td><td>${i.price.toFixed(2)}</td></tr>`).join('')}
-      <tr class="total-row"><td colspan="2">Subtotal</td><td>${totals.subtotal.toFixed(2)}</td></tr>
-      <tr class="total-row"><td colspan="2">Tax (${taxRate}%)</td><td>${totals.tax.toFixed(2)}</td></tr>
-      <tr class="total-row"><td colspan="2">Discount (${discountRate}%)</td><td>- ${totals.discount.toFixed(2)}</td></tr>
-      <tr class="total-row"><td colspan="2">Total</td><td>${totals.total.toFixed(2)}</td></tr>
-    </table>
-    <p><strong>Notes:</strong> ${notes}</p>
-    </body></html>`);
-  doc.close();
-}
+    function calculateTotals() {
+      const subtotal = items.reduce((sum,item)=>sum + (item.qty*item.price),0);
+      const taxRate = parseFloat(taxRateEl.value) || 0;
+      const taxAmount = subtotal * (taxRate/100);
+      const grandTotal = subtotal + taxAmount;
 
-function generateInvoice() { alert("PDF generation coming soon!"); }
-function toggleClientView() { alert("Client view coming soon!"); }
+      subtotalEl.innerText = subtotal.toFixed(2);
+      taxAmountEl.innerText = taxAmount.toFixed(2);
+      grandTotalEl.innerText = grandTotal.toFixed(2);
+    }
 
-// Add default item row
-addItem();
-</script>
+    taxRateEl.oninput = calculateTotals;
+
+    // --- Preview PDF (simplified for now) ---
+    document.getElementById('previewBtn').onclick = () => {
+      const docType = document.getElementById('documentType').value;
+      const name = document.getElementById('yourName').value;
+      const client = document.getElementById('clientName').value;
+
+      const doc = new jspdf.jsPDF();
+      doc.setFontSize(18);
+      doc.text(`${docType.toUpperCase()}`, 14, 20);
+      doc.setFontSize(12);
+      doc.text(`From: ${name}`, 14, 30);
+      doc.text(`To: ${client}`, 14, 40);
+
+      let y = 50;
+      items.forEach((item)=>{
+        doc.text(`${item.name} x${item.qty} $${item.price} = $${(item.qty*item.price).toFixed(2)}`,14,y);
+        y+=10;
+      });
+
+      doc.text(`Subtotal: $${subtotalEl.innerText}`,14,y+10);
+      doc.text(`Tax: $${taxAmountEl.innerText}`,14,y+20);
+      doc.text(`Grand Total: $${grandTotalEl.innerText}`,14,y+30);
+
+      doc.output('dataurlnewwindow');
+    }
+  </script>
 </body>
 </html>
