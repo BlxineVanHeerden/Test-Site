@@ -17,6 +17,8 @@ button:hover{ background:#276749; }
 #invoicePreview{ width:100%; height:500px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
 .health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:12px; margin-top:5px; }
 .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
+.row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
+.row-flex > div{ flex:1; min-width:150px; }
 </style>
 </head>
 <body>
@@ -32,18 +34,19 @@ button:hover{ background:#276749; }
   </select>
 </div>
 
-<div class="section">
-  <h3>Your Info</h3>
-  <input id="yourName" placeholder="Your Name / Business Name">
-  <input id="yourEmail" placeholder="Email">
-  <input id="yourPhone" placeholder="Phone">
-</div>
-
-<div class="section">
-  <h3>Client Info</h3>
-  <input id="clientName" placeholder="Client Name">
-  <input id="clientEmail" placeholder="Client Email">
-  <input id="clientPhone" placeholder="Client Phone">
+<div class="section row-flex">
+  <div>
+    <h3>Your Info</h3>
+    <input id="yourName" placeholder="Your Name / Business Name">
+    <input id="yourEmail" placeholder="Email">
+    <input id="yourPhone" placeholder="Phone">
+  </div>
+  <div>
+    <h3>Client Info</h3>
+    <input id="clientName" placeholder="Client Name">
+    <input id="clientEmail" placeholder="Client Email">
+    <input id="clientPhone" placeholder="Client Phone">
+  </div>
 </div>
 
 <div class="section">
@@ -52,7 +55,6 @@ button:hover{ background:#276749; }
     <div class="header-row">
       <div style="flex:2">Item</div>
       <div style="flex:1">Category</div>
-      <div style="flex:1">Sub-category</div>
       <div style="flex:1">Qty</div>
       <div style="flex:1">Price</div>
     </div>
@@ -60,7 +62,7 @@ button:hover{ background:#276749; }
   <button type="button" id="addItemBtn">Add Item</button>
 </div>
 
-<div class="section" style="display:flex; gap:10px; flex-wrap:wrap;">
+<div class="section row-flex">
   <div style="flex:1; min-width:120px;">
     <label>Currency:</label>
     <select id="currencySelect"></select>
@@ -100,16 +102,17 @@ const currencies = ["USD","EUR","GBP","JPY","AUD","CAD","CNY","INR","BRL","ZAR",
 const currencySelect = document.getElementById('currencySelect');
 currencies.forEach(c => { let opt=document.createElement('option'); opt.value=c; opt.textContent=c; currencySelect.appendChild(opt); });
 
-// --- Categories + Sub-categories ---
+// --- Categories ---
 const categories = {
   "Web Design":["UI/UX","Landing Pages","Full Websites","Mobile Apps"],
-  "Hosting & IT":["Cloud","Server","Maintenance","Networking"],
-  "Maintenance & Repairs":["Electrical","Plumbing","Cleaning","HVAC"],
-  "Consulting":["Business","Legal","HR","Finance"],
-  "Marketing":["Digital","Print","Events","Social Media"],
-  "Retail":["Clothing","Electronics","Groceries","Furniture"],
-  "Education":["Tutoring","Courses","Workshops"],
-  "Health":["Fitness","Medical","Wellness"],
+  "Hosting & IT":["Cloud","Server","Maintenance","Networking","Security"],
+  "Maintenance & Repairs":["Electrical","Plumbing","Cleaning","HVAC","Appliances"],
+  "Consulting":["Business","Legal","HR","Finance","Strategy"],
+  "Marketing":["Digital","Print","Events","Social Media","Branding"],
+  "Retail":["Clothing","Electronics","Groceries","Furniture","Books"],
+  "Education":["Tutoring","Courses","Workshops","Materials"],
+  "Health":["Fitness","Medical","Wellness","Nutrition","Therapy"],
+  "Entertainment":["Music","Video","Streaming","Photography","Events"],
   "Misc":["Other"]
 };
 
@@ -120,14 +123,13 @@ const addItemBtn = document.getElementById("addItemBtn");
 
 function createItemRow(){
   const index = items.length;
-  items.push({name:"",category:"Web Design",sub:"UI/UX",qty:1,price:0});
+  items.push({name:"",category:"Web Design",qty:1,price:0});
 
   const div = document.createElement("div");
   div.className="item-row";
 
   const nameInput = document.createElement("input"); nameInput.placeholder="Item Name";
   const catSelect = document.createElement("select");
-  const subSelect = document.createElement("select");
   const qtyInput = document.createElement("input"); qtyInput.type="number"; qtyInput.value=1; qtyInput.min=1;
   const priceInput = document.createElement("input"); priceInput.type="number"; priceInput.value=0; priceInput.min=0;
 
@@ -135,27 +137,13 @@ function createItemRow(){
   Object.keys(categories).forEach(cat=>{
     let opt=document.createElement("option"); opt.value=cat; opt.textContent=cat; catSelect.appendChild(opt);
   });
-  // populate sub-categories
-  categories[catSelect.value].forEach(sub=>{
-    let opt=document.createElement("option"); opt.value=sub; opt.textContent=sub; subSelect.appendChild(opt);
-  });
 
-  catSelect.addEventListener("change", ()=>{
-    items[index].category=catSelect.value;
-    subSelect.innerHTML="";
-    categories[catSelect.value].forEach(sub=>{
-      let opt=document.createElement("option"); opt.value=sub; opt.textContent=sub; subSelect.appendChild(opt);
-    });
-    items[index].sub=subSelect.value;
-    updateHealth();
-  });
-
-  subSelect.addEventListener("change", ()=>{ items[index].sub=subSelect.value; updateHealth(); });
+  catSelect.addEventListener("change", ()=>{ items[index].category=catSelect.value; updateHealth(); });
   nameInput.addEventListener("input", ()=>{ items[index].name=nameInput.value; updateHealth(); });
   qtyInput.addEventListener("input", ()=>{ items[index].qty=parseInt(qtyInput.value)||1; updateHealth(); });
   priceInput.addEventListener("input", ()=>{ items[index].price=parseFloat(priceInput.value)||0; updateHealth(); });
 
-  div.appendChild(nameInput); div.appendChild(catSelect); div.appendChild(subSelect); div.appendChild(qtyInput); div.appendChild(priceInput);
+  div.appendChild(nameInput); div.appendChild(catSelect); div.appendChild(qtyInput); div.appendChild(priceInput);
   itemsContainer.appendChild(div);
 }
 
@@ -165,12 +153,11 @@ createItemRow(); // initial row
 // --- Health Bar ---
 const healthBarEl = document.getElementById("healthBar");
 function updateHealth(){
-  let totalFields = items.length*4 + 6;
+  let totalFields = items.length*3 + 6;
   let filled = 0;
   items.forEach(it=>{
     if(it.name) filled++;
     if(it.category) filled++;
-    if(it.sub) filled++;
     if(it.qty>0) filled++;
     if(it.price>0) filled++;
   });
@@ -189,10 +176,10 @@ document.getElementById("previewBtn").addEventListener("click", ()=>{
   const currency = currencySelect.value;
   let subtotal=0;
   let html=`<h2>${document.getElementById("invoiceType").value}</h2>`;
-  html+=`<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%"><tr style="background:#a7f3d0;"><th>Item</th><th>Category</th><th>Sub</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
+  html+=`<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%"><tr style="background:#a7f3d0;"><th>Item</th><th>Category</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
   items.forEach(it=>{
     const total=it.qty*it.price; subtotal+=total;
-    html+=`<tr><td>${it.name}</td><td>${it.category}</td><td>${it.sub}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${total.toFixed(2)}</td></tr>`;
+    html+=`<tr><td>${it.name}</td><td>${it.category}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${total.toFixed(2)}</td></tr>`;
   });
   const discount=parseFloat(document.getElementById("discount").value)||0;
   const tax=parseFloat(document.getElementById("taxRate").value)||0;
