@@ -5,20 +5,21 @@
 <title>Modern Invoice Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Inter', sans-serif; background: #f0fdf4; margin:0; padding:20px;}
-h1 { text-align:center; color:#2f855a; margin-bottom:20px;}
-input, select, button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
-button { background:#2f855a; color:white; cursor:pointer; transition:0.2s; }
-button:hover{ background:#276749; }
-.section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-.item-row{ display:flex; gap:10px; margin-bottom:10px; }
-.item-row input, .item-row select{ flex:1; }
-#itemsContainer .header-row{ font-weight:600; background:#a7f3d0; padding:5px; border-radius:5px; display:flex; gap:10px; margin-bottom:5px; }
-#invoicePreview{ width:100%; height:500px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
-.health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:12px; margin-top:5px; }
-.health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
-.row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
-.row-flex > div{ flex:1; min-width:150px; }
+  body { font-family: 'Inter', sans-serif; background: #f0f4f8; margin: 0; padding: 20px; }
+  h1 { text-align:center; color:#2f855a; }
+  input, select, button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
+  button { background:#2f855a; color:white; cursor:pointer; transition:0.2s; }
+  button:hover{ background:#276749; }
+  .section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+  table{ width:100%; border-collapse:collapse; margin-top:10px; border-radius:8px; overflow:hidden; }
+  th, td{ padding:10px; text-align:left; border-bottom:1px solid #ccc; }
+  th{ background:#a7f3d0; color:#1f2937; font-weight:600; }
+  tr:nth-child(even){ background:#f0fdf4; }
+  #invoicePreview{ width:100%; height:600px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
+  .health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:12px; margin-top:5px; }
+  .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
+  .row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
+  .row-flex > div{ flex:1; min-width:150px; }
 </style>
 </head>
 <body>
@@ -51,31 +52,34 @@ button:hover{ background:#276749; }
 
 <div class="section">
   <h3>Invoice Items</h3>
-  <div id="itemsContainer">
-    <div class="header-row">
-      <div style="flex:2">Item</div>
-      <div style="flex:1">Category</div>
-      <div style="flex:1">Qty</div>
-      <div style="flex:1">Price</div>
-    </div>
-  </div>
-  <button type="button" id="addItemBtn">Add Item</button>
+  <table id="itemsTable">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Category</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="addItemBtn">Add Item</button>
 </div>
 
 <div class="section row-flex">
-  <div style="flex:1; min-width:120px;">
+  <div>
     <label>Currency:</label>
     <select id="currencySelect"></select>
   </div>
-  <div style="flex:1; min-width:120px;">
+  <div>
     <label>Discount %:</label>
     <input type="number" id="discount" value="0">
   </div>
-  <div style="flex:1; min-width:120px;">
+  <div>
     <label>Tax %:</label>
     <input type="number" id="taxRate" value="0">
   </div>
-  <div style="flex:1; min-width:120px;">
+  <div>
     <label>Payment Status:</label>
     <select id="paymentStatus">
       <option value="Unpaid">Unpaid</option>
@@ -97,60 +101,64 @@ button:hover{ background:#276749; }
 <iframe id="invoicePreview"></iframe>
 
 <script>
-// --- Currencies ---
+// Currency list
 const currencies = ["USD","EUR","GBP","JPY","AUD","CAD","CNY","INR","BRL","ZAR","NZD"];
 const currencySelect = document.getElementById('currencySelect');
 currencies.forEach(c => { let opt=document.createElement('option'); opt.value=c; opt.textContent=c; currencySelect.appendChild(opt); });
 
-// --- Categories ---
+// Categories
 const categories = {
-  "Web Design":["UI/UX","Landing Pages","Full Websites","Mobile Apps"],
-  "Hosting & IT":["Cloud","Server","Maintenance","Networking","Security"],
-  "Maintenance & Repairs":["Electrical","Plumbing","Cleaning","HVAC","Appliances"],
-  "Consulting":["Business","Legal","HR","Finance","Strategy"],
-  "Marketing":["Digital","Print","Events","Social Media","Branding"],
-  "Retail":["Clothing","Electronics","Groceries","Furniture","Books"],
-  "Education":["Tutoring","Courses","Workshops","Materials"],
-  "Health":["Fitness","Medical","Wellness","Nutrition","Therapy"],
-  "Entertainment":["Music","Video","Streaming","Photography","Events"],
+  "Web Design":["UI/UX","Landing Pages","Full Websites"],
+  "Hosting & IT":["Cloud","Server","Maintenance"],
+  "Maintenance & Repairs":["Electrical","Plumbing","Cleaning"],
+  "Consulting":["Business","Legal","HR"],
+  "Marketing":["Digital","Print","Events"],
+  "Retail":["Clothing","Electronics","Groceries"],
   "Misc":["Other"]
 };
 
-// --- Items ---
+// Items array
 let items = [];
-const itemsContainer = document.getElementById("itemsContainer");
+const itemsTableBody = document.querySelector("#itemsTable tbody");
 const addItemBtn = document.getElementById("addItemBtn");
 
-function createItemRow(){
-  const index = items.length;
-  items.push({name:"",category:"Web Design",qty:1,price:0});
-
-  const div = document.createElement("div");
-  div.className="item-row";
-
-  const nameInput = document.createElement("input"); nameInput.placeholder="Item Name";
-  const catSelect = document.createElement("select");
-  const qtyInput = document.createElement("input"); qtyInput.type="number"; qtyInput.value=1; qtyInput.min=1;
-  const priceInput = document.createElement("input"); priceInput.type="number"; priceInput.value=0; priceInput.min=0;
-
-  // populate categories
+// Create item row
+function createItemRow() {
+  const rowIndex = items.length;
+  items.push({name:"",category:"",qty:1,price:0});
+  
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Item name"></td>
+    <td><select></select></td>
+    <td><input type="number" value="1" min="1"></td>
+    <td><input type="number" value="0" min="0"></td>
+  `;
+  
+  // Populate category select
+  const catSelect = tr.children[1].querySelector("select");
   Object.keys(categories).forEach(cat=>{
-    let opt=document.createElement("option"); opt.value=cat; opt.textContent=cat; catSelect.appendChild(opt);
+    let opt=document.createElement("option");
+    opt.value=cat; opt.textContent=cat;
+    catSelect.appendChild(opt);
   });
-
-  catSelect.addEventListener("change", ()=>{ items[index].category=catSelect.value; updateHealth(); });
-  nameInput.addEventListener("input", ()=>{ items[index].name=nameInput.value; updateHealth(); });
-  qtyInput.addEventListener("input", ()=>{ items[index].qty=parseInt(qtyInput.value)||1; updateHealth(); });
-  priceInput.addEventListener("input", ()=>{ items[index].price=parseFloat(priceInput.value)||0; updateHealth(); });
-
-  div.appendChild(nameInput); div.appendChild(catSelect); div.appendChild(qtyInput); div.appendChild(priceInput);
-  itemsContainer.appendChild(div);
+  
+  // Event listeners
+  const nameInput = tr.children[0].querySelector("input");
+  const qtyInput = tr.children[2].querySelector("input");
+  const priceInput = tr.children[3].querySelector("input");
+  
+  nameInput.addEventListener("input",()=>{ items[rowIndex].name=nameInput.value; updateHealth(); });
+  catSelect.addEventListener("change",()=>{ items[rowIndex].category=catSelect.value; updateHealth(); });
+  qtyInput.addEventListener("input",()=>{ items[rowIndex].qty=parseInt(qtyInput.value)||1; updateHealth(); });
+  priceInput.addEventListener("input",()=>{ items[rowIndex].price=parseFloat(priceInput.value)||0; updateHealth(); });
+  
+  itemsTableBody.appendChild(tr);
 }
-
 addItemBtn.addEventListener("click", createItemRow);
 createItemRow(); // initial row
 
-// --- Health Bar ---
+// Health bar
 const healthBarEl = document.getElementById("healthBar");
 function updateHealth(){
   let totalFields = items.length*3 + 6;
@@ -166,34 +174,44 @@ function updateHealth(){
   });
   let score=Math.min(100, Math.round((filled/totalFields)*80 + 10));
   healthBarEl.style.width=score+"%";
-  healthBarEl.style.backgroundColor = score<40?"red":score<70?"yellow":"green";
+  healthBarEl.style.backgroundColor = score<40?"red":score<70?"yellow":"#2f855a"; // green
 }
-document.querySelectorAll('input, select').forEach(el=>{ el.addEventListener("input",updateHealth); el.addEventListener("change",updateHealth); });
+document.querySelectorAll('input, select').forEach(el=>{
+  el.addEventListener("input",updateHealth);
+  el.addEventListener("change",updateHealth);
+});
 updateHealth();
 
-// --- Invoice Preview ---
-document.getElementById("previewBtn").addEventListener("click", ()=>{
+// Invoice preview
+document.getElementById("previewBtn").addEventListener("click",()=>{
   const currency = currencySelect.value;
   let subtotal=0;
-  let html=`<h2>${document.getElementById("invoiceType").value}</h2>`;
-  html+=`<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%"><tr style="background:#a7f3d0;"><th>Item</th><th>Category</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
-  items.forEach(it=>{
-    const total=it.qty*it.price; subtotal+=total;
-    html+=`<tr><td>${it.name}</td><td>${it.category}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${total.toFixed(2)}</td></tr>`;
+  let html=`<div style="font-family:Inter,sans-serif;padding:15px;">
+  <h2 style="color:#2f855a;">${document.getElementById("invoiceType").value}</h2>
+  <table border="0" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%;border-radius:8px;overflow:hidden;">
+  <tr style="background:#a7f3d0;font-weight:600;"><th>Item</th><th>Category</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
+  
+  items.forEach((it,i)=>{
+    const total=it.qty*it.price;
+    subtotal+=total;
+    const bgColor = i%2===0 ? '#f0fdf4' : '#ffffff';
+    html+=`<tr style="background:${bgColor};"><td>${it.name}</td><td>${it.category}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${total.toFixed(2)}</td></tr>`;
   });
+  
   const discount=parseFloat(document.getElementById("discount").value)||0;
   const tax=parseFloat(document.getElementById("taxRate").value)||0;
   const discounted=subtotal*(1-discount/100);
   const total=discounted*(1+tax/100);
-  html+=`</table><p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p><p>Discount: ${discount}%</p><p>Tax: ${tax}%</p>`;
-  html+=`<h3>Total: ${total.toFixed(2)} ${currency}</h3>`;
-  html+=`<p>Payment Status: ${document.getElementById("paymentStatus").value}</p>`;
+  
+  html+=`</table>
+  <p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p>
+  <p>Discount: ${discount}%</p>
+  <p>Tax: ${tax}%</p>
+  <h3 style="color:red;">Total: ${total.toFixed(2)} ${currency}</h3>
+  <p>Payment Status: ${document.getElementById("paymentStatus").value}</p>
+  </div>`;
+  
   document.getElementById("invoicePreview").srcdoc=html;
-});
-
-// --- Live currency update ---
-currencySelect.addEventListener("change", ()=>{
-  document.getElementById("previewBtn").click();
 });
 </script>
 
