@@ -6,13 +6,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
 body { font-family: 'Inter', sans-serif; background: #f0fdf4; margin:0; padding:20px;}
-h1 { text-align:center; color:#2f855a; }
+h1 { text-align:center; color:#2f855a; margin-bottom:20px;}
 input, select, button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
 button { background:#2f855a; color:white; cursor:pointer; transition:0.2s; }
 button:hover{ background:#276749; }
 .section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
 .item-row{ display:flex; gap:10px; margin-bottom:10px; }
 .item-row input, .item-row select{ flex:1; }
+#itemsContainer .header-row{ font-weight:600; background:#a7f3d0; padding:5px; border-radius:5px; display:flex; gap:10px; margin-bottom:5px; }
 #invoicePreview{ width:100%; height:500px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
 .health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:12px; margin-top:5px; }
 .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
@@ -47,31 +48,37 @@ button:hover{ background:#276749; }
 
 <div class="section">
   <h3>Invoice Items</h3>
-  <div id="itemsContainer"></div>
+  <div id="itemsContainer">
+    <div class="header-row">
+      <div style="flex:2">Item</div>
+      <div style="flex:1">Category</div>
+      <div style="flex:1">Sub-category</div>
+      <div style="flex:1">Qty</div>
+      <div style="flex:1">Price</div>
+    </div>
+  </div>
   <button type="button" id="addItemBtn">Add Item</button>
 </div>
 
-<div class="section">
-  <div style="display:flex; gap:10px; flex-wrap:wrap;">
-    <div style="flex:1; min-width:120px;">
-      <label>Currency:</label>
-      <select id="currencySelect"></select>
-    </div>
-    <div style="flex:1; min-width:120px;">
-      <label>Discount %:</label>
-      <input type="number" id="discount" value="0">
-    </div>
-    <div style="flex:1; min-width:120px;">
-      <label>Tax %:</label>
-      <input type="number" id="taxRate" value="0">
-    </div>
-    <div style="flex:1; min-width:120px;">
-      <label>Payment Status:</label>
-      <select id="paymentStatus">
-        <option value="Unpaid">Unpaid</option>
-        <option value="Paid">Paid</option>
-      </select>
-    </div>
+<div class="section" style="display:flex; gap:10px; flex-wrap:wrap;">
+  <div style="flex:1; min-width:120px;">
+    <label>Currency:</label>
+    <select id="currencySelect"></select>
+  </div>
+  <div style="flex:1; min-width:120px;">
+    <label>Discount %:</label>
+    <input type="number" id="discount" value="0">
+  </div>
+  <div style="flex:1; min-width:120px;">
+    <label>Tax %:</label>
+    <input type="number" id="taxRate" value="0">
+  </div>
+  <div style="flex:1; min-width:120px;">
+    <label>Payment Status:</label>
+    <select id="paymentStatus">
+      <option value="Unpaid">Unpaid</option>
+      <option value="Paid">Paid</option>
+    </select>
   </div>
 </div>
 
@@ -88,20 +95,25 @@ button:hover{ background:#276749; }
 <iframe id="invoicePreview"></iframe>
 
 <script>
+// --- Currencies ---
 const currencies = ["USD","EUR","GBP","JPY","AUD","CAD","CNY","INR","BRL","ZAR","NZD"];
 const currencySelect = document.getElementById('currencySelect');
 currencies.forEach(c => { let opt=document.createElement('option'); opt.value=c; opt.textContent=c; currencySelect.appendChild(opt); });
 
+// --- Categories + Sub-categories ---
 const categories = {
-  "Web Design":["UI/UX","Landing Pages","Full Websites"],
-  "Hosting & IT":["Cloud","Server","Maintenance"],
-  "Maintenance & Repairs":["Electrical","Plumbing","Cleaning"],
-  "Consulting":["Business","Legal","HR"],
-  "Marketing":["Digital","Print","Events"],
-  "Retail":["Clothing","Electronics","Groceries"],
+  "Web Design":["UI/UX","Landing Pages","Full Websites","Mobile Apps"],
+  "Hosting & IT":["Cloud","Server","Maintenance","Networking"],
+  "Maintenance & Repairs":["Electrical","Plumbing","Cleaning","HVAC"],
+  "Consulting":["Business","Legal","HR","Finance"],
+  "Marketing":["Digital","Print","Events","Social Media"],
+  "Retail":["Clothing","Electronics","Groceries","Furniture"],
+  "Education":["Tutoring","Courses","Workshops"],
+  "Health":["Fitness","Medical","Wellness"],
   "Misc":["Other"]
 };
 
+// --- Items ---
 let items = [];
 const itemsContainer = document.getElementById("itemsContainer");
 const addItemBtn = document.getElementById("addItemBtn");
@@ -113,49 +125,44 @@ function createItemRow(){
   const div = document.createElement("div");
   div.className="item-row";
 
-  const nameInput = document.createElement("input");
-  nameInput.placeholder="Item Name";
-  nameInput.addEventListener("input", ()=>{ items[index].name=nameInput.value; updateHealth(); });
-
+  const nameInput = document.createElement("input"); nameInput.placeholder="Item Name";
   const catSelect = document.createElement("select");
+  const subSelect = document.createElement("select");
+  const qtyInput = document.createElement("input"); qtyInput.type="number"; qtyInput.value=1; qtyInput.min=1;
+  const priceInput = document.createElement("input"); priceInput.type="number"; priceInput.value=0; priceInput.min=0;
+
+  // populate categories
   Object.keys(categories).forEach(cat=>{
-    let opt = document.createElement("option"); opt.value=cat; opt.textContent=cat; catSelect.appendChild(opt);
+    let opt=document.createElement("option"); opt.value=cat; opt.textContent=cat; catSelect.appendChild(opt);
   });
+  // populate sub-categories
+  categories[catSelect.value].forEach(sub=>{
+    let opt=document.createElement("option"); opt.value=sub; opt.textContent=sub; subSelect.appendChild(opt);
+  });
+
   catSelect.addEventListener("change", ()=>{
     items[index].category=catSelect.value;
     subSelect.innerHTML="";
     categories[catSelect.value].forEach(sub=>{
-      let opt = document.createElement("option"); opt.value=sub; opt.textContent=sub; subSelect.appendChild(opt);
+      let opt=document.createElement("option"); opt.value=sub; opt.textContent=sub; subSelect.appendChild(opt);
     });
     items[index].sub=subSelect.value;
     updateHealth();
   });
 
-  const subSelect = document.createElement("select");
-  categories[catSelect.value].forEach(sub=>{
-    let opt = document.createElement("option"); opt.value=sub; opt.textContent=sub; subSelect.appendChild(opt);
-  });
   subSelect.addEventListener("change", ()=>{ items[index].sub=subSelect.value; updateHealth(); });
-
-  const qtyInput = document.createElement("input");
-  qtyInput.type="number"; qtyInput.value=1; qtyInput.min=1;
+  nameInput.addEventListener("input", ()=>{ items[index].name=nameInput.value; updateHealth(); });
   qtyInput.addEventListener("input", ()=>{ items[index].qty=parseInt(qtyInput.value)||1; updateHealth(); });
-
-  const priceInput = document.createElement("input");
-  priceInput.type="number"; priceInput.value=0; priceInput.min=0;
   priceInput.addEventListener("input", ()=>{ items[index].price=parseFloat(priceInput.value)||0; updateHealth(); });
 
-  div.appendChild(nameInput);
-  div.appendChild(catSelect);
-  div.appendChild(subSelect);
-  div.appendChild(qtyInput);
-  div.appendChild(priceInput);
+  div.appendChild(nameInput); div.appendChild(catSelect); div.appendChild(subSelect); div.appendChild(qtyInput); div.appendChild(priceInput);
   itemsContainer.appendChild(div);
 }
 
 addItemBtn.addEventListener("click", createItemRow);
 createItemRow(); // initial row
 
+// --- Health Bar ---
 const healthBarEl = document.getElementById("healthBar");
 function updateHealth(){
   let totalFields = items.length*4 + 6;
@@ -174,28 +181,32 @@ function updateHealth(){
   healthBarEl.style.width=score+"%";
   healthBarEl.style.backgroundColor = score<40?"red":score<70?"yellow":"green";
 }
-document.querySelectorAll('input, select').forEach(el=>{
-  el.addEventListener("input",updateHealth);
-  el.addEventListener("change",updateHealth);
-});
+document.querySelectorAll('input, select').forEach(el=>{ el.addEventListener("input",updateHealth); el.addEventListener("change",updateHealth); });
 updateHealth();
 
+// --- Invoice Preview ---
 document.getElementById("previewBtn").addEventListener("click", ()=>{
   const currency = currencySelect.value;
   let subtotal=0;
-  let html=`<h2>${document.getElementById("invoiceType").value}</h2><table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%"><tr><th>Item</th><th>Category</th><th>Sub</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
+  let html=`<h2>${document.getElementById("invoiceType").value}</h2>`;
+  html+=`<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%"><tr style="background:#a7f3d0;"><th>Item</th><th>Category</th><th>Sub</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
   items.forEach(it=>{
-    const total=it.qty*it.price;
-    subtotal+=total;
+    const total=it.qty*it.price; subtotal+=total;
     html+=`<tr><td>${it.name}</td><td>${it.category}</td><td>${it.sub}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${total.toFixed(2)}</td></tr>`;
   });
   const discount=parseFloat(document.getElementById("discount").value)||0;
   const tax=parseFloat(document.getElementById("taxRate").value)||0;
   const discounted=subtotal*(1-discount/100);
   const total=discounted*(1+tax/100);
-  html+=`</table><p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p><p>Discount: ${discount}%</p><p>Tax: ${tax}%</p><h3>Total: ${total.toFixed(2)} ${currency}</h3>`;
+  html+=`</table><p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p><p>Discount: ${discount}%</p><p>Tax: ${tax}%</p>`;
+  html+=`<h3>Total: ${total.toFixed(2)} ${currency}</h3>`;
   html+=`<p>Payment Status: ${document.getElementById("paymentStatus").value}</p>`;
   document.getElementById("invoicePreview").srcdoc=html;
+});
+
+// --- Live currency update ---
+currencySelect.addEventListener("change", ()=>{
+  document.getElementById("previewBtn").click();
 });
 </script>
 
