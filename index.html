@@ -5,6 +5,7 @@
 <title>Invoice Generator</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 body{
@@ -48,12 +49,11 @@ th,td{
 }
 th{
   background:#e5e7eb;
-  color:#1f2937;
 }
 
 .health-wrap{
   background:#e5e7eb;
-  height:10px;
+  height:8px;
   border-radius:20px;
   overflow:hidden;
 }
@@ -143,7 +143,7 @@ iframe{
 
 <div class="section">
   <label>Client Note</label>
-  <textarea id="note" placeholder="Optional note for your client"></textarea>
+  <textarea id="note"></textarea>
 </div>
 
 <div class="section">
@@ -153,7 +153,12 @@ iframe{
   </div>
 </div>
 
-<button onclick="previewInvoice()">Preview Invoice</button>
+<div class="section row">
+  <button onclick="previewInvoice()">Preview Invoice</button>
+  <button onclick="downloadPDF()">Download PDF</button>
+  <button onclick="saveInvoice()">Save Invoice</button>
+  <button onclick="loadInvoice()">Load Invoice</button>
+</div>
 
 <h3>Preview</h3>
 <iframe id="preview"></iframe>
@@ -169,15 +174,17 @@ const categories=[
 let items=[];
 let logoData=null;
 
+// Invoice number updates with type
 function generateInvoiceNumber(){
   const type=document.getElementById("docType").value;
   document.getElementById("invoiceNumber").value=
     `${type}-${Math.floor(100000+Math.random()*900000)}`;
 }
 generateInvoiceNumber();
-document.getElementById("docType").addEventListener("change",generateInvoiceNumber);
+docType.addEventListener("change",generateInvoiceNumber);
 
-document.getElementById("logoInput").addEventListener("change",e=>{
+// Logo upload
+logoInput.addEventListener("change",e=>{
   const reader=new FileReader();
   reader.onload=()=>logoData=reader.result;
   reader.readAsDataURL(e.target.files[0]);
@@ -203,6 +210,7 @@ function addItem(){
 }
 addItem();
 
+// Health bar
 function updateHealth(){
   let score=0;
   ["fromName","toName","fromEmail","toEmail"].forEach(id=>{
@@ -219,33 +227,75 @@ function updateHealth(){
 }
 document.addEventListener("input",updateHealth);
 
+// Preview
 function previewInvoice(){
-  let cur=document.getElementById("currency").value;
+  const cur=currency.value;
+  const taxRate=Number(tax.value)||0;
+  const discountRate=Number(discount.value)||0;
+
   let subtotal=0;
-  let rows=items.map(i=>{
-    let t=i.qty*i.price;
-    subtotal+=t;
-    return `<tr>
-      <td>${i.name}</td><td>${i.cat}</td><td>${i.qty}</td><td>${cur}${t.toFixed(2)}</td>
-    </tr>`;
+  const rows=items.map(i=>{
+    const line=i.qty*i.price;
+    subtotal+=line;
+    return `
+      <tr>
+        <td>${i.name||"-"}</td>
+        <td>${i.cat||"-"}</td>
+        <td>${i.qty}</td>
+        <td style="text-align:right">${cur}${line.toFixed(2)}</td>
+      </tr>`;
   }).join("");
 
-  let tax=subtotal*(tax.value/100);
-  let disc=subtotal*(discount.value/100);
-  let total=subtotal+tax-disc;
+  const discountAmt=subtotal*(discountRate/100);
+  const taxAmt=subtotal*(taxRate/100);
+  const total=subtotal-discountAmt+taxAmt;
 
   preview.srcdoc=`
-  <div style="font-family:Inter;padding:24px">
-    ${logoData?`<img src="${logoData}" style="max-height:60px">`:``}
-    <h2>${docType.options[docType.selectedIndex].text}</h2>
-    <p><strong>${fromName.value}</strong> → ${toName.value}</p>
-    <table style="width:100%;border-collapse:collapse">
-      <tr style="background:#e5e7eb"><th>Item</th><th>Category</th><th>Qty</th><th>Total</th></tr>
+  <div style="font-family:Inter;padding:32px">
+    ${logoData?`<img src="${logoData}" style="max-height:60px;margin-bottom:12px">`:""}
+    <h2 style="color:#1e40af">${docType.selectedOptions[0].text}</h2>
+    <p><strong>${fromName.value||"-"}</strong><br>Bill To: ${toName.value||"-"}</p>
+
+    <table style="width:100%;border-collapse:collapse;margin-top:16px">
+      <tr style="background:#e5e7eb">
+        <th>Item</th><th>Category</th><th>Qty</th><th>Total</th>
+      </tr>
       ${rows}
     </table>
-    <h3>Total: ${cur}${total.toFixed(2)}</h3>
-    <p>${note.value}</p>
+
+    <div style="text-align:right;margin-top:16px">
+      <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
+      <p>Discount: -${cur}${discountAmt.toFixed(2)}</p>
+      <p>Tax: ${cur}${taxAmt.toFixed(2)}</p>
+      <h3 style="color:#16a34a">Total: ${cur}${total.toFixed(2)}</h3>
+    </div>
+
+    ${note.value?`<p><strong>Note:</strong><br>${note.value}</p>`:""}
   </div>`;
+}
+
+// PDF export (basic but clean)
+function downloadPDF(){
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
+  pdf.text("Invoice Preview",20,20);
+  pdf.text(preview.contentDocument.body.innerText,20,30);
+  pdf.save("invoice.pdf");
+}
+
+// Save / Load
+function saveInvoice(){
+  localStorage.setItem("invoiceData",JSON.stringify({items,logoData}));
+  alert("Invoice saved");
+}
+function loadInvoice(){
+  const data=JSON.parse(localStorage.getItem("invoiceData"));
+  if(!data)return alert("No saved invoice");
+  items=data.items||[];
+  logoData=data.logoData||null;
+  document.querySelector("#itemsTable tbody").innerHTML="";
+  items.forEach(()=>addItem());
+  previewInvoice();
 }
 </script>
 
