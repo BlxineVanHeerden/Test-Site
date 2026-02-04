@@ -115,13 +115,14 @@ const categories = {
   "Misc":["Other"]
 };
 
+let items = [];
 const itemsTableBody = document.querySelector("#itemsTable tbody");
 const addItemBtn = document.getElementById("addItemBtn");
-let items = [];
 
-function createItemRow(){
+function createItemRow() {
   const rowIndex = items.length;
   items.push({name:"",category:"",sub:"",qty:1,price:0});
+
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td><input type="text" placeholder="Item name"></td>
@@ -133,7 +134,6 @@ function createItemRow(){
 
   const catSelect = tr.children[1].querySelector("select");
   const subSelect = tr.children[2].querySelector("select");
-
   Object.keys(categories).forEach(cat=>{
     let opt=document.createElement("option");
     opt.value=cat; opt.textContent=cat;
@@ -173,9 +173,11 @@ function createItemRow(){
   itemsTableBody.appendChild(tr);
 }
 
+// Attach click AFTER DOM is ready
 addItemBtn.addEventListener("click", createItemRow);
 createItemRow(); // initial row
 
+// Health bar updates live
 const healthBarEl = document.getElementById("healthBar");
 function updateHealth(){
   let totalFields = items.length*4 + 6;
@@ -195,10 +197,14 @@ function updateHealth(){
   healthBarEl.style.backgroundColor = score<40?"red":score<70?"yellow":"green";
 }
 
-document.querySelectorAll('input').forEach(inp=>inp.addEventListener("input",updateHealth));
-document.querySelectorAll('select').forEach(sel=>sel.addEventListener("change",updateHealth));
+// Add live updates for all input fields
+document.querySelectorAll('input, select').forEach(el=>{
+  el.addEventListener("input",updateHealth);
+  el.addEventListener("change",updateHealth);
+});
 updateHealth();
 
+// Invoice preview
 document.getElementById("previewBtn").addEventListener("click",()=>{
   const currency = currencySelect.value;
   let subtotal=0;
