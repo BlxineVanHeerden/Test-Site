@@ -2,62 +2,120 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Modern Invoice Generator</title>
+<title>Smart Invoice Generator</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
-  body { font-family: 'Inter', sans-serif; background: #f0f8ff; margin: 0; padding: 20px; }
-  h1 { text-align:center; color:#1e40af; }
-  input, select, button, textarea { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
-  textarea { resize:vertical; }
-  .section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-  table{ width:100%; border-collapse:collapse; margin-top:10px; }
-  th, td{ padding:10px; text-align:left; border-bottom:1px solid #ccc; }
-  th{ background:#93c5fd; color:#1e3a8a; }
-  #invoicePreview{ width:100%; height:500px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
-  .health-bar-container{ width:100%; background:#e0f2fe; border-radius:10px; height:12px; margin-top:5px; }
-  .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
-  .row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
-  .row-flex > div{ flex:1; min-width:150px; }
-  .button-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-  button.premium { background:#60a5fa; color:white; opacity:0.6; cursor:not-allowed; }
-  button.main { background:#1e40af; color:white; cursor:pointer; }
-  button.main:hover{ background:#1e3a8a; }
+body{
+  font-family:Inter,sans-serif;
+  background:#f8fafc;
+  padding:20px;
+}
+h1{text-align:center;color:#1e40af}
+
+.section{
+  background:#fff;
+  padding:16px;
+  border-radius:14px;
+  margin-bottom:20px;
+  box-shadow:0 6px 18px rgba(0,0,0,.06);
+}
+
+input,select,textarea,button{
+  width:100%;
+  padding:9px;
+  margin-top:6px;
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+}
+
+button{
+  background:#1e40af;
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+}
+button:hover{background:#1e3a8a}
+
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>div{flex:1;min-width:180px}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #e5e7eb;
+}
+th{background:#e5e7eb}
+
+.badge{
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+}
+.grey{background:#e5e7eb;color:#374151}
+.blue{background:#bfdbfe;color:#1e40af}
+.green{background:#bbf7d0;color:#166534}
+.red{background:#fecaca;color:#991b1b}
+
+iframe{
+  width:100%;
+  height:720px;
+  border-radius:14px;
+  border:1px solid #e5e7eb;
+}
 </style>
 </head>
 <body>
 
-<h1>Modern Invoice Generator</h1>
+<h1>Invoice Generator</h1>
 
-<!-- Invoice Type -->
-<div class="section">
-  <label>Document Type:</label>
-  <select id="invoiceType">
-    <option value="invoice">Invoice</option>
-    <option value="quote">Quote</option>
-    <option value="receipt">Receipt</option>
-  </select>
+<div class="section row">
+  <div>
+    <label>Document Type</label>
+    <select id="docType">
+      <option value="INV">Invoice</option>
+      <option value="QUO">Quote</option>
+      <option value="REC">Receipt</option>
+    </select>
+  </div>
+  <div>
+    <label>Invoice Number</label>
+    <input id="invoiceNumber" readonly>
+  </div>
+  <div>
+    <label>Status</label>
+    <select id="status">
+      <option>Draft</option>
+      <option>Sent</option>
+      <option>Paid</option>
+    </select>
+  </div>
 </div>
 
-<!-- Client & Your Info -->
-<div class="section row-flex">
+<div class="section row">
   <div>
     <h3>Your Info</h3>
-    <input id="yourName" placeholder="Your Name / Business Name">
-    <input id="yourEmail" placeholder="Email">
-    <input id="yourPhone" placeholder="Phone">
+    <input id="fromName" placeholder="Business name">
+    <input id="fromEmail" placeholder="Email">
   </div>
   <div>
     <h3>Client Info</h3>
-    <input id="clientName" placeholder="Client Name">
-    <input id="clientEmail" placeholder="Client Email">
-    <input id="clientPhone" placeholder="Client Phone">
+    <input id="toName" placeholder="Client name">
+    <input id="toEmail" placeholder="Client email">
+    <input id="toPhone" placeholder="Client phone number">
   </div>
 </div>
 
-<!-- Invoice Items -->
 <div class="section">
   <h3>Invoice Items</h3>
-  <table id="itemsTable">
+  <table>
     <thead>
       <tr>
         <th>Item</th>
@@ -66,168 +124,191 @@
         <th>Price</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="itemsBody"></tbody>
   </table>
-  <button id="addItemBtn" class="main">Add Item</button>
+  <button id="addItemBtn">Add Item</button>
 </div>
 
-<!-- Extra Invoice Options -->
-<div class="section row-flex">
+<div class="section row">
   <div>
-    <label>Currency:</label>
-    <select id="currencySelect"></select>
+    <label>Currency</label>
+    <select id="currency">
+      <option value="$">USD ($)</option>
+      <option value="€">EUR (€)</option>
+      <option value="£">GBP (£)</option>
+      <option value="R">ZAR (R)</option>
+    </select>
   </div>
   <div>
-    <label>Discount %:</label>
+    <label>Discount %</label>
     <input type="number" id="discount" value="0">
   </div>
   <div>
-    <label>Tax %:</label>
-    <input type="number" id="taxRate" value="0">
+    <label>Tax %</label>
+    <input type="number" id="tax" value="0">
   </div>
   <div>
-    <label>Payment Status:</label>
-    <select id="paymentStatus">
-      <option value="Unpaid">Unpaid</option>
-      <option value="Paid">Paid</option>
-      <option value="Draft">Draft</option>
-      <option value="Sent">Sent</option>
+    <label>Amount Paid</label>
+    <input type="number" id="paid" value="0">
+  </div>
+</div>
+
+<div class="section row">
+  <div>
+    <label>Payment Terms</label>
+    <select id="terms">
+      <option value="0">Due on receipt</option>
+      <option value="7">Net 7</option>
+      <option value="14">Net 14</option>
+      <option value="30">Net 30</option>
     </select>
   </div>
-</div>
-
-<!-- Notes & Health -->
-<div class="section">
-  <label>Notes to Client:</label>
-  <textarea id="clientNotes" placeholder="Optional message to client..."></textarea>
-  <div class="health-bar-container">
-    <div class="health-bar" id="healthBar"></div>
+  <div>
+    <label>Due Date</label>
+    <input type="date" id="dueDate">
   </div>
 </div>
 
-<!-- Action Buttons -->
-<div class="section button-row">
-  <button id="previewBtn" class="main">Preview Invoice</button>
-  <button class="premium" title="Premium Feature">Export PDF</button>
-  <button class="premium" title="Premium Feature">Save Invoice</button>
-  <button class="premium" title="Premium Feature">Duplicate Invoice</button>
-  <button class="premium" title="Premium Feature">Remove Branding</button>
+<div class="section">
+  <label>Client Note</label>
+  <textarea id="note"></textarea>
 </div>
 
-<h3>Invoice Preview</h3>
-<iframe id="invoicePreview"></iframe>
+<button onclick="previewInvoice()">Preview Invoice</button>
+
+<h3>Preview</h3>
+<iframe id="preview"></iframe>
 
 <script>
-// ====== CURRENCIES ======
-const currencies = ["USD","EUR","GBP","JPY","AUD","CAD","CNY","INR","BRL","ZAR","NZD"];
-const currencySelect = document.getElementById('currencySelect');
-currencies.forEach(c => { let opt=document.createElement('option'); opt.value=c; opt.textContent=c; currencySelect.appendChild(opt); });
+const categories=[
+"Professional Services","Consulting","Construction","Automotive",
+"Healthcare","Education","Retail","Manufacturing","Hospitality",
+"Logistics","Freelance","Agriculture","Media","Legal","Finance",
+"Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"
+];
 
-// ====== CATEGORIES ======
-const categories = {
-  "Web Design":[],
-  "Hosting & IT":[],
-  "Maintenance & Repairs":[],
-  "Consulting":[],
-  "Marketing":[],
-  "Retail":[],
-  "Education":[],
-  "Healthcare":[],
-  "Misc":[]
-};
+const counters={INV:0,QUO:0,REC:0};
+const docType=document.getElementById("docType");
+const invoiceNumber=document.getElementById("invoiceNumber");
 
-// ====== ITEMS LOGIC ======
-let items = [];
-const itemsTableBody = document.querySelector("#itemsTable tbody");
-const addItemBtn = document.getElementById("addItemBtn");
+function updateInvoiceNumber(){
+  counters[docType.value]++;
+  invoiceNumber.value=`${docType.value}-${String(counters[docType.value]).padStart(4,"0")}`;
+}
+updateInvoiceNumber();
+docType.addEventListener("change",updateInvoiceNumber);
 
-function createItemRow() {
-  const rowIndex = items.length;
-  items.push({name:"",category:"",qty:1,price:0});
+let items=[];
+const itemsBody=document.getElementById("itemsBody");
 
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td><input type="text" placeholder="Item name"></td>
-    <td><select></select></td>
-    <td><input type="number" value="1" min="1"></td>
-    <td><input type="number" value="0" min="0"></td>
-  `;
+function addItem(){
+  const index=items.length;
+  items.push({name:"",cat:"",qty:1,price:0});
 
-  const catSelect = tr.children[1].querySelector("select");
-  Object.keys(categories).forEach(cat=>{
-    let opt=document.createElement('option'); opt.value=cat; opt.textContent=cat; catSelect.appendChild(opt);
+  const tr=document.createElement("tr");
+
+  const nameTd=document.createElement("td");
+  const nameInput=document.createElement("input");
+  nameInput.oninput=e=>items[index].name=e.target.value;
+  nameTd.appendChild(nameInput);
+
+  const catTd=document.createElement("td");
+  const catSelect=document.createElement("select");
+  categories.forEach(c=>{
+    const o=document.createElement("option");
+    o.textContent=c;
+    catSelect.appendChild(o);
   });
-  catSelect.addEventListener("change",()=>{ items[rowIndex].category=catSelect.value; updateHealth(); });
+  catSelect.onchange=e=>items[index].cat=e.target.value;
+  catTd.appendChild(catSelect);
 
-  const nameInput = tr.children[0].querySelector("input");
-  const qtyInput = tr.children[2].querySelector("input");
-  const priceInput = tr.children[3].querySelector("input");
+  const qtyTd=document.createElement("td");
+  const qtyInput=document.createElement("input");
+  qtyInput.type="number";
+  qtyInput.value=1;
+  qtyInput.min=1;
+  qtyInput.oninput=e=>items[index].qty=Number(e.target.value);
+  qtyTd.appendChild(qtyInput);
 
-  nameInput.addEventListener("input",()=>{ items[rowIndex].name=nameInput.value; updateHealth(); });
-  qtyInput.addEventListener("input",()=>{ items[rowIndex].qty=parseInt(qtyInput.value)||1; updateHealth(); });
-  priceInput.addEventListener("input",()=>{ items[rowIndex].price=parseFloat(priceInput.value)||0; updateHealth(); });
+  const priceTd=document.createElement("td");
+  const priceInput=document.createElement("input");
+  priceInput.type="number";
+  priceInput.value=0;
+  priceInput.min=0;
+  priceInput.oninput=e=>items[index].price=Number(e.target.value);
+  priceTd.appendChild(priceInput);
 
-  itemsTableBody.appendChild(tr);
+  tr.append(nameTd,catTd,qtyTd,priceTd);
+  itemsBody.appendChild(tr);
 }
 
-addItemBtn.addEventListener("click", createItemRow);
-createItemRow();
+document.getElementById("addItemBtn").addEventListener("click",addItem);
+addItem();
 
-// ====== HEALTH BAR ======
-const healthBarEl = document.getElementById("healthBar");
-function updateHealth(){
-  let totalFields = items.length*3 + 6;
-  let filled = 0;
-  items.forEach(it=>{
-    if(it.name) filled++;
-    if(it.category) filled++;
-    if(it.qty>0) filled++;
-    if(it.price>0) filled++;
-  });
-  ['yourName','yourEmail','yourPhone','clientName','clientEmail','clientPhone'].forEach(id=>{
-    if(document.getElementById(id).value.trim()!=="") filled++;
-  });
-  let score=Math.min(100, Math.round((filled/totalFields)*80 + 10));
-  healthBarEl.style.width=score+"%";
-  healthBarEl.style.backgroundColor = score<30?"red":score<70?"yellow":"green";
-}
-document.querySelectorAll('input, select, textarea').forEach(el=>{
-  el.addEventListener("input",updateHealth);
-  el.addEventListener("change",updateHealth);
+terms.addEventListener("change",()=>{
+  const d=new Date();
+  d.setDate(d.getDate()+Number(terms.value));
+  dueDate.value=d.toISOString().split("T")[0];
 });
-updateHealth();
+terms.dispatchEvent(new Event("change"));
 
-// ====== PREVIEW ======
-document.getElementById("previewBtn").addEventListener("click",()=>{
-  const currency = currencySelect.value;
+function previewInvoice(){
+  const cur=currency.value;
   let subtotal=0;
-  let html=`<h2 style="color:#1e40af">${document.getElementById("invoiceType").value.toUpperCase()}</h2>
-  <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse; width:100%;">
-  <tr><th>Item</th><th>Category</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
-  items.forEach(it=>{
-    const total=it.qty*it.price;
-    subtotal+=total;
-    html+=`<tr>
-      <td>${it.name}</td>
-      <td>${it.category}</td>
-      <td>${it.qty}</td>
-      <td>${it.price.toFixed(2)}</td>
-      <td>${total.toFixed(2)}</td>
+
+  const rows=items.map(i=>{
+    const t=i.qty*i.price;
+    subtotal+=t;
+    return `<tr>
+      <td>${i.name||"-"}<br><small>${i.cat||""}</small></td>
+      <td>${i.qty}</td>
+      <td>${cur}${t.toFixed(2)}</td>
     </tr>`;
-  });
-  const discount=parseFloat(document.getElementById("discount").value)||0;
-  const tax=parseFloat(document.getElementById("taxRate").value)||0;
-  const discounted=subtotal*(1-discount/100);
-  const total=discounted*(1+tax/100);
-  html+=`</table>
-  <p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p>
-  <p>Discount: ${discount}%</p>
-  <p>Tax: ${tax}%</p>
-  <h3>Total: ${total.toFixed(2)} ${currency}</h3>
-  <p>Payment Status: ${document.getElementById("paymentStatus").value}</p>
-  <p>Notes: ${document.getElementById("clientNotes").value}</p>`;
-  document.getElementById("invoicePreview").srcdoc=html;
-});
+  }).join("");
+
+  const disc=subtotal*(discount.value/100);
+  const taxAmt=subtotal*(tax.value/100);
+  const total=subtotal-disc+taxAmt;
+  const balance=total-paid.value;
+
+  const due=new Date(dueDate.value);
+  const overdue=balance>0 && new Date()>due;
+
+  let badge="grey",text=status.value;
+  if(status.value==="Paid") badge="green";
+  if(status.value==="Sent") badge="blue";
+  if(overdue){badge="red";text="Overdue";}
+
+  preview.srcdoc=`
+  <div style="font-family:Inter;padding:32px">
+    <span class="badge ${badge}">${text}</span>
+    <h2>${docType.selectedOptions[0].text} ${invoiceNumber.value}</h2>
+
+    <p><strong>${fromName.value}</strong><br>
+    ${fromEmail.value}<br><br>
+    <strong>Bill To:</strong><br>
+    ${toName.value}<br>
+    ${toEmail.value}<br>
+    ${toPhone.value}</p>
+
+    <table style="width:100%;margin-top:20px">
+      <tr><th>Item</th><th>Qty</th><th>Total</th></tr>
+      ${rows}
+    </table>
+
+    <div style="margin-top:20px;max-width:320px;margin-left:auto">
+      <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
+      <p>Discount: -${cur}${disc.toFixed(2)}</p>
+      <p>Tax: ${cur}${taxAmt.toFixed(2)}</p>
+      <p><strong>Total Due: ${cur}${total.toFixed(2)}</strong></p>
+      <p>Amount Paid: ${cur}${paid.value}</p>
+      <p><strong>Balance: ${cur}${balance.toFixed(2)}</strong></p>
+    </div>
+
+    <p><strong>Due Date:</strong> ${dueDate.value}</p>
+    ${note.value?`<p><strong>Note:</strong><br>${note.value}</p>`:""}
+  </div>`;
+}
 </script>
 
 </body>
