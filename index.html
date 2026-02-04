@@ -5,20 +5,17 @@
 <title>Modern Invoice Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Inter', sans-serif; background: #f0fdf4; margin: 0; padding: 20px; }
+body { font-family: 'Inter', sans-serif; background: #f0fdf4; margin:0; padding:20px;}
 h1 { text-align:center; color:#2f855a; }
 input, select, button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
 button { background:#2f855a; color:white; cursor:pointer; transition:0.2s; }
 button:hover{ background:#276749; }
 .section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-table{ width:100%; border-collapse:collapse; margin-top:10px; }
-th, td{ padding:10px; text-align:left; border-bottom:1px solid #ccc; }
-th{ background:#a7f3d0; }
+.item-row{ display:flex; gap:10px; margin-bottom:10px; }
+.item-row input, .item-row select{ flex:1; }
 #invoicePreview{ width:100%; height:500px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
 .health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:12px; margin-top:5px; }
 .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
-.row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
-.row-flex > div{ flex:1; min-width:150px; }
 </style>
 </head>
 <body>
@@ -34,57 +31,47 @@ th{ background:#a7f3d0; }
   </select>
 </div>
 
-<div class="section row-flex">
-  <div>
-    <h3>Your Info</h3>
-    <input id="yourName" placeholder="Your Name / Business Name">
-    <input id="yourEmail" placeholder="Email">
-    <input id="yourPhone" placeholder="Phone">
-  </div>
-  <div>
-    <h3>Client Info</h3>
-    <input id="clientName" placeholder="Client Name">
-    <input id="clientEmail" placeholder="Client Email">
-    <input id="clientPhone" placeholder="Client Phone">
-  </div>
+<div class="section">
+  <h3>Your Info</h3>
+  <input id="yourName" placeholder="Your Name / Business Name">
+  <input id="yourEmail" placeholder="Email">
+  <input id="yourPhone" placeholder="Phone">
+</div>
+
+<div class="section">
+  <h3>Client Info</h3>
+  <input id="clientName" placeholder="Client Name">
+  <input id="clientEmail" placeholder="Client Email">
+  <input id="clientPhone" placeholder="Client Phone">
 </div>
 
 <div class="section">
   <h3>Invoice Items</h3>
-  <table id="itemsTable">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Category</th>
-        <th>Sub-category</th>
-        <th>Quantity</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div id="itemsContainer"></div>
   <button type="button" id="addItemBtn">Add Item</button>
 </div>
 
-<div class="section row-flex">
-  <div>
-    <label>Currency:</label>
-    <select id="currencySelect"></select>
-  </div>
-  <div>
-    <label>Discount %:</label>
-    <input type="number" id="discount" value="0">
-  </div>
-  <div>
-    <label>Tax %:</label>
-    <input type="number" id="taxRate" value="0">
-  </div>
-  <div>
-    <label>Payment Status:</label>
-    <select id="paymentStatus">
-      <option value="Unpaid">Unpaid</option>
-      <option value="Paid">Paid</option>
-    </select>
+<div class="section">
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <div style="flex:1; min-width:120px;">
+      <label>Currency:</label>
+      <select id="currencySelect"></select>
+    </div>
+    <div style="flex:1; min-width:120px;">
+      <label>Discount %:</label>
+      <input type="number" id="discount" value="0">
+    </div>
+    <div style="flex:1; min-width:120px;">
+      <label>Tax %:</label>
+      <input type="number" id="taxRate" value="0">
+    </div>
+    <div style="flex:1; min-width:120px;">
+      <label>Payment Status:</label>
+      <select id="paymentStatus">
+        <option value="Unpaid">Unpaid</option>
+        <option value="Paid">Paid</option>
+      </select>
+    </div>
   </div>
 </div>
 
@@ -103,10 +90,7 @@ th{ background:#a7f3d0; }
 <script>
 const currencies = ["USD","EUR","GBP","JPY","AUD","CAD","CNY","INR","BRL","ZAR","NZD"];
 const currencySelect = document.getElementById('currencySelect');
-currencies.forEach(c => {
-  let opt = document.createElement('option'); opt.value = c; opt.textContent = c;
-  currencySelect.appendChild(opt);
-});
+currencies.forEach(c => { let opt=document.createElement('option'); opt.value=c; opt.textContent=c; currencySelect.appendChild(opt); });
 
 const categories = {
   "Web Design":["UI/UX","Landing Pages","Full Websites"],
@@ -119,65 +103,59 @@ const categories = {
 };
 
 let items = [];
-const itemsTableBody = document.querySelector("#itemsTable tbody");
+const itemsContainer = document.getElementById("itemsContainer");
 const addItemBtn = document.getElementById("addItemBtn");
 
-function createItemRow() {
-  const rowIndex = items.length;
-  items.push({name:"",category:"",sub:"",qty:1,price:0});
+function createItemRow(){
+  const index = items.length;
+  items.push({name:"",category:"Web Design",sub:"UI/UX",qty:1,price:0});
 
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td><input type="text" placeholder="Item name"></td>
-    <td><select></select></td>
-    <td><select></select></td>
-    <td><input type="number" value="1" min="1"></td>
-    <td><input type="number" value="0" min="0"></td>
-  `;
+  const div = document.createElement("div");
+  div.className="item-row";
 
-  const catSelect = tr.children[1].querySelector("select");
-  const subSelect = tr.children[2].querySelector("select");
+  const nameInput = document.createElement("input");
+  nameInput.placeholder="Item Name";
+  nameInput.addEventListener("input", ()=>{ items[index].name=nameInput.value; updateHealth(); });
+
+  const catSelect = document.createElement("select");
   Object.keys(categories).forEach(cat=>{
-    let opt = document.createElement("option"); opt.value=cat; opt.textContent=cat;
-    catSelect.appendChild(opt);
+    let opt = document.createElement("option"); opt.value=cat; opt.textContent=cat; catSelect.appendChild(opt);
   });
-
-  function updateSub(){
+  catSelect.addEventListener("change", ()=>{
+    items[index].category=catSelect.value;
     subSelect.innerHTML="";
     categories[catSelect.value].forEach(sub=>{
-      let opt=document.createElement("option"); opt.value=sub; opt.textContent=sub;
-      subSelect.appendChild(opt);
+      let opt = document.createElement("option"); opt.value=sub; opt.textContent=sub; subSelect.appendChild(opt);
     });
-    items[rowIndex].sub=subSelect.value;
-    updateHealth();
-  }
-
-  catSelect.addEventListener("change",()=>{
-    items[rowIndex].category=catSelect.value;
-    updateSub();
-  });
-  subSelect.addEventListener("change",()=>{
-    items[rowIndex].sub=subSelect.value;
+    items[index].sub=subSelect.value;
     updateHealth();
   });
-  updateSub();
 
-  const nameInput = tr.children[0].querySelector("input");
-  const qtyInput = tr.children[3].querySelector("input");
-  const priceInput = tr.children[4].querySelector("input");
+  const subSelect = document.createElement("select");
+  categories[catSelect.value].forEach(sub=>{
+    let opt = document.createElement("option"); opt.value=sub; opt.textContent=sub; subSelect.appendChild(opt);
+  });
+  subSelect.addEventListener("change", ()=>{ items[index].sub=subSelect.value; updateHealth(); });
 
-  nameInput.addEventListener("input",()=>{ items[rowIndex].name=nameInput.value; updateHealth(); });
-  qtyInput.addEventListener("input",()=>{ items[rowIndex].qty=parseInt(qtyInput.value)||1; updateHealth(); });
-  priceInput.addEventListener("input",()=>{ items[rowIndex].price=parseFloat(priceInput.value)||0; updateHealth(); });
+  const qtyInput = document.createElement("input");
+  qtyInput.type="number"; qtyInput.value=1; qtyInput.min=1;
+  qtyInput.addEventListener("input", ()=>{ items[index].qty=parseInt(qtyInput.value)||1; updateHealth(); });
 
-  itemsTableBody.appendChild(tr);
+  const priceInput = document.createElement("input");
+  priceInput.type="number"; priceInput.value=0; priceInput.min=0;
+  priceInput.addEventListener("input", ()=>{ items[index].price=parseFloat(priceInput.value)||0; updateHealth(); });
+
+  div.appendChild(nameInput);
+  div.appendChild(catSelect);
+  div.appendChild(subSelect);
+  div.appendChild(qtyInput);
+  div.appendChild(priceInput);
+  itemsContainer.appendChild(div);
 }
 
-// Initial item row
 addItemBtn.addEventListener("click", createItemRow);
-createItemRow();
+createItemRow(); // initial row
 
-// Health bar
 const healthBarEl = document.getElementById("healthBar");
 function updateHealth(){
   let totalFields = items.length*4 + 6;
@@ -196,40 +174,26 @@ function updateHealth(){
   healthBarEl.style.width=score+"%";
   healthBarEl.style.backgroundColor = score<40?"red":score<70?"yellow":"green";
 }
-
-// Listen to all inputs
 document.querySelectorAll('input, select').forEach(el=>{
   el.addEventListener("input",updateHealth);
   el.addEventListener("change",updateHealth);
 });
 updateHealth();
 
-// Preview
-document.getElementById("previewBtn").addEventListener("click",()=>{
+document.getElementById("previewBtn").addEventListener("click", ()=>{
   const currency = currencySelect.value;
   let subtotal=0;
-  let html=`<h2>${document.getElementById("invoiceType").value}</h2>
-  <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse; width:100%;">
-  <tr><th>Item</th><th>Category</th><th>Sub</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
+  let html=`<h2>${document.getElementById("invoiceType").value}</h2><table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%"><tr><th>Item</th><th>Category</th><th>Sub</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
   items.forEach(it=>{
     const total=it.qty*it.price;
     subtotal+=total;
-    html+=`<tr>
-      <td>${it.name}</td>
-      <td>${it.category}</td>
-      <td>${it.sub}</td>
-      <td>${it.qty}</td>
-      <td>${it.price.toFixed(2)}</td>
-      <td>${total.toFixed(2)}</td>
-    </tr>`;
+    html+=`<tr><td>${it.name}</td><td>${it.category}</td><td>${it.sub}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${total.toFixed(2)}</td></tr>`;
   });
   const discount=parseFloat(document.getElementById("discount").value)||0;
   const tax=parseFloat(document.getElementById("taxRate").value)||0;
   const discounted=subtotal*(1-discount/100);
   const total=discounted*(1+tax/100);
-  html+=`</table><p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p>`;
-  html+=`<p>Discount: ${discount}%</p><p>Tax: ${tax}%</p>`;
-  html+=`<h3>Total: ${total.toFixed(2)} ${currency}</h3>`;
+  html+=`</table><p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p><p>Discount: ${discount}%</p><p>Tax: ${tax}%</p><h3>Total: ${total.toFixed(2)} ${currency}</h3>`;
   html+=`<p>Payment Status: ${document.getElementById("paymentStatus").value}</p>`;
   document.getElementById("invoicePreview").srcdoc=html;
 });
