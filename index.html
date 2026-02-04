@@ -53,6 +53,9 @@ button:hover{background:#1e3a8a}
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
 
+.flex-row{display:flex;gap:12px;}
+.flex-column{display:flex;flex-direction:column;gap:12px;}
+
 table{
   width:100%;
   border-collapse:collapse;
@@ -93,6 +96,20 @@ iframe{
 }
 .remove-btn:hover{
   background:#b91c1c;
+}
+.health-bar{
+  height:8px;
+  width:100%;
+  border-radius:4px;
+  background:#e5e7eb;
+  margin-bottom:16px;
+}
+.health-fill{
+  height:100%;
+  border-radius:4px;
+  width:0%;
+  background:#1e40af;
+  transition: width 0.3s, background 0.3s;
 }
 </style>
 </head>
@@ -181,8 +198,9 @@ iframe{
   </div>
 </div>
 
-<div class="section row">
-  <div>
+<!-- Payment terms / due date / client note side by side -->
+<div class="section flex-row">
+  <div class="flex-column" style="flex:1">
     <label>Payment Terms</label>
     <select id="terms">
       <option value="0">Due on receipt</option>
@@ -190,16 +208,13 @@ iframe{
       <option value="14">Net 14</option>
       <option value="30">Net 30</option>
     </select>
-  </div>
-  <div>
     <label>Due Date</label>
     <input type="date" id="dueDate">
   </div>
-</div>
-
-<div class="section">
-  <label>Client Note</label>
-  <textarea id="note"></textarea>
+  <div style="flex:2">
+    <label>Client Note</label>
+    <textarea id="note" style="height:100%;"></textarea>
+  </div>
 </div>
 
 <div class="button-group">
@@ -209,7 +224,10 @@ iframe{
   <button onclick="alert('Save Invoice (Premium)')">Save</button>
 </div>
 
-<h3>Preview</h3>
+<h3>Invoice Preview</h3>
+<div class="health-bar">
+  <div id="healthFill" class="health-fill"></div>
+</div>
 <iframe id="preview"></iframe>
 
 <script>
@@ -229,7 +247,11 @@ function updateInvoiceNumber(){
   invoiceNumber.value=`${docType.value}-${String(counters[docType.value]).padStart(4,"0")}`;
 }
 updateInvoiceNumber();
-docType.addEventListener("change",updateInvoiceNumber);
+docType.addEventListener("change",()=>{
+  updateInvoiceNumber();
+  updateHealth();
+  updatePreview();
+});
 
 let items=[];
 const itemsBody=document.getElementById("itemsBody");
@@ -242,7 +264,7 @@ function addItem(){
 
   const nameTd=document.createElement("td");
   const nameInput=document.createElement("input");
-  nameInput.oninput=e=>{items[index].name=e.target.value; updatePreview();}
+  nameInput.oninput=e=>{items[index].name=e.target.value; updatePreview(); updateHealth();}
   nameTd.appendChild(nameInput);
 
   const catTd=document.createElement("td");
@@ -252,7 +274,7 @@ function addItem(){
     o.textContent=c;
     catSelect.appendChild(o);
   });
-  catSelect.onchange=e=>{items[index].cat=e.target.value; updatePreview();}
+  catSelect.onchange=e=>{items[index].cat=e.target.value; updatePreview(); updateHealth();}
   catTd.appendChild(catSelect);
 
   const qtyTd=document.createElement("td");
@@ -260,7 +282,7 @@ function addItem(){
   qtyInput.type="number";
   qtyInput.value=1;
   qtyInput.min=1;
-  qtyInput.oninput=e=>{items[index].qty=Number(e.target.value); updatePreview();}
+  qtyInput.oninput=e=>{items[index].qty=Number(e.target.value); updatePreview(); updateHealth();}
   qtyTd.appendChild(qtyInput);
 
   const priceTd=document.createElement("td");
@@ -268,7 +290,7 @@ function addItem(){
   priceInput.type="number";
   priceInput.value=0;
   priceInput.min=0;
-  priceInput.oninput=e=>{items[index].price=Number(e.target.value); updatePreview();}
+  priceInput.oninput=e=>{items[index].price=Number(e.target.value); updatePreview(); updateHealth();}
   priceTd.appendChild(priceInput);
 
   const actionTd=document.createElement("td");
@@ -279,6 +301,7 @@ function addItem(){
     items.splice(index,1);
     tr.remove();
     updatePreview();
+    updateHealth();
   };
   actionTd.appendChild(removeBtn);
 
@@ -289,10 +312,15 @@ function addItem(){
 document.getElementById("addItemBtn").addEventListener("click",addItem);
 addItem();
 
+const terms=document.getElementById("terms");
+const dueDate=document.getElementById("dueDate");
+
 terms.addEventListener("change",()=>{
   const d=new Date();
   d.setDate(d.getDate()+Number(terms.value));
   dueDate.value=d.toISOString().split("T")[0];
+  updatePreview();
+  updateHealth();
 });
 terms.dispatchEvent(new Event("change"));
 
@@ -306,15 +334,33 @@ document.getElementById("logoInput").addEventListener("change",e=>{
   }
 });
 
-// Update preview dynamically
+// Update preview and health dynamically
 ["fromName","fromEmail","fromPhone","toName","toEmail","toPhone","discount","tax","paid","note","currency","status","invoiceNumber","dueDate"].forEach(id=>{
-  document.getElementById(id).addEventListener("input",updatePreview);
+  document.getElementById(id).addEventListener("input",()=>{
+    updatePreview();
+    updateHealth();
+  });
 });
-docType.addEventListener("change",updatePreview);
-terms.addEventListener("change",updatePreview);
 
-function updatePreview(){
-  const cur=currency.value;
+function updateHealth(){
+  // Health depends on invoice type, status, and payment info
+  let healthPercent = 0;
+  if(docType.value==="INV") healthPercent += 30;
+  if(toName.value) healthPercent += 20;
+  if(toEmail.value) healthPercent += 20;
+  if(Number(document.getElementById("paid").value) > 0) healthPercent += 30;
+
+  const fill = document.getElementById("healthFill");
+  fill.style.width = healthPercent + "%";
+  
+  // Color based on completeness
+  if(healthPercent < 50) fill.style.background="#facc15"; // yellow
+  else if(healthPercent < 80) fill.style.background="#3b82f6"; // blue
+  else fill.style.background="#16a34a"; // green
+}
+
+function previewInvoice(){
+  const cur=document.getElementById("currency").value;
   let subtotal=0;
 
   const rows=items.map(i=>{
@@ -327,36 +373,22 @@ function updatePreview(){
     </tr>`;
   }).join("");
 
-  const disc=subtotal*(discount.value/100);
-  const taxAmt=subtotal*(tax.value/100);
+  const disc=subtotal*(document.getElementById("discount").value/100);
+  const taxAmt=subtotal*(document.getElementById("tax").value/100);
   const total=subtotal-disc+taxAmt;
-  const balance=total-paid.value;
+  const balance=total-document.getElementById("paid").value;
 
   const due=new Date(dueDate.value);
   const overdue=balance>0 && new Date()>due;
 
-  let badge="grey",text=status.value;
-  if(status.value==="Paid") badge="green";
-  if(status.value==="Sent") badge="blue";
+  let badge="grey",text=document.getElementById("status").value;
+  if(text==="Paid") badge="green";
+  if(text==="Sent") badge="blue";
   if(overdue){badge="red";text="Overdue";}
 
-  // Health bar dynamic
-  let healthColor="grey";
-  if(balance<=0) healthColor="green";
-  else if(status.value==="Sent") healthColor="blue";
-  else if(balance>0 && new Date()>due) healthColor="red";
-  else healthColor="yellow";
+  const preview=document.getElementById("preview");
 
-  // Also check client info
-  if(toName.value || toEmail.value || toPhone.value){
-    healthColor = healthColor==="grey"? "yellow":healthColor;
-  }
-
-  preview.srcdoc=`
-  <div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
-    
-    <div style="height:6px;width:100%;background:${healthColor};border-radius:3px;margin-bottom:16px"></div>
-
+  preview.srcdoc=`<div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <h2 style="color:#1e40af;margin:0">${docType.selectedOptions[0].text} ${invoiceNumber.value}</h2>
       <span class="badge ${badge}">${text}</span>
@@ -366,13 +398,15 @@ function updatePreview(){
 
     <div style="display:flex;justify-content:space-between;margin-top:20px">
       <div>
-        <strong>${fromName.value}</strong><br>
-        ${fromEmail.value}<br>
-        ${fromPhone.value?`Phone: ${fromPhone.value}`:''}
+        <strong>${document.getElementById("fromName").value}</strong><br>
+        ${document.getElementById("fromEmail").value}<br>
+        ${document.getElementById("fromPhone").value?`Phone: ${document.getElementById("fromPhone").value}`:''}
       </div>
       <div>
         <strong>Bill To:</strong><br>
-        ${toName.value}<br>${toEmail.value}<br>${toPhone.value}
+        ${document.getElementById("toName").value}<br>
+        ${document.getElementById("toEmail").value}<br>
+        ${document.getElementById("toPhone").value}
       </div>
     </div>
 
@@ -386,15 +420,17 @@ function updatePreview(){
       <p>Discount: -${cur}${disc.toFixed(2)}</p>
       <p>Tax: ${cur}${taxAmt.toFixed(2)}</p>
       <p><strong>Total Due: ${cur}${total.toFixed(2)}</strong></p>
-      <p>Amount Paid: ${cur}${paid.value}</p>
+      <p>Amount Paid: ${cur}${document.getElementById("paid").value}</p>
       <p><strong>Balance: ${cur}${balance.toFixed(2)}</strong></p>
       <p><strong>Due Date:</strong> ${dueDate.value}</p>
     </div>
 
-    ${note.value?`<p style="margin-top:20px"><strong>Note:</strong><br>${note.value}</p>`:""}
+    ${document.getElementById("note").value?`<p style="margin-top:20px"><strong>Note:</strong><br>${document.getElementById("note").value}</p>`:""}
   </div>`;
 }
 
+updateHealth();
+updatePreview();
 </script>
 </body>
 </html>
