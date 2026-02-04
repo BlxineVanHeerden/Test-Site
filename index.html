@@ -1,99 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Smart Invoice Generator</title>
+  <meta charset="UTF-8" />
+  <title>Smart Invoice Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e5e7eb;
+      --radius: 14px;
+      --shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    * { box-sizing: border-box; }
 
-<style>
-body { font-family: Arial, sans-serif; background:#f4f4f4; margin:20px; }
-.section { background:#fff; padding:15px; margin-bottom:20px; border-radius:6px; }
-h1,h3 { margin-top:0 }
-input, select { width:100%; padding:8px; margin:6px 0; box-sizing:border-box; }
-button { padding:8px 14px; background:#222; color:#fff; border:none; cursor:pointer; }
-button:hover { background:#555; }
-table { width:100%; border-collapse:collapse; }
-th,td { border:1px solid #ccc; padding:8px; }
-th { background:#222; color:#fff; }
-iframe { width:100%; height:600px; border:1px solid #ccc }
-.small { font-size:13px; color:#555 }
-.internal { background:#fafafa }
-.score.good { color:green }
-.score.warn { color:orange }
-.score.bad { color:red }
-.clientView .internal { display:none }
-</style>
+    body {
+      margin: 0;
+      padding: 40px 20px 120px;
+      background: linear-gradient(180deg, #eef2ff, #f8fafc);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+    }
+
+    h1 { font-size: 34px; margin-bottom: 10px; }
+    h3 { margin-top: 0; margin-bottom: 12px; }
+    p { margin: 6px 0; color: var(--muted); }
+
+    .container { max-width: 1100px; margin: auto; }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    .lineTotal { font-weight: 600; }
+
+    button {
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111;
+    }
+
+    button.secondary:hover { background: #d1d5db; }
+
+    .actions {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 -10px 30px rgba(0,0,0,.08);
+    }
+
+    .actions button { flex: 1; }
+
+    iframe {
+      width: 100%;
+      height: 650px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+  </style>
 </head>
-
 <body>
+<div class="container">
+  <h1>Smart Invoice Generator</h1>
+  <p>Create clean, professional invoices in seconds.</p>
 
-<h1>Smart Invoice Generator</h1>
+  <!-- INVOICE INFO -->
+  <div class="card">
+    <strong>Invoice #:</strong> <span id="invoiceNumber">001</span><br>
+    <strong>Date:</strong> <span id="invoiceDate">–</span>
+  </div>
 
-<div class="section">
-<strong>Invoice #:</strong> 001<br>
-<strong>Date:</strong> <span id="invoiceDate"></span>
+  <!-- YOUR INFO -->
+  <div class="card">
+    <h3>Your Info</h3>
+    <input id="yourName" placeholder="Your Name / Business Name" />
+    <input id="yourEmail" placeholder="Email" />
+  </div>
+
+  <!-- CLIENT INFO -->
+  <div class="card">
+    <h3>Client Info</h3>
+    <input id="clientName" placeholder="Client Name" />
+    <input id="clientEmail" placeholder="Client Email" />
+  </div>
+
+  <!-- CURRENCY -->
+  <div class="card">
+    <h3>Currency</h3>
+    <select id="currency">
+      <option value="USD">USD - US Dollar</option>
+      <option value="EUR">EUR - Euro</option>
+      <option value="GBP">GBP - British Pound</option>
+      <option value="JPY">JPY - Japanese Yen</option>
+      <option value="INR">INR - Indian Rupee</option>
+      <option value="AUD">AUD - Australian Dollar</option>
+      <option value="CAD">CAD - Canadian Dollar</option>
+      <option value="CHF">CHF - Swiss Franc</option>
+      <option value="CNY">CNY - Chinese Yuan</option>
+      <option value="NZD">NZD - New Zealand Dollar</option>
+      <!-- Add more currencies as needed -->
+    </select>
+  </div>
+
+  <!-- INVOICE ITEMS -->
+  <div class="card">
+    <h3>Invoice Items</h3>
+    <textarea id="items" rows="6" placeholder="Example:
+Web Design - 500
+Hosting - 100
+Maintenance - 150"></textarea>
+    <label>Tax %:</label>
+    <input id="taxRate" type="number" value="0" />
+  </div>
+
+  <!-- INVOICE PREVIEW -->
+  <div class="card">
+    <h3>Invoice Preview</h3>
+    <iframe id="invoicePreview"></iframe>
+  </div>
 </div>
 
-<div class="section">
-<h3>Your Info</h3>
-<input id="yourName" placeholder="Business Name">
-<input id="yourEmail" placeholder="Email">
+<!-- ACTIONS -->
+<div class="actions">
+  <button class="secondary" onclick="toggleClientView()">Client View</button>
+  <button onclick="generateInvoice()">Preview PDF</button>
 </div>
 
-<div class="section">
-<h3>Client Info</h3>
-<input id="clientName" placeholder="Client Name">
-<input id="clientEmail" placeholder="Client Email">
-</div>
+<script>
+const invoiceDate = document.getElementById("invoiceDate");
+invoiceDate.textContent = new Date().toLocaleDateString();
 
-<div class="section">
-<h3>Currency</h3>
-<select id="currencySelect"></select>
-<p class="small" id="currencyInfo"></p>
-</div>
+function parseItems(text) {
+  const lines = text.split("\n");
+  const items = [];
+  for (let line of lines) {
+    if (!line.trim()) continue;
+    const parts = line.split("-");
+    if(parts.length < 2) continue;
+    items.push({ desc: parts[0].trim(), price: parseFloat(parts[1].trim()) });
+  }
+  return items;
+}
 
-<div class="section">
-<h3>Invoice Items</h3>
-<table>
-<thead>
-<tr>
-<th>Description</th>
-<th>Qty</th>
-<th>Price</th>
-<th>Total</th>
-<th></th>
-</tr>
-</thead>
-<tbody id="itemsBody"></tbody>
-</table>
-<button onclick="addRow()">+ Add Item</button>
-</div>
+function calculateTotal(items, taxRate) {
+  let subtotal = items.reduce((sum, i) => sum + i.price, 0);
+  let tax = subtotal * (taxRate/100);
+  return { subtotal, tax, total: subtotal + tax };
+}
 
-<div class="section">
-<h3>Totals</h3>
-<label>Tax %</label>
-<input id="taxRate" type="number" value="0">
+function generateInvoice() {
+  const yourName = document.getElementById("yourName").value;
+  const yourEmail = document.getElementById("yourEmail").value;
+  const clientName = document.getElementById("clientName").value;
+  const clientEmail = document.getElementById("clientEmail").value;
+  const currency = document.getElementById("currency").value;
+  const taxRate = parseFloat(document.getElementById("taxRate").value);
+  const items = parseItems(document.getElementById("items").value);
 
-<p>Subtotal: <strong id="subtotalDisplay">0.00</strong></p>
-<p>Tax: <strong id="taxDisplay">0.00</strong></p>
-<p>Total: <strong id="totalDisplay">0.00</strong></p>
-</div>
+  const totals = calculateTotal(items, taxRate);
 
-<div class="section internal">
-<h3>Insights</h3>
-<p>Invoice Health: <span id="healthScore" class="score"></span></p>
-<p id="tips"></p>
-</div>
+  const iframe = document.getElementById("invoicePreview");
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(`<html><head><style>
+      body { font-family: Arial; padding: 20px; color: #111 }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+      th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+      th { background: #f5f5f5; }
+      .total { font-weight: bold; }
+    </style></head><body>
+    <h2>Invoice</h2>
+    <p><strong>${yourName}</strong> (${yourEmail})<br>
+    <strong>Bill To:</strong> ${clientName} (${clientEmail})</p>
+    <table>
+      <tr><th>Description</th><th>Price (${currency})</th></tr>
+      ${items.map(i=>`<tr><td>${i.desc}</td><td>${i.price.toFixed(2)}</td></tr>`).join("")}
+      <tr><td class="total">Subtotal</td><td>${totals.subtotal.toFixed(2)}</td></tr>
+      <tr><td class="total">Tax (${taxRate}%)</td><td>${totals.tax.toFixed(2)}</td></tr>
+      <tr><td class="total">Total</td><td>${totals.total.toFixed(2)}</td></tr>
+    </table>
+    </body></html>`);
+  doc.close();
+}
 
-<div class="section">
-<button onclick="toggleClientView()">Toggle Client View</button>
-<button onclick="generateInvoice()">Preview PDF</button>
-</div>
-
-<iframe id="invoicePreview"></iframe>
-
-<script src="script.js"></script>
+// Dummy client view toggle
+function toggleClientView() { alert("Client view not implemented yet."); }
+</script>
 </body>
 </html>
