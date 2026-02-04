@@ -22,11 +22,12 @@ h1{text-align:center;color:#1e40af}
 
 input,select,textarea,button{
   width:100%;
-  padding:9px;
+  padding:6px 8px; /* smaller padding */
   margin-top:6px;
-  border-radius:8px;
+  border-radius:6px; /* smaller radius */
   border:1px solid #cbd5e1;
-  font-size:14px;
+  font-size:13px; /* slightly smaller font */
+  box-sizing:border-box;
 }
 
 button{
@@ -46,15 +47,15 @@ button:hover{background:#1e3a8a}
 
 .button-group button{
   flex:1;
-  padding:8px;
-  font-size:14px;
+  padding:6px 8px; /* smaller button padding */
+  font-size:13px;
 }
 
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
 
 .flex-row{display:flex;gap:12px;}
-.flex-column{display:flex;flex-direction:column;gap:12px;}
+.flex-column{display:flex;flex-direction:column;gap:8px;} /* smaller gap for compactness */
 
 table{
   width:100%;
@@ -62,7 +63,7 @@ table{
   margin-top:10px;
 }
 th,td{
-  padding:10px;
+  padding:8px; /* smaller padding */
   border-bottom:1px solid #e5e7eb;
 }
 th{background:#e5e7eb}
@@ -99,9 +100,14 @@ iframe{
 }
 
 #note{
-  height:100px; /* smaller, compact block */
+  height:80px; /* slightly smaller */
   resize:vertical;
 }
+
+#dueDate{
+  padding:5px 8px; /* smaller due date */
+}
+
 </style>
 </head>
 <body>
@@ -192,7 +198,6 @@ iframe{
   </div>
 </div>
 
-<!-- Payment terms / due date / client note side by side -->
 <div class="section flex-row">
   <div class="flex-column" style="flex:1">
     <label>Payment Terms</label>
@@ -222,6 +227,7 @@ iframe{
 <iframe id="preview"></iframe>
 
 <script>
+// Categories
 const categories=[
 "Professional Services","Consulting","Construction","Automotive",
 "Healthcare","Education","Retail","Manufacturing","Hospitality",
@@ -229,6 +235,7 @@ const categories=[
 "Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"
 ];
 
+// Invoice number handling
 const counters={INV:0,QUO:0,REC:0};
 const docType=document.getElementById("docType");
 const invoicePrefix=document.getElementById("invoicePrefix");
