@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Smart Invoice Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
-/* ===== EXISTING STYLES (UNCHANGED) ===== */
 body{
   font-family:Inter,sans-serif;
   background:#f8fafc;
@@ -40,28 +40,12 @@ button{
 }
 button:hover{background:#1e3a8a}
 
-.button-group{
-  display:flex;
-  gap:10px;
-  margin-bottom:20px;
-}
-
-.button-group button{
-  flex:1;
-  padding:6px 8px;
-  font-size:13px;
-}
-
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
-
-.flex-row{display:flex;gap:12px;}
-.flex-column{display:flex;flex-direction:column;gap:8px;}
 
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
 }
 th,td{
   padding:8px;
@@ -69,44 +53,24 @@ th,td{
 }
 th{background:#e5e7eb}
 
-.badge{
-  display:inline-block;
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-}
-.grey{background:#e5e7eb;color:#374151}
-.blue{background:#bfdbfe;color:#1e40af}
-.green{background:#bbf7d0;color:#166534}
-.red{background:#fecaca;color:#991b1b}
-
 iframe{
   width:100%;
   height:720px;
   border-radius:14px;
   border:1px solid #e5e7eb;
-  background:#f9fafb;
 }
 
 .remove-btn{
   background:#ef4444;
-  padding:4px 8px;
   font-size:12px;
+  padding:4px 8px;
   border-radius:6px;
-  cursor:pointer;
 }
-.remove-btn:hover{background:#b91c1c}
 
-#note{height:80px}
-#dueDate{padding:5px 8px}
-
-/* ===== NEW STYLES (ONLY ADDITIONS) ===== */
 .pricing{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:16px;
-  margin-top:20px;
+  gap:20px;
 }
 
 .price-card{
@@ -117,105 +81,165 @@ iframe{
   text-align:center;
 }
 
-.price-card h3{margin:0;color:#1e40af}
 .price{
-  font-size:32px;
+  font-size:28px;
   font-weight:700;
   margin:10px 0;
+  color:#1e40af;
 }
-.price small{font-size:14px;color:#64748b}
 
 .price-card ul{
   list-style:none;
   padding:0;
-  margin:14px 0;
-}
-.price-card li{
-  margin:6px 0;
   font-size:14px;
 }
 
-.popular{
-  border:2px solid #1e40af;
-}
-
-.email-box{
-  max-width:420px;
-  margin:20px auto 0;
-  text-align:center;
-}
-.email-box input{
-  margin-bottom:10px;
-}
-.email-box small{
-  color:#64748b;
+.price-card li{
+  margin:8px 0;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== YOUR APP (UNCHANGED) ===== -->
 <h1>Invoice Generator</h1>
 
-<!-- (Your full existing invoice HTML & JS stays exactly the same here) -->
-
-<!-- ===== NEW SECTION: PRICING ===== -->
-<div class="section">
-  <h2 style="text-align:center;color:#1e40af">Simple Pricing</h2>
-
-  <div class="pricing">
-    <div class="price-card">
-      <h3>Free</h3>
-      <div class="price">$0</div>
-      <ul>
-        <li>Create invoices</li>
-        <li>Unlimited items</li>
-        <li>Live preview</li>
-        <li>Manual sharing</li>
-      </ul>
-      <button onclick="alert('You are already on the Free plan')">Current Plan</button>
-    </div>
-
-    <div class="price-card popular">
-      <h3>Pro</h3>
-      <div class="price">$7 <small>one-time</small></div>
-      <ul>
-        <li>Download PDF</li>
-        <li>Send invoices</li>
-        <li>Save invoices</li>
-        <li>No watermark</li>
-      </ul>
-      <button onclick="alert('Premium checkout coming soon')">Upgrade</button>
-    </div>
-
-    <div class="price-card">
-      <h3>Business</h3>
-      <div class="price">$15 <small>one-time</small></div>
-      <ul>
-        <li>Everything in Pro</li>
-        <li>Multiple templates</li>
-        <li>Priority features</li>
-        <li>Early access</li>
-      </ul>
-      <button onclick="alert('Business checkout coming soon')">Upgrade</button>
-    </div>
+<!-- INVOICE APP -->
+<div class="section row">
+  <div>
+    <label>Document Type</label>
+    <select id="docType">
+      <option value="INV">Invoice</option>
+      <option value="QUO">Quote</option>
+      <option value="REC">Receipt</option>
+    </select>
+  </div>
+  <div>
+    <label>Invoice Number</label>
+    <input id="invoiceNumber" value="0001">
   </div>
 </div>
 
-<!-- ===== NEW SECTION: EMAIL CAPTURE ===== -->
-<div class="section">
-  <h2 style="text-align:center;color:#1e40af">Get Early Access</h2>
-  <p style="text-align:center">
-    Want PDF exports & premium features when they launch?
-  </p>
-
-  <div class="email-box">
-    <input type="email" placeholder="Enter your email">
-    <button onclick="alert('Thanks! We will notify you.')">Notify Me</button>
-    <small>No spam. Unsubscribe anytime.</small>
+<div class="section row">
+  <div>
+    <h3>Your Info</h3>
+    <input id="fromName" placeholder="Business name">
+    <input id="fromEmail" placeholder="Email">
+  </div>
+  <div>
+    <h3>Client Info</h3>
+    <input id="toName" placeholder="Client name">
+    <input id="toEmail" placeholder="Client email">
   </div>
 </div>
+
+<div class="section">
+  <h3>Invoice Items (Free plan = 2 max)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="itemsBody"></tbody>
+  </table>
+  <button onclick="addItem()">Add Item</button>
+</div>
+
+<div class="section">
+  <button onclick="previewInvoice()">Preview Invoice</button>
+</div>
+
+<h3>Invoice Preview</h3>
+<iframe id="preview"></iframe>
+
+<!-- PRICING -->
+<h2 style="text-align:center;margin-top:60px">Pricing</h2>
+
+<div class="pricing">
+
+<div class="price-card">
+  <h3>Free</h3>
+  <div class="price">$0</div>
+  <ul>
+    <li>Up to 2 items</li>
+    <li>Live preview</li>
+    <li>Basic layout</li>
+  </ul>
+  <button>Current Plan</button>
+</div>
+
+<div class="price-card">
+  <h3>Starter</h3>
+  <div class="price">$6/mo</div>
+  <ul>
+    <li>Unlimited items</li>
+    <li>PDF download</li>
+    <li>Email invoices</li>
+  </ul>
+  <button>Upgrade</button>
+</div>
+
+<div class="price-card">
+  <h3>Business</h3>
+  <div class="price">$12/mo</div>
+  <ul>
+    <li>Custom branding</li>
+    <li>Saved clients</li>
+    <li>Invoice history</li>
+  </ul>
+  <button>Upgrade</button>
+</div>
+
+<div class="price-card">
+  <h3>Enterprise</h3>
+  <div class="price">$25/mo</div>
+  <ul>
+    <li>Team access</li>
+    <li>White-label</li>
+    <li>Priority support</li>
+  </ul>
+  <button>Contact Sales</button>
+</div>
+
+</div>
+
+<script>
+let items=[];
+const FREE_LIMIT=2;
+
+function addItem(){
+  if(items.length>=FREE_LIMIT){
+    alert("Free plan allows only 2 items. Upgrade to add more.");
+    return;
+  }
+
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
+    <td><input></td>
+    <td><input type="number" value="1"></td>
+    <td><input type="number" value="0"></td>
+    <td><button class="remove-btn">X</button></td>
+  `;
+  tr.querySelector("button").onclick=()=>{tr.remove();items.pop();}
+  document.getElementById("itemsBody").appendChild(tr);
+  items.push(1);
+}
+
+addItem();
+
+function previewInvoice(){
+  document.getElementById("preview").srcdoc=`
+  <div style="font-family:Inter;padding:30px">
+    <h2>${fromName.value}</h2>
+    <p>Bill to: ${toName.value}</p>
+    <p>Invoice #: ${invoiceNumber.value}</p>
+  </div>`;
+}
+</script>
 
 </body>
 </html>
