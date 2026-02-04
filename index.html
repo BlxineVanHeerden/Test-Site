@@ -5,19 +5,19 @@
 <title>Modern Invoice Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  body { font-family: 'Inter', sans-serif; background: #f0f4f8; margin: 0; padding: 20px; }
-  h1 { text-align:center; color:#2f855a; }
+  body { font-family: 'Inter', sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
+  h1 { text-align:center; color:#1e40af; } /* Blue for trust & professionalism */
   input, select, button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
-  button { background:#2f855a; color:white; cursor:pointer; transition:0.2s; }
-  button:hover{ background:#276749; }
+  button { background:#1e40af; color:white; cursor:pointer; transition:0.2s; }
+  button:hover{ background:#1e3a8a; }
   .section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-  table{ width:100%; border-collapse:collapse; margin-top:10px; border-radius:8px; overflow:hidden; }
-  th, td{ padding:10px; text-align:left; border-bottom:1px solid #ccc; }
-  th{ background:#a7f3d0; color:#1f2937; font-weight:600; }
-  tr:nth-child(even){ background:#f0fdf4; }
-  #invoicePreview{ width:100%; height:600px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
-  .health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:12px; margin-top:5px; }
-  .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
+  table{ width:100%; border-collapse:collapse; margin-top:10px; border-radius:8px; overflow:hidden; font-size:14px; }
+  th, td{ padding:10px; text-align:left; border-bottom:1px solid #d1d5db; color:#111827; }
+  th{ background:#e5e7eb; color:#111827; font-weight:600; } /* Grey for sophistication */
+  tr:nth-child(even){ background:#f9fafb; } /* subtle contrast for readability */
+  #invoicePreview{ width:100%; height:600px; border:1px solid #d1d5db; border-radius:8px; margin-top:20px; }
+  .health-bar-container{ width:100%; background:#e5e7eb; border-radius:10px; height:12px; margin-top:5px; }
+  .health-bar{ height:100%; width:0%; background:#1e40af; border-radius:10px; transition:0.3s; } /* Blue by default */
   .row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
   .row-flex > div{ flex:1; min-width:150px; }
 </style>
@@ -101,28 +101,31 @@
 <iframe id="invoicePreview"></iframe>
 
 <script>
-// Currency list
+// Currency list with ZAR added
 const currencies = ["USD","EUR","GBP","JPY","AUD","CAD","CNY","INR","BRL","ZAR","NZD"];
 const currencySelect = document.getElementById('currencySelect');
 currencies.forEach(c => { let opt=document.createElement('option'); opt.value=c; opt.textContent=c; currencySelect.appendChild(opt); });
 
 // Categories
 const categories = {
-  "Web Design":["UI/UX","Landing Pages","Full Websites"],
-  "Hosting & IT":["Cloud","Server","Maintenance"],
-  "Maintenance & Repairs":["Electrical","Plumbing","Cleaning"],
-  "Consulting":["Business","Legal","HR"],
-  "Marketing":["Digital","Print","Events"],
-  "Retail":["Clothing","Electronics","Groceries"],
-  "Misc":["Other"]
+  "Web Design":[],
+  "Hosting & IT":[],
+  "Maintenance & Repairs":[],
+  "Consulting":[],
+  "Marketing":[],
+  "Retail":[],
+  "Legal Services":[],
+  "Finance":[],
+  "Education":[],
+  "Healthcare":[],
+  "Misc":[]
 };
 
-// Items array
 let items = [];
 const itemsTableBody = document.querySelector("#itemsTable tbody");
 const addItemBtn = document.getElementById("addItemBtn");
 
-// Create item row
+// Add item row
 function createItemRow() {
   const rowIndex = items.length;
   items.push({name:"",category:"",qty:1,price:0});
@@ -135,15 +138,13 @@ function createItemRow() {
     <td><input type="number" value="0" min="0"></td>
   `;
   
-  // Populate category select
   const catSelect = tr.children[1].querySelector("select");
   Object.keys(categories).forEach(cat=>{
-    let opt=document.createElement("option");
+    let opt=document.createElement('option');
     opt.value=cat; opt.textContent=cat;
     catSelect.appendChild(opt);
   });
   
-  // Event listeners
   const nameInput = tr.children[0].querySelector("input");
   const qtyInput = tr.children[2].querySelector("input");
   const priceInput = tr.children[3].querySelector("input");
@@ -174,7 +175,7 @@ function updateHealth(){
   });
   let score=Math.min(100, Math.round((filled/totalFields)*80 + 10));
   healthBarEl.style.width=score+"%";
-  healthBarEl.style.backgroundColor = score<40?"red":score<70?"yellow":"#2f855a"; // green
+  healthBarEl.style.backgroundColor = score<40?"#e53e3e":score<70?"#06b6d4":"#1e40af"; // red, turquoise, blue
 }
 document.querySelectorAll('input, select').forEach(el=>{
   el.addEventListener("input",updateHealth);
@@ -186,15 +187,15 @@ updateHealth();
 document.getElementById("previewBtn").addEventListener("click",()=>{
   const currency = currencySelect.value;
   let subtotal=0;
-  let html=`<div style="font-family:Inter,sans-serif;padding:15px;">
-  <h2 style="color:#2f855a;">${document.getElementById("invoiceType").value}</h2>
+  let html=`<div style="font-family:Inter,sans-serif;padding:15px;color:#111827;">
+  <h2 style="color:#1e40af;">${document.getElementById("invoiceType").value}</h2>
   <table border="0" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%;border-radius:8px;overflow:hidden;">
-  <tr style="background:#a7f3d0;font-weight:600;"><th>Item</th><th>Category</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
+  <tr style="background:#e5e7eb;color:#111827;font-weight:600;"><th>Item</th><th>Category</th><th>Qty</th><th>Price (${currency})</th><th>Total</th></tr>`;
   
   items.forEach((it,i)=>{
     const total=it.qty*it.price;
     subtotal+=total;
-    const bgColor = i%2===0 ? '#f0fdf4' : '#ffffff';
+    const bgColor = i%2===0 ? '#f9fafb' : '#ffffff';
     html+=`<tr style="background:${bgColor};"><td>${it.name}</td><td>${it.category}</td><td>${it.qty}</td><td>${it.price.toFixed(2)}</td><td>${total.toFixed(2)}</td></tr>`;
   });
   
@@ -207,7 +208,7 @@ document.getElementById("previewBtn").addEventListener("click",()=>{
   <p>Subtotal: ${subtotal.toFixed(2)} ${currency}</p>
   <p>Discount: ${discount}%</p>
   <p>Tax: ${tax}%</p>
-  <h3 style="color:red;">Total: ${total.toFixed(2)} ${currency}</h3>
+  <h3 style="color:#e53e3e;">Total: ${total.toFixed(2)} ${currency}</h3>
   <p>Payment Status: ${document.getElementById("paymentStatus").value}</p>
   </div>`;
   
