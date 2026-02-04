@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Modern Invoice Generator - Free Version</title>
+<title>Modern Invoice Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
   body { font-family: 'Inter', sans-serif; background: #f0fdf4; margin: 0; padding: 20px; }
   h1 { text-align:center; color:#2f855a; }
   input, select, button, textarea { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; font-size:14px; width:100%; box-sizing:border-box; }
-  button { background:#2f855a; color:white; cursor:pointer; transition:0.2s; }
+  button { background:#2f855a; color:white; cursor:pointer; transition:0.2s; font-size:14px; }
   button:hover{ background:#276749; }
   button.premium { background:#f6ad55; color:white; cursor:not-allowed; }
   .section{ margin-bottom:20px; background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
@@ -20,7 +20,8 @@
   .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
   .row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
   .row-flex > div{ flex:1; min-width:150px; }
-  .premium-note { font-size:12px; color:#b34700; margin-top:5px; }
+  .button-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  textarea { resize:vertical; }
 </style>
 </head>
 <body>
@@ -105,7 +106,7 @@
 </div>
 
 <!-- Action Buttons -->
-<div class="section row-flex">
+<div class="section button-row">
   <button id="previewBtn">Preview Invoice</button>
   <button class="premium" title="Premium Feature">Export PDF</button>
   <button class="premium" title="Premium Feature">Save Invoice</button>
