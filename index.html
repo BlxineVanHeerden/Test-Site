@@ -15,7 +15,7 @@
     th, td{ padding:10px; text-align:left; border-bottom:1px solid #ccc; }
     th{ background:#a7f3d0; border-radius:8px; }
     #invoicePreview{ width:100%; height:500px; border:1px solid #ccc; border-radius:8px; margin-top:20px; }
-    .health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:20px; margin-top:5px; }
+    .health-bar-container{ width:100%; background:#e6f4ea; border-radius:10px; height:12px; margin-top:5px; }
     .health-bar{ height:100%; width:0%; background:red; border-radius:10px; transition:0.3s; }
     .row-flex{ display:flex; gap:10px; flex-wrap:wrap; }
     .row-flex > div{ flex:1; min-width:150px; }
@@ -139,20 +139,17 @@
 
   function addItem(){
     const rowIndex = items.length;
-    items.push({name:"",category:"",sub:"",qty:0,price:0});
+    items.push({name:"",category:"",sub:"",qty:1,price:0});
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><input type="text" placeholder="Item name"></td>
-      <td>
-        <select></select>
-      </td>
-      <td>
-        <select></select>
-      </td>
+      <td><select></select></td>
+      <td><select></select></td>
       <td><input type="number" value="1" min="1"></td>
       <td><input type="number" value="0" min="0"></td>
     `;
+
     // Populate category select
     const catSelect = tr.children[1].querySelector("select");
     const subSelect = tr.children[2].querySelector("select");
@@ -161,7 +158,7 @@
       option.value=cat; option.textContent=cat;
       catSelect.appendChild(option);
     });
-    // Populate subcategory when category changes
+
     function updateSubcats(){
       subSelect.innerHTML="";
       categories[catSelect.value].forEach(sub=>{
@@ -182,20 +179,20 @@
     });
     updateSubcats();
 
-    // Inputs for name, qty, price
+    // Inputs
     const nameInput = tr.children[0].querySelector("input");
     const qtyInput = tr.children[3].querySelector("input");
     const priceInput = tr.children[4].querySelector("input");
 
     nameInput.addEventListener("input",()=>{ items[rowIndex].name=nameInput.value; updateHealth(); });
-    qtyInput.addEventListener("input",()=>{ items[rowIndex].qty=parseInt(qtyInput.value)||0; updateHealth(); });
+    qtyInput.addEventListener("input",()=>{ items[rowIndex].qty=parseInt(qtyInput.value)||1; updateHealth(); });
     priceInput.addEventListener("input",()=>{ items[rowIndex].price=parseFloat(priceInput.value)||0; updateHealth(); });
 
     itemsTableBody.appendChild(tr);
   }
 
   addItemBtn.addEventListener("click", addItem);
-  addItem(); // add initial row
+  addItem(); // initial row
 
   // Health bar logic
   const healthBarEl = document.getElementById("healthBar");
@@ -215,7 +212,8 @@
       if(document.getElementById(id).value.trim()!=="") filled++;
     });
 
-    let score=Math.min(100, Math.round((filled/totalFields)*100));
+    // Slightly less sensitive: scale score
+    let score=Math.min(100, Math.round((filled/totalFields)*80 + 10)); 
     healthBarEl.style.width=score+"%";
     if(score<40) healthBarEl.style.backgroundColor="red";
     else if(score<70) healthBarEl.style.backgroundColor="yellow";
