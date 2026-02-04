@@ -3,39 +3,17 @@ document.getElementById("invoiceDate").innerText =
 
 document.addEventListener("input", recalc);
 
-function recalc() {
-  let subtotal = 0;
-
-  document.querySelectorAll("#itemsBody tr").forEach(row => {
-    const qty = Number(row.children[1].querySelector("input").value) || 0;
-    const price = Number(row.children[2].querySelector("input").value) || 0;
-    const total = qty * price;
-
-    row.querySelector(".lineTotal").innerText = `$${total.toFixed(2)}`;
-    subtotal += total;
-  });
-
-  const taxRate = Number(document.getElementById("taxRate").value) || 0;
-  const tax = subtotal * taxRate / 100;
-  const grandTotal = subtotal + tax;
-
-  document.getElementById("subtotal").innerText = `$${subtotal.toFixed(2)}`;
-  document.getElementById("taxAmount").innerText = `$${tax.toFixed(2)}`;
-  document.getElementById("grandTotal").innerText = `$${grandTotal.toFixed(2)}`;
-
-  updateHealth(subtotal);
-}
-
 function addRow() {
   const row = document.createElement("tr");
   row.innerHTML = `
-    <td><input placeholder="New Item"></td>
-    <td><input type="number" value="1" min="1"></td>
-    <td><input type="number" value="0" min="0"></td>
+    <td><input value="Phase"></td>
+    <td><input></td>
+    <td><input type="number" value="1"></td>
+    <td><input type="number" value="0"></td>
     <td class="lineTotal">$0.00</td>
     <td><button onclick="removeRow(this)">✕</button></td>
   `;
-  document.getElementById("itemsBody").appendChild(row);
+  itemsBody.appendChild(row);
 }
 
 function removeRow(btn) {
@@ -43,65 +21,96 @@ function removeRow(btn) {
   recalc();
 }
 
-function updateHealth(subtotal) {
-  let score = 100;
+function recalc() {
+  let subtotal = 0;
+  let vagueCount = 0;
+  let rows = [...document.querySelectorAll("#itemsBody tr")];
+
+  rows.forEach(r => {
+    const name = r.children[1].querySelector("input").value.toLowerCase();
+    const qty = +r.children[2].querySelector("input").value || 0;
+    const price = +r.children[3].querySelector("input").value || 0;
+    const total = qty * price;
+    r.querySelector(".lineTotal").innerText = `$${total.toFixed(2)}`;
+    subtotal += total;
+    if (name.length < 5) vagueCount++;
+  });
+
+  const tax = subtotal * (+taxRate.value / 100);
+  const total = subtotal + tax;
+
+  subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+  taxAmount.textContent = `$${tax.toFixed(2)}`;
+  grandTotal.textContent = `$${total.toFixed(2)}`;
+
+  updateScores(subtotal, vagueCount, rows.length);
+}
+
+function updateScores(subtotal, vague, count) {
+  let health = 100, friction = 100, readability = 100, dispute = 100;
   let tips = [];
 
-  if (!yourName.value) { score -= 15; tips.push("Add your business name"); }
-  if (!clientName.value) { score -= 15; tips.push("Add client name"); }
-  if (subtotal <= 0) { score -= 40; tips.push("Invoice total is zero"); }
-  if (Number(taxRate.value) === 0) tips.push("Consider adding tax");
+  if (!clientName.value) { health -= 20; dispute -= 20; tips.push("Add client info"); }
+  if (subtotal <= 0) { health -= 40; tips.push("Invoice total is zero"); }
+  if (taxRate.value == 0) friction -= 10;
+  if (count > 6) readability -= 15;
+  if (vague > 0) { dispute -= vague * 10; tips.push("Clarify vague items"); }
 
-  const health = document.getElementById("healthScore");
-  health.innerText = score + "/100";
+  showScore("healthScore", health);
+  showScore("frictionScore", friction);
+  showScore("readabilityScore", readability);
+  showScore("disputeScore", dispute);
 
-  health.style.color =
-    score >= 80 ? "green" : score >= 50 ? "orange" : "red";
+  tipsEl.innerHTML = tips.map(t => "• " + t).join("<br>");
+}
 
-  document.getElementById("healthTips").innerHTML =
-    tips.map(t => "• " + t).join("<br>");
+function showScore(id, val) {
+  const el = document.getElementById(id);
+  el.textContent = val + "/100";
+  el.className = "score " + (val >= 80 ? "good" : val >= 50 ? "warn" : "bad");
+}
+
+function toggleClientView() {
+  document.body.classList.toggle("clientView");
 }
 
 function generateInvoice() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.setFontSize(22);
-  doc.text("INVOICE", 20, 25);
+  doc.setFontSize(20);
+  doc.text("INVOICE", 20, 20);
 
-  doc.setFontSize(12);
-  doc.text(`Invoice #: ${invoiceNumber.innerText}`, 20, 40);
-  doc.text(`Date: ${invoiceDate.innerText}`, 20, 48);
+  doc.setFontSize(11);
+  doc.text(`From: ${yourName.value}`, 20, 35);
+  doc.text(`To: ${clientName.value}`, 20, 45);
 
-  doc.text(`From: ${yourName.value}`, 120, 40);
-  doc.text(`Email: ${yourEmail.value}`, 120, 48);
-  doc.text(`To: ${clientName.value}`, 120, 56);
-  doc.text(`Email: ${clientEmail.value}`, 120, 64);
-
-  const items = [];
-  document.querySelectorAll("#itemsBody tr").forEach(row => {
-    const name = row.children[0].querySelector("input").value;
-    const qty = row.children[1].querySelector("input").value;
-    const price = row.children[2].querySelector("input").value;
-    const total = (qty * price).toFixed(2);
-    items.push([name, qty, `$${price}`, `$${total}`]);
+  const rows = [];
+  document.querySelectorAll("#itemsBody tr").forEach(r => {
+    rows.push([
+      r.children[0].querySelector("input").value,
+      r.children[1].querySelector("input").value,
+      r.children[2].querySelector("input").value,
+      `$${r.children[3].querySelector("input").value}`,
+      r.querySelector(".lineTotal").innerText
+    ]);
   });
 
   doc.autoTable({
-    startY: 75,
-    head: [["Item", "Qty", "Price", "Total"]],
-    body: items,
-    theme: "grid"
+    startY: 60,
+    head: [["Phase","Item","Qty","Price","Total"]],
+    body: rows
   });
 
   const y = doc.lastAutoTable.finalY + 10;
-  doc.text(`Subtotal: ${subtotal.innerText}`, 140, y);
-  doc.text(`Tax: ${taxAmount.innerText}`, 140, y + 8);
-  doc.setFont("helvetica", "bold");
-  doc.text(`Total: ${grandTotal.innerText}`, 140, y + 16);
+  doc.text(`Total: ${grandTotal.textContent}`, 150, y);
 
-  document.getElementById("invoicePreview").src =
-    doc.output("datauristring");
+  invoicePreview.src = doc.output("datauristring");
 }
+
+const subtotalEl = document.getElementById("subtotal");
+const taxAmount = document.getElementById("taxAmount");
+const grandTotal = document.getElementById("grandTotal");
+const tipsEl = document.getElementById("tips");
 
 recalc();
