@@ -1,308 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Modern Invoice Generator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    /* --- Global Styles --- */
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f4f7fa;
-      margin: 0;
-      padding: 0 20px;
-    }
-
-    h1, h2, h3 {
-      color: #222;
-      margin-bottom: 10px;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      background: #fff;
-      padding: 20px 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      margin-top: 40px;
-      margin-bottom: 40px;
-    }
-
-    input, select, textarea, button {
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0 15px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: #0077cc;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    button:hover {
-      background-color: #005fa3;
-    }
-
-    .section {
-      margin-bottom: 30px;
-    }
-
-    .flex-row {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .flex-col {
-      flex: 1;
-      min-width: 200px;
-    }
-
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    /* --- Top selection --- */
-    #documentType {
-      margin-bottom: 25px;
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    /* --- Table Styles --- */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    table th, table td {
-      padding: 12px;
-      text-align: left;
-    }
-
-    table th {
-      background-color: #0077cc;
-      color: #fff;
-      font-weight: 600;
-    }
-
-    table tbody tr:nth-child(even) {
-      background-color: #f2f6fb;
-    }
-
-    table tbody tr:hover {
-      background-color: #e0f0ff;
-    }
-
-    .totals {
-      text-align: right;
-      margin-top: 20px;
-      font-size: 16px;
-    }
-
-    .totals span {
-      display: inline-block;
-      min-width: 120px;
-      font-weight: 600;
-    }
-
-    iframe {
-      width: 100%;
-      height: 600px;
-      border: 1px solid #ccc;
-      margin-top: 20px;
-      border-radius: 8px;
-    }
-
-    /* --- Responsive --- */
-    @media(max-width: 700px){
-      .flex-row {
-        flex-direction: column;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Modern Invoice Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<style>
+  body { font-family: 'Inter', sans-serif; background: #f4f7f2; margin:0; padding:20px;}
+  h1,h2,h3{ color:#222; margin-bottom:10px;}
+  .container{ max-width:1000px; margin:auto; background:#fff; padding:25px 30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); margin-top:30px; margin-bottom:30px;}
+  input, select, textarea, button{ font-family:'Inter', sans-serif; font-size:14px;}
+  input, select, textarea{ width:100%; padding:10px; margin:5px 0 15px 0; border-radius:6px; border:1px solid #ccc; box-sizing:border-box;}
+  button{ padding:10px 20px; background-color:#66cc66; color:#fff; border:none; border-radius:6px; cursor:pointer; transition: background-color 0.2s;}
+  button:hover{ background-color:#4da64d;}
+  .section{ margin-bottom:30px;}
+  .flex-row{ display:flex; gap:20px; flex-wrap:wrap;}
+  .flex-col{ flex:1; min-width:200px;}
+  label{ font-weight:600; display:block; margin-bottom:5px;}
+  #documentType{ margin-bottom:25px; padding:12px; border-radius:6px; border:1px solid #ccc; font-weight:600; font-size:16px;}
+  table{ width:100%; border-collapse:collapse; margin-top:15px; border-radius:8px; overflow:hidden;}
+  table th, table td{ padding:12px; text-align:left;}
+  table th{ background-color:#66cc66; color:#fff; font-weight:600;}
+  table tbody tr:nth-child(even){ background-color:#f2f6f2;}
+  table tbody tr:hover{ background-color:#e6f9e6;}
+  .totals{ text-align:right; margin-top:20px; font-size:16px;}
+  .totals span{ display:inline-block; min-width:120px; font-weight:600;}
+  iframe{ width:100%; height:600px; border:1px solid #ccc; margin-top:20px; border-radius:8px;}
+  textarea{ resize:none;}
+  .hidden{ display:none;}
+</style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
 
-    <h1>Modern Invoice Generator</h1>
+<h1>Modern Invoice Generator</h1>
 
-    <!-- Document Type Selection -->
-    <div class="section">
-      <label for="documentType">Select Document Type</label>
-      <select id="documentType">
-        <option value="invoice">Invoice</option>
-        <option value="quote">Quote</option>
-        <option value="receipt">Receipt</option>
-        <option value="proforma">Proforma Invoice</option>
-      </select>
-    </div>
+<!-- Document Type Selection -->
+<div class="section">
+  <label for="documentType">Select Document Type</label>
+  <select id="documentType">
+    <option value="invoice">Invoice</option>
+    <option value="quote">Quote</option>
+    <option value="receipt">Receipt</option>
+    <option value="proforma">Proforma Invoice</option>
+  </select>
+</div>
 
-    <!-- Invoice / Client Info -->
-    <div class="section flex-row">
-      <div class="flex-col">
-        <h3>Your Info</h3>
-        <input id="yourName" placeholder="Your Name / Business Name" />
-        <input id="yourEmail" placeholder="Email" />
-        <input id="yourPhone" placeholder="Phone (optional)" />
-      </div>
-
-      <div class="flex-col">
-        <h3>Client Info</h3>
-        <input id="clientName" placeholder="Client Name" />
-        <input id="clientEmail" placeholder="Client Email" />
-        <input id="clientPhone" placeholder="Client Phone (optional)" />
-      </div>
-    </div>
-
-    <!-- Invoice Items Section (keep same as before) -->
-    <div class="section">
-      <h3>Invoice Items</h3>
-      <table id="itemsTable">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Total</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Dynamic items will be inserted here -->
-        </tbody>
-      </table>
-      <button id="addItemBtn">Add Product</button>
-    </div>
-
-    <!-- Totals -->
-    <div class="section totals">
-      <div><span>Subtotal:</span> $<span id="subtotal">0.00</span></div>
-      <div><span>Tax (%):</span> <input id="taxRate" type="number" value="0" style="width: 60px; display:inline-block;"> $<span id="taxAmount">0.00</span></div>
-      <div><span>Grand Total:</span> $<span id="grandTotal">0.00</span></div>
-    </div>
-
-    <div class="section">
-      <button id="previewBtn">Preview Document</button>
-    </div>
-
-    <h3>Preview</h3>
-    <iframe id="invoicePreview"></iframe>
+<!-- Invoice / Client Info -->
+<div class="section flex-row">
+  <div class="flex-col">
+    <h3>Your Info</h3>
+    <input id="yourName" placeholder="Your Name / Business Name" />
+    <input id="yourEmail" placeholder="Email" />
+    <input id="yourPhone" placeholder="Phone (optional)" />
   </div>
 
-  <script>
-    // --- Item Management & Calculator ---
-    const addItemBtn = document.getElementById('addItemBtn');
-    const itemsTableBody = document.querySelector('#itemsTable tbody');
-    const subtotalEl = document.getElementById('subtotal');
-    const taxRateEl = document.getElementById('taxRate');
-    const taxAmountEl = document.getElementById('taxAmount');
-    const grandTotalEl = document.getElementById('grandTotal');
+  <div class="flex-col">
+    <h3>Client Info</h3>
+    <input id="clientName" placeholder="Client Name" />
+    <input id="clientEmail" placeholder="Client Email" />
+    <input id="clientPhone" placeholder="Client Phone (optional)" />
+  </div>
+</div>
 
-    let items = [];
+<!-- Invoice Items Section -->
+<div class="section">
+  <h3>Invoice Items</h3>
+  <table id="itemsTable">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Total</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="addItemBtn">Add Product</button>
+</div>
 
-    function renderItems() {
-      itemsTableBody.innerHTML = '';
-      items.forEach((item, index) => {
-        const row = document.createElement('tr');
+<!-- Currency Selection -->
+<div class="section flex-row">
+  <div class="flex-col">
+    <label for="currency">Currency</label>
+    <select id="currency">
+      <option value="$">USD - $</option>
+      <option value="€">EUR - €</option>
+      <option value="£">GBP - £</option>
+      <option value="¥">JPY - ¥</option>
+      <option value="₹">INR - ₹</option>
+      <option value="₩">KRW - ₩</option>
+      <option value="R$">BRL - R$</option>
+      <option value="C$">CAD - C$</option>
+      <option value="A$">AUD - A$</option>
+      <option value="CHF">CHF</option>
+      <!-- Add more currencies as needed -->
+    </select>
+  </div>
 
-        row.innerHTML = `
-          <td><input type="text" value="${item.name}" placeholder="Item Name" data-index="${index}" data-field="name"></td>
-          <td><input type="number" value="${item.qty}" min="1" data-index="${index}" data-field="qty"></td>
-          <td><input type="number" value="${item.price}" min="0" step="0.01" data-index="${index}" data-field="price"></td>
-          <td>$${(item.qty * item.price).toFixed(2)}</td>
-          <td><button onclick="removeItem(${index})" style="background:#ff4d4f;">Remove</button></td>
-        `;
-        itemsTableBody.appendChild(row);
-      });
-      calculateTotals();
-      attachInputListeners();
-    }
+  <div class="flex-col">
+    <label for="discount">Discount %</label>
+    <input type="number" id="discount" value="0" min="0" max="100"/>
+  </div>
+</div>
 
-    function attachInputListeners() {
-      const inputs = itemsTableBody.querySelectorAll('input');
-      inputs.forEach(input => {
-        input.oninput = (e) => {
-          const index = e.target.dataset.index;
-          const field = e.target.dataset.field;
-          items[index][field] = field === 'name' ? e.target.value : parseFloat(e.target.value);
-          renderItems();
-        };
-      });
-    }
+<!-- Notes Section -->
+<div class="section">
+  <label for="notes">Notes / Terms</label>
+  <textarea id="notes" rows="4" placeholder="Add any notes or payment terms here..."></textarea>
+</div>
 
-    function removeItem(index) {
-      items.splice(index,1);
-      renderItems();
-    }
+<!-- Health Score -->
+<div class="section">
+  <strong>Invoice Health:</strong> <span id="healthScore">–</span>
+  <div id="healthTips"></div>
+</div>
 
-    addItemBtn.onclick = () => {
-      items.push({name:'', qty:1, price:0});
-      renderItems();
-    };
+<!-- Totals -->
+<div class="section totals">
+  <div><span>Subtotal:</span> <span id="subtotal">0.00</span></div>
+  <div><span>Tax (%):</span> <input id="taxRate" type="number" value="0" style="width:60px; display:inline-block;"> <span id="taxAmount">0.00</span></div>
+  <div><span>Discount:</span> <span id="discountAmount">0.00</span></div>
+  <div><span>Grand Total:</span> <span id="grandTotal">0.00</span></div>
+</div>
 
-    function calculateTotals() {
-      const subtotal = items.reduce((sum,item)=>sum + (item.qty*item.price),0);
-      const taxRate = parseFloat(taxRateEl.value) || 0;
-      const taxAmount = subtotal * (taxRate/100);
-      const grandTotal = subtotal + taxAmount;
+<div class="section">
+  <button id="previewBtn">Preview Document</button>
+</div>
 
-      subtotalEl.innerText = subtotal.toFixed(2);
-      taxAmountEl.innerText = taxAmount.toFixed(2);
-      grandTotalEl.innerText = grandTotal.toFixed(2);
-    }
+<h3>Preview</h3>
+<iframe id="invoicePreview"></iframe>
+</div>
 
-    taxRateEl.oninput = calculateTotals;
+<script>
+  // --- Item Management ---
+  const addItemBtn = document.getElementById('addItemBtn');
+  const itemsTableBody = document.querySelector('#itemsTable tbody');
+  const subtotalEl = document.getElementById('subtotal');
+  const taxRateEl = document.getElementById('taxRate');
+  const taxAmountEl = document.getElementById('taxAmount');
+  const discountEl = document.getElementById('discount');
+  const discountAmountEl = document.getElementById('discountAmount');
+  const grandTotalEl = document.getElementById('grandTotal');
+  const currencyEl = document.getElementById('currency');
 
-    // --- Preview PDF (simplified for now) ---
-    document.getElementById('previewBtn').onclick = () => {
-      const docType = document.getElementById('documentType').value;
-      const name = document.getElementById('yourName').value;
-      const client = document.getElementById('clientName').value;
+  let items = [];
 
-      const doc = new jspdf.jsPDF();
-      doc.setFontSize(18);
-      doc.text(`${docType.toUpperCase()}`, 14, 20);
-      doc.setFontSize(12);
-      doc.text(`From: ${name}`, 14, 30);
-      doc.text(`To: ${client}`, 14, 40);
+  function renderItems() {
+    itemsTableBody.innerHTML = '';
+    items.forEach((item,index)=>{
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" value="${item.name}" placeholder="Item Name" data-index="${index}" data-field="name"></td>
+        <td><input type="number" value="${item.qty}" min="1" data-index="${index}" data-field="qty"></td>
+        <td><input type="number" value="${item.price}" min="0" step="0.01" data-index="${index}" data-field="price"></td>
+        <td>${currencyEl.value}${(item.qty*item.price).toFixed(2)}</td>
+        <td><button onclick="removeItem(${index})" style="background:#ff4d4f;">Remove</button></td>
+      `;
+      itemsTableBody.appendChild(row);
+    });
+    calculateTotals();
+    attachInputListeners();
+  }
 
-      let y = 50;
-      items.forEach((item)=>{
-        doc.text(`${item.name} x${item.qty} $${item.price} = $${(item.qty*item.price).toFixed(2)}`,14,y);
-        y+=10;
-      });
+  function attachInputListeners(){
+    const inputs = itemsTableBody.querySelectorAll('input');
+    inputs.forEach(input=>{
+      input.oninput=(e)=>{
+        const index=e.target.dataset.index;
+        const field=e.target.dataset.field;
+        items[index][field]=field==='name'?e.target.value:parseFloat(e.target.value)||0;
+        renderItems();
+      };
+    });
+  }
 
-      doc.text(`Subtotal: $${subtotalEl.innerText}`,14,y+10);
-      doc.text(`Tax: $${taxAmountEl.innerText}`,14,y+20);
-      doc.text(`Grand Total: $${grandTotalEl.innerText}`,14,y+30);
+  function removeItem(index){
+    items.splice(index,1);
+    renderItems();
+  }
 
-      doc.output('dataurlnewwindow');
-    }
-  </script>
+  addItemBtn.onclick=()=>{
+    items.push({name:'', qty:1, price:0});
+    renderItems();
+  };
+
+  function calculateTotals(){
+    const subtotal = items.reduce((sum,item)=>sum + (item.qty*item.price),0);
+    const taxRate = parseFloat(taxRateEl.value)||0;
+    const discountRate = parseFloat(discountEl.value)||0;
+    const taxAmount = subtotal*(taxRate/100);
+    const discountAmount = subtotal*(discountRate/100);
+    const grandTotal = subtotal + taxAmount - discountAmount;
+
+    subtotalEl.innerText = subtotal.toFixed(2);
+    taxAmountEl.innerText = taxAmount.toFixed(2);
+    discountAmountEl.innerText = discountAmount.toFixed(2);
+    grandTotalEl.innerText = grandTotal.toFixed(2);
+
+    // Update Health Score
+    const healthScoreEl = document.getElementById('healthScore');
+    const healthTipsEl = document.getElementById('healthTips');
+    if(items.length===0) { healthScoreEl.innerText='0%'; healthTipsEl.innerText='Add items to improve invoice health';}
+    else healthScoreEl.innerText='100%'; healthTipsEl.innerText='Good to go!';
+  }
+
+  [taxRateEl,discountEl,currencyEl].forEach(el=>el.oninput=calculateTotals);
+
+  // --- Preview PDF ---
+  document.getElementById('previewBtn').onclick = ()=>{
+    const docType = document.getElementById('documentType').value;
+    const name = document.getElementById('yourName').value;
+    const email = document.getElementById('yourEmail').value;
+    const client = document.getElementById('clientName').value;
+    const notes = document.getElementById('notes').value;
+    const currency = currencyEl.value;
+
+    const doc = new jspdf.jsPDF();
+    doc.setFontSize(18);
+    doc.text(`${docType.toUpperCase()}`,14,20);
+    doc.setFontSize(12);
+    doc.text(`From: ${name} (${email})`,14,30);
+    doc.text(`To: ${client}`,14,40);
+
+    let y = 50;
+    items.forEach((item)=>{
+      doc.text(`${item.name} x${item.qty} ${currency}${item.price} = ${currency}${(item.qty*item.price).toFixed(2)}`,14,y);
+      y+=10;
+    });
+
+    doc.text(`Subtotal: ${currency}${subtotalEl.innerText}`,14,y+10);
+    doc.text(`Tax: ${currency}${taxAmountEl.innerText}`,14,y+20);
+    doc.text(`Discount: ${currency}${discountAmountEl.innerText}`,14,y+30);
+    doc.text(`Grand Total: ${currency}${grandTotalEl.innerText}`,14,y+40);
+    doc.text(`Notes: ${notes}`,14,y+50);
+
+    doc.output('dataurlnewwindow');
+  }
+</script>
 </body>
 </html>
