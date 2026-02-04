@@ -1,165 +1,107 @@
-const { jsPDF } = window.jspdf;
-let invoiceCounter = 1;
-let isPaid = false;
+document.getElementById("invoiceDate").innerText =
+  new Date().toLocaleDateString();
 
-// Helper
-function $(id) { return document.getElementById(id); }
+document.addEventListener("input", recalc);
 
-// Parse items from textarea: "Item | Qty | Price"
-function parseItems(raw) {
-  return raw
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line !== "")
-    .map(line => {
-      const parts = line.split("|").map(p => p.trim());
-      if (parts.length !== 3) return null;
-      const name = parts[0];
-      const qty = Number(parts[1]);
-      const price = Number(parts[2]);
-      if (!name || isNaN(qty) || isNaN(price)) return null;
-      return { name, qty, price, total: qty * price };
-    })
-    .filter(Boolean);
+function recalc() {
+  let subtotal = 0;
+
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    const qty = Number(row.children[1].querySelector("input").value) || 0;
+    const price = Number(row.children[2].querySelector("input").value) || 0;
+    const total = qty * price;
+
+    row.querySelector(".lineTotal").innerText = `$${total.toFixed(2)}`;
+    subtotal += total;
+  });
+
+  const taxRate = Number(document.getElementById("taxRate").value) || 0;
+  const tax = subtotal * taxRate / 100;
+  const grandTotal = subtotal + tax;
+
+  document.getElementById("subtotal").innerText = `$${subtotal.toFixed(2)}`;
+  document.getElementById("taxAmount").innerText = `$${tax.toFixed(2)}`;
+  document.getElementById("grandTotal").innerText = `$${grandTotal.toFixed(2)}`;
+
+  updateHealth(subtotal);
 }
 
-// Update health score
-function updateHealthScore(items, taxRate, clientName) {
+function addRow() {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td><input placeholder="New Item"></td>
+    <td><input type="number" value="1" min="1"></td>
+    <td><input type="number" value="0" min="0"></td>
+    <td class="lineTotal">$0.00</td>
+    <td><button onclick="removeRow(this)">✕</button></td>
+  `;
+  document.getElementById("itemsBody").appendChild(row);
+}
+
+function removeRow(btn) {
+  btn.closest("tr").remove();
+  recalc();
+}
+
+function updateHealth(subtotal) {
   let score = 100;
   let tips = [];
 
-  if (!clientName) { score -= 20; tips.push("Add client details"); }
-  if (items.length === 0) { score -= 30; tips.push("Add at least one item"); }
-  if (taxRate === 0) { score -= 10; tips.push("Consider adding tax"); }
+  if (!yourName.value) { score -= 15; tips.push("Add your business name"); }
+  if (!clientName.value) { score -= 15; tips.push("Add client name"); }
+  if (subtotal <= 0) { score -= 40; tips.push("Invoice total is zero"); }
+  if (Number(taxRate.value) === 0) tips.push("Consider adding tax");
 
-  $("healthScore").innerText = `${score}/100`;
-  $("healthTips").innerHTML = tips.map(t => `⚠️ ${t}`).join("<br>");
+  const health = document.getElementById("healthScore");
+  health.innerText = score + "/100";
 
-  // Color
-  if (score >= 80) $("healthScore").style.color = "green";
-  else if (score >= 50) $("healthScore").style.color = "orange";
-  else $("healthScore").style.color = "red";
+  health.style.color =
+    score >= 80 ? "green" : score >= 50 ? "orange" : "red";
+
+  document.getElementById("healthTips").innerHTML =
+    tips.map(t => "• " + t).join("<br>");
 }
 
-// Render breakdown
-function renderBreakdown(subtotal, tax, discount, total) {
-  $("breakdown").innerHTML = `
-    <p>Subtotal: $${subtotal.toFixed(2)}</p>
-    <p>Tax: $${tax.toFixed(2)}</p>
-    <p>Discount: $${discount.toFixed(2)}</p>
-    <strong>Total: $${total.toFixed(2)}</strong>
-  `;
-}
-
-// Generate PDF
-function generateInvoice(download = false) {
-  const yourName = $("yourName").value || "-";
-  const yourEmail = $("yourEmail").value || "-";
-  const clientName = $("clientName").value || "-";
-  const clientEmail = $("clientEmail").value || "-";
-  const items = parseItems($("items").value);
-  const taxRate = Number($("taxRate").value) || 0;
-  const discount = Number($("discount").value) || 0;
-  const notes = $("notes").value || "";
-  const template = $("templateSelect").value;
-
-  if (!yourName || !clientName || items.length === 0) {
-    alert("Please fill in required fields.");
-    return;
-  }
-
-  const invoiceNumber = invoiceCounter++;
-  const invoiceDate = new Date().toLocaleDateString();
-  $("invoiceNumber").innerText = invoiceNumber;
-  $("invoiceDate").innerText = invoiceDate;
-
-  const subtotal = items.reduce((sum, i) => sum + i.total, 0);
-  const taxAmount = subtotal * (taxRate / 100);
-  const total = subtotal + taxAmount - discount;
-
-  updateHealthScore(items, taxRate, clientName);
-  renderBreakdown(subtotal, taxAmount, discount, total);
-
+function generateInvoice() {
+  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  // Template header
-  if (template === "classic") {
-    doc.setFont("times", "normal");
-    doc.setFontSize(18);
-    doc.text("Invoice", 105, 20, null, null, "center");
-  } else if (template === "modern") {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(50, 50, 150);
-    doc.text("INVOICE", 105, 25, null, null, "center");
-  } else if (template === "minimal") {
-    doc.setFont("courier", "normal");
-    doc.setFontSize(16);
-    doc.text("Invoice", 20, 20);
-  }
+  doc.setFontSize(22);
+  doc.text("INVOICE", 20, 25);
 
-  let y = 40;
   doc.setFontSize(12);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`From: ${yourName} (${yourEmail})`, 20, y);
-  doc.text(`To: ${clientName} (${clientEmail})`, 20, y + 10);
+  doc.text(`Invoice #: ${invoiceNumber.innerText}`, 20, 40);
+  doc.text(`Date: ${invoiceDate.innerText}`, 20, 48);
 
-  doc.text(`Invoice #: ${invoiceNumber}`, 140, 20);
-  doc.text(`Date: ${invoiceDate}`, 140, 30);
+  doc.text(`From: ${yourName.value}`, 120, 40);
+  doc.text(`Email: ${yourEmail.value}`, 120, 48);
+  doc.text(`To: ${clientName.value}`, 120, 56);
+  doc.text(`Email: ${clientEmail.value}`, 120, 64);
 
-  y += 30;
-
-  // Items Table
-  doc.autoTable({
-    startY: y,
-    head: [['Item', 'Qty', 'Price', 'Total']],
-    body: items.map(i => [i.name, i.qty, `$${i.price.toFixed(2)}`, `$${i.total.toFixed(2)}`]),
+  const items = [];
+  document.querySelectorAll("#itemsBody tr").forEach(row => {
+    const name = row.children[0].querySelector("input").value;
+    const qty = row.children[1].querySelector("input").value;
+    const price = row.children[2].querySelector("input").value;
+    const total = (qty * price).toFixed(2);
+    items.push([name, qty, `$${price}`, `$${total}`]);
   });
 
-  const tableEndY = doc.lastAutoTable.finalY || y;
+  doc.autoTable({
+    startY: 75,
+    head: [["Item", "Qty", "Price", "Total"]],
+    body: items,
+    theme: "grid"
+  });
 
-  // Totals
-  doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 140, tableEndY + 10);
-  doc.text(`Tax: $${taxAmount.toFixed(2)}`, 140, tableEndY + 20);
-  doc.text(`Discount: $${discount.toFixed(2)}`, 140, tableEndY + 30);
-  doc.text(`Total: $${total.toFixed(2)}`, 140, tableEndY + 40);
+  const y = doc.lastAutoTable.finalY + 10;
+  doc.text(`Subtotal: ${subtotal.innerText}`, 140, y);
+  doc.text(`Tax: ${taxAmount.innerText}`, 140, y + 8);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Total: ${grandTotal.innerText}`, 140, y + 16);
 
-  if (notes) {
-    doc.text("Notes:", 20, tableEndY + 50);
-    doc.text(notes, 20, tableEndY + 60);
-  }
-
-  // PAID Stamp
-  if (isPaid) {
-    doc.setTextColor(0, 150, 0);
-    doc.setFontSize(40);
-    doc.text("PAID", 60, tableEndY / 2, null, null, "center");
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-  }
-
-  const blobUrl = doc.output("bloburl");
-  $("invoicePreview").src = blobUrl;
-
-  if (download) doc.save(`Invoice_${invoiceNumber}.pdf`);
+  document.getElementById("invoicePreview").src =
+    doc.output("datauristring");
 }
 
-// Toggle breakdown
-function toggleBreakdown() {
-  $("breakdown").classList.toggle("hidden");
-}
-
-// Mark as paid
-function markAsPaid() {
-  isPaid = true;
-  alert("Invoice marked as PAID ✔");
-  generateInvoice();
-}
-
-// Event listeners
-window.addEventListener("DOMContentLoaded", () => {
-  $("previewBtn").addEventListener("click", () => generateInvoice());
-  $("toggleBreakdownBtn").addEventListener("click", toggleBreakdown);
-  $("markPaidBtn").addEventListener("click", markAsPaid);
-  $("downloadBtn").addEventListener("click", () => generateInvoice(true));
-});
+recalc();
