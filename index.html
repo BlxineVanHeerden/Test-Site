@@ -66,7 +66,7 @@ th{background:#e5e7eb}
 
 iframe{
   width:100%;
-  height:700px;
+  height:720px;
   border-radius:14px;
   border:1px solid #e5e7eb;
 }
@@ -79,7 +79,11 @@ iframe{
 <div class="section row">
   <div>
     <label>Document Type</label>
-    <select id="docType"></select>
+    <select id="docType">
+      <option value="INV">Invoice</option>
+      <option value="QUO">Quote</option>
+      <option value="REC">Receipt</option>
+    </select>
   </div>
   <div>
     <label>Invoice Number</label>
@@ -105,6 +109,7 @@ iframe{
     <h3>Client Info</h3>
     <input id="toName" placeholder="Client name">
     <input id="toEmail" placeholder="Client email">
+    <input id="toPhone" placeholder="Client phone number">
   </div>
 </div>
 
@@ -114,14 +119,14 @@ iframe{
     <thead>
       <tr>
         <th>Item</th>
-        <th>Note</th>
+        <th>Category</th>
         <th>Qty</th>
         <th>Price</th>
       </tr>
     </thead>
-    <tbody id="items"></tbody>
+    <tbody id="itemsBody"></tbody>
   </table>
-  <button onclick="addItem()">Add Item</button>
+  <button id="addItemBtn">Add Item</button>
 </div>
 
 <div class="section row">
@@ -160,7 +165,7 @@ iframe{
   </div>
   <div>
     <label>Due Date</label>
-    <input id="dueDate" readonly>
+    <input type="date" id="dueDate">
   </div>
 </div>
 
@@ -175,58 +180,90 @@ iframe{
 <iframe id="preview"></iframe>
 
 <script>
-const docTypes={INV:0,QUO:0,REC:0};
-const docTypeEl=document.getElementById("docType");
-["INV","QUO","REC"].forEach(t=>{
-  let o=document.createElement("option");
-  o.value=t;
-  o.textContent=t==="INV"?"Invoice":t==="QUO"?"Quote":"Receipt";
-  docTypeEl.appendChild(o);
-});
+const categories=[
+"Professional Services","Consulting","Construction","Automotive",
+"Healthcare","Education","Retail","Manufacturing","Hospitality",
+"Logistics","Freelance","Agriculture","Media","Legal","Finance",
+"Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"
+];
+
+const counters={INV:0,QUO:0,REC:0};
+const docType=document.getElementById("docType");
+const invoiceNumber=document.getElementById("invoiceNumber");
 
 function updateInvoiceNumber(){
-  const t=docTypeEl.value;
-  docTypes[t]++;
-  invoiceNumber.value=`${t}-${String(docTypes[t]).padStart(4,"0")}`;
+  counters[docType.value]++;
+  invoiceNumber.value=`${docType.value}-${String(counters[docType.value]).padStart(4,"0")}`;
 }
 updateInvoiceNumber();
-docTypeEl.onchange=updateInvoiceNumber;
+docType.addEventListener("change",updateInvoiceNumber);
 
 let items=[];
+const itemsBody=document.getElementById("itemsBody");
+
 function addItem(){
-  const i=items.length;
-  items.push({name:"",note:"",qty:1,price:0});
-  itemsEl.innerHTML+=`
-    <tr>
-      <td><input oninput="items[${i}].name=this.value"></td>
-      <td><input oninput="items[${i}].note=this.value"></td>
-      <td><input type="number" value="1" min="1"
-        oninput="items[${i}].qty=this.value"></td>
-      <td><input type="number" value="0" min="0"
-        oninput="items[${i}].price=this.value"></td>
-    </tr>`;
+  const index=items.length;
+  items.push({name:"",cat:"",qty:1,price:0});
+
+  const tr=document.createElement("tr");
+
+  const nameTd=document.createElement("td");
+  const nameInput=document.createElement("input");
+  nameInput.oninput=e=>items[index].name=e.target.value;
+  nameTd.appendChild(nameInput);
+
+  const catTd=document.createElement("td");
+  const catSelect=document.createElement("select");
+  categories.forEach(c=>{
+    const o=document.createElement("option");
+    o.textContent=c;
+    catSelect.appendChild(o);
+  });
+  catSelect.onchange=e=>items[index].cat=e.target.value;
+  catTd.appendChild(catSelect);
+
+  const qtyTd=document.createElement("td");
+  const qtyInput=document.createElement("input");
+  qtyInput.type="number";
+  qtyInput.value=1;
+  qtyInput.min=1;
+  qtyInput.oninput=e=>items[index].qty=Number(e.target.value);
+  qtyTd.appendChild(qtyInput);
+
+  const priceTd=document.createElement("td");
+  const priceInput=document.createElement("input");
+  priceInput.type="number";
+  priceInput.value=0;
+  priceInput.min=0;
+  priceInput.oninput=e=>items[index].price=Number(e.target.value);
+  priceTd.appendChild(priceInput);
+
+  tr.append(nameTd,catTd,qtyTd,priceTd);
+  itemsBody.appendChild(tr);
 }
+
+document.getElementById("addItemBtn").addEventListener("click",addItem);
 addItem();
 
-terms.onchange=()=>{
+terms.addEventListener("change",()=>{
   const d=new Date();
   d.setDate(d.getDate()+Number(terms.value));
   dueDate.value=d.toISOString().split("T")[0];
-};
-terms.onchange();
+});
+terms.dispatchEvent(new Event("change"));
 
 function previewInvoice(){
   const cur=currency.value;
   let subtotal=0;
-  let rows=items.map(i=>{
+
+  const rows=items.map(i=>{
     const t=i.qty*i.price;
     subtotal+=t;
-    return `
-      <tr>
-        <td>${i.name}<br><small>${i.note}</small></td>
-        <td>${i.qty}</td>
-        <td>${cur}${t.toFixed(2)}</td>
-      </tr>`;
+    return `<tr>
+      <td>${i.name||"-"}<br><small>${i.cat||""}</small></td>
+      <td>${i.qty}</td>
+      <td>${cur}${t.toFixed(2)}</td>
+    </tr>`;
   }).join("");
 
   const disc=subtotal*(discount.value/100);
@@ -236,24 +273,30 @@ function previewInvoice(){
 
   const due=new Date(dueDate.value);
   const overdue=balance>0 && new Date()>due;
-  let statusClass=status.value==="Paid"?"green":status.value==="Sent"?"blue":"grey";
-  let statusText=status.value;
-  if(overdue){statusClass="red";statusText="Overdue";}
+
+  let badge="grey",text=status.value;
+  if(status.value==="Paid") badge="green";
+  if(status.value==="Sent") badge="blue";
+  if(overdue){badge="red";text="Overdue";}
 
   preview.srcdoc=`
   <div style="font-family:Inter;padding:32px">
-    <span class="badge ${statusClass}">${statusText}</span>
-    <h2>${docTypeEl.selectedOptions[0].text} ${invoiceNumber.value}</h2>
+    <span class="badge ${badge}">${text}</span>
+    <h2>${docType.selectedOptions[0].text} ${invoiceNumber.value}</h2>
 
     <p><strong>${fromName.value}</strong><br>
-    Bill To: ${toName.value}</p>
+    ${fromEmail.value}<br><br>
+    <strong>Bill To:</strong><br>
+    ${toName.value}<br>
+    ${toEmail.value}<br>
+    ${toPhone.value}</p>
 
     <table style="width:100%;margin-top:20px">
       <tr><th>Item</th><th>Qty</th><th>Total</th></tr>
       ${rows}
     </table>
 
-    <div style="margin-top:20px;max-width:300px;margin-left:auto">
+    <div style="margin-top:20px;max-width:320px;margin-left:auto">
       <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
       <p>Discount: -${cur}${disc.toFixed(2)}</p>
       <p>Tax: ${cur}${taxAmt.toFixed(2)}</p>
@@ -263,7 +306,6 @@ function previewInvoice(){
     </div>
 
     <p><strong>Due Date:</strong> ${dueDate.value}</p>
-
     ${note.value?`<p><strong>Note:</strong><br>${note.value}</p>`:""}
   </div>`;
 }
