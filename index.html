@@ -208,8 +208,7 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
 <h3>Invoice Preview</h3>
 <iframe id="preview"></iframe>
 
-<!-- PayPal SDK (Live) -->
-<script src="https://www.paypal.com/sdk/js?client-id=ASrqoC_iNPodEFNeqORNw&currency=USD&disable-funding=card,credit"></script>
+<!-- PayPal SDK --><script src="https://www.paypal.com/sdk/js?client-id=ASrqoC_iNPodEFNeqORNw&currency=USD&disable-funding=card,credit"></script>
 
 <script>
 // --- Plan logic ---
@@ -217,13 +216,10 @@ const planButtons = document.querySelectorAll('.plan-card');
 let selectedPlan = 'free';
 planButtons.forEach(card => {
   card.addEventListener('click', () => {
-    const plan = card.getAttribute('data-plan');
-    if(plan==='free'){
-      selectedPlan = 'free';
-      updateFeatureAccess();
-    } else {
-      alert('Please pay to unlock this plan using PayPal buttons below.');
-    }
+    selectedPlan = card.getAttribute('data-plan');
+    planButtons.forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    updateFeatureAccess();
   });
 });
 
@@ -231,7 +227,6 @@ function updateFeatureAccess() {
   const pdfBtn = document.getElementById('pdfBtn');
   const sendBtn = document.getElementById('sendBtn');
   const saveBtn = document.getElementById('saveBtn');
-
   if(selectedPlan==='free'){
     pdfBtn.classList.remove('unlocked');
     sendBtn.classList.remove('unlocked');
@@ -373,71 +368,41 @@ function updatePreview(){
       <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <p><strong>Subtotal:</strong> ${cur}${subtotal.toFixed(2)}</p>
-    <p><strong>Discount:</strong> -${cur}${disc.toFixed(2)}</p>
-    <p><strong>Tax:</strong> +${cur}${tax.toFixed(2)}</p>
-    <p><strong>Amount Paid:</strong> -${cur}${document.getElementById("paid").value}</p>
+    <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
+    <p>Discount: ${cur}${disc.toFixed(2)}</p>
+    <p>Tax: ${cur}${tax.toFixed(2)}</p>
     <h3>Total Due: ${cur}${total.toFixed(2)}</h3>
-    <p><strong>Status:</strong> ${document.getElementById("status").value}</p>
-    <p><strong>Due Date:</strong> ${document.getElementById("dueDate").value}</p>
-    <p><strong>Note:</strong> ${document.getElementById("note").value}</p>
+    <p>Due Date: ${dueDate.value}</p>
+    <p>Note: ${document.getElementById("note").value}</p>
   </div>`;
 
   document.getElementById("preview").srcdoc = html;
 }
 
-// --- PayPal Integration ---
-function setupPayPalButtons() {
-  // Basic Plan PayPal button
-  paypal.Buttons({
-    style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'subscribe' },
-    createSubscription: function(data, actions) {
-      return actions.subscription.create({
-        plan_id: 'P-0NJ10521L3680291SOAQIVTQ' // Replace with your actual PayPal plan ID for Basic
-      });
-    },
-    onApprove: function(data, actions) {
-      alert('Basic Plan activated!'); 
-      selectedPlan = 'basic';
-      updateFeatureAccess();
-    }
-  }).render('#paypal-basic');
-
-  // Pro Plan PayPal button
-  paypal.Buttons({
-    style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'subscribe' },
-    createSubscription: function(data, actions) {
-      return actions.subscription.create({
-        plan_id: 'P-1NJ10521L3680291SOAQIVTX' // Replace with your actual PayPal plan ID for Pro
-      });
-    },
-    onApprove: function(data, actions) {
-      alert('Pro Plan activated!'); 
-      selectedPlan = 'pro';
-      updateFeatureAccess();
-    }
-  }).render('#paypal-pro');
-}
-
-setupPayPalButtons();
-
-// --- Feature button handlers ---
-document.getElementById("pdfBtn").addEventListener("click", () => {
-  if (!document.getElementById("pdfBtn").classList.contains('unlocked')) {
-    alert('PDF download is a premium feature. Upgrade your plan.');
+// --- PayPal Buttons ---
+paypal.Buttons({
+  style:{layout:'vertical', color:'blue', shape:'pill'},
+  createOrder:(data,actions)=>actions.order.create({
+    purchase_units:[{amount:{value:'5.00'}}]
+  }),
+  onApprove:(data,actions)=>{
+    alert("Basic Plan Activated!");
+    selectedPlan='basic';
+    updateFeatureAccess();
   }
-});
-document.getElementById("sendBtn").addEventListener("click", () => {
-  if (!document.getElementById("sendBtn").classList.contains('unlocked')) {
-    alert('Sending invoice is a premium feature. Upgrade your plan.');
-  }
-});
-document.getElementById("saveBtn").addEventListener("click", () => {
-  if (!document.getElementById("saveBtn").classList.contains('unlocked')) {
-    alert('Saving invoice is a premium feature. Upgrade your plan.');
-  }
-});
+}).render('#paypal-basic');
 
+paypal.Buttons({
+  style:{layout:'vertical', color:'blue', shape:'pill'},
+  createOrder:(data,actions)=>actions.order.create({
+    purchase_units:[{amount:{value:'10.00'}}]
+  }),
+  onApprove:(data,actions)=>{
+    alert("Pro Plan Activated!");
+    selectedPlan='pro';
+    updateFeatureAccess();
+  }
+}).render('#paypal-pro');
 </script>
 
 </body>
