@@ -2,59 +2,240 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Smart Invoice Generator</title>
+<title>Smart Invoice Generator - Plans</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body{ font-family:Inter,sans-serif; background:#f8fafc; padding:20px; }
-h1{text-align:center;color:#1e40af;}
-.section{ background:#fff; padding:16px; border-radius:14px; margin-bottom:20px; box-shadow:0 6px 18px rgba(0,0,0,.06);}
-input,select,textarea,button{ width:100%; padding:6px 8px; margin-top:6px; border-radius:6px; border:1px solid #cbd5e1; font-size:13px; box-sizing:border-box;}
-button{ font-weight:600; border:none; cursor:pointer;}
-button:hover:not(:disabled){background:#1e3a8a;}
-.button-group{ display:flex; gap:10px; margin-bottom:20px;}
-.button-group button{ flex:1; padding:6px 8px; font-size:13px;}
+body{
+  font-family:Inter,sans-serif;
+  background:#f8fafc;
+  padding:20px;
+}
+
+h1{text-align:center;color:#1e40af}
+
+.section{
+  background:#fff;
+  padding:16px;
+  border-radius:14px;
+  margin-bottom:20px;
+  box-shadow:0 6px 18px rgba(0,0,0,.06);
+}
+
+input,select,textarea,button{
+  width:100%;
+  padding:6px 8px;
+  margin-top:6px;
+  border-radius:6px;
+  border:1px solid #cbd5e1;
+  font-size:13px;
+  box-sizing:border-box;
+}
+
+button{
+  font-weight:600;
+  border:none;
+  cursor:pointer;
+}
+
+.button-group{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.button-group button{
+  flex:1;
+  padding:6px 8px;
+  font-size:13px;
+}
+
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
+
 .flex-row{display:flex;gap:12px;}
 .flex-column{display:flex;flex-direction:column;gap:8px;}
-table{ width:100%; border-collapse:collapse; margin-top:10px;}
-th,td{ padding:8px; border-bottom:1px solid #e5e7eb;}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  padding:8px;
+  border-bottom:1px solid #e5e7eb;
+}
 th{background:#e5e7eb}
-.badge{display:inline-block; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600;}
+
+.badge{
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+}
 .grey{background:#e5e7eb;color:#374151}
-.blue{background:#bfdbfe;color:#1e40af}
-.green{background:#bbf7d0;color:#166534}
-.red{background:#fecaca;color:#991b1b}
-iframe{ width:100%; height:720px; border-radius:14px; border:1px solid #e5e7eb; background:#f9fafb;}
-.remove-btn{ background:#ef4444; padding:4px 8px; font-size:12px; border-radius:6px; cursor:pointer;}
-.remove-btn:hover{ background:#b91c1c;}
-#note{ height:80px; resize:vertical; }
-#dueDate{ padding:5px 8px; }
+.blue{background:#3b82f6;color:#fff}
+.green{background:#22c55e;color:#fff}
+.red{background:#ef4444;color:#fff}
 
-.info-icon{display:inline-block; margin-left:4px; color:#1e40af; font-weight:bold; cursor:pointer; position:relative;}
-.tooltip{position:absolute; background:#1e40af; color:#fff; padding:4px 8px; border-radius:4px; font-size:12px; white-space:nowrap; z-index:10; display:none;}
+iframe{
+  width:100%;
+  height:720px;
+  border-radius:14px;
+  border:1px solid #e5e7eb;
+  background:#f9fafb;
+}
 
-.disabled-btn{ background:#e5e7eb; color:#9ca3af; cursor:not-allowed;}
-.plan-label{display:flex;justify-content:space-between;align-items:center;}
-.plan-label span.price{font-weight:600;color:#1e40af;}
+.remove-btn{
+  background:#ef4444;
+  padding:4px 8px;
+  font-size:12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.remove-btn:hover{
+  background:#b91c1c;
+}
+
+#note{
+  height:80px;
+  resize:vertical;
+}
+
+#dueDate{
+  padding:5px 8px;
+}
+
+/* Plan cards */
+.plan-card{
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  padding:16px;
+  flex:1;
+  cursor:pointer;
+  text-align:center;
+  transition:all .2s;
+}
+.plan-card.selected{
+  border-color:#3b82f6;
+  box-shadow:0 4px 20px rgba(0,0,0,0.1);
+}
+.plan-price{
+  font-size:20px;
+  font-weight:600;
+  margin:8px 0;
+}
+.plan-features{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.feature-btn{
+  padding:4px 6px;
+  border-radius:6px;
+  font-size:12px;
+  cursor:not-allowed;
+  background:#e5e7eb;
+  color:#374151;
+}
+.feature-btn.unlocked{
+  background:#3b82f6;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* Tooltip */
+.tooltip{
+  position:relative;
+  display:inline-block;
+}
+.tooltip .tooltiptext{
+  visibility:hidden;
+  width:180px;
+  background-color:#111;
+  color:#fff;
+  text-align:left;
+  border-radius:6px;
+  padding:6px;
+  position:absolute;
+  z-index:1;
+  bottom:125%;
+  left:50%;
+  margin-left:-90px;
+  opacity:0;
+  transition:opacity 0.3s;
+  font-size:12px;
+}
+.tooltip:hover .tooltiptext{
+  visibility:visible;
+  opacity:1;
+}
+.tooltip-icon{
+  display:inline-block;
+  margin-left:4px;
+  background:#3b82f6;
+  color:#fff;
+  border-radius:50%;
+  width:14px;
+  height:14px;
+  font-size:10px;
+  line-height:14px;
+  text-align:center;
+}
 </style>
 </head>
 <body>
 
-<h1>Invoice Generator</h1>
+<h1>Smart Invoice Generator</h1>
 
-<div class="section row">
-  <div>
-    <label>Plan</label>
-    <select id="plan">
-      <option value="Free">Free ($0/mo)</option>
-      <option value="Starter">Starter ($5/mo)</option>
-      <option value="Pro">Pro ($15/mo)</option>
-      <option value="Business">Business ($30/mo)</option>
-    </select>
+<h2>Select a Plan</h2>
+<div class="row" id="planContainer">
+  <div class="plan-card" data-plan="free">
+    <h3>Free</h3>
+    <div class="plan-price">$0</div>
+    <div class="plan-features">
+      <div>Max 2 items</div>
+      <div>Basic Invoice</div>
+      <div>Share manually</div>
+    </div>
   </div>
+  <div class="plan-card" data-plan="basic">
+    <h3>Basic</h3>
+    <div class="plan-price">$5/mo</div>
+    <div class="plan-features">
+      <div>Max 10 items</div>
+      <div>Invoice PDF download</div>
+      <div>Email notifications</div>
+    </div>
+  </div>
+  <div class="plan-card" data-plan="pro">
+    <h3>Pro</h3>
+    <div class="plan-price">$15/mo</div>
+    <div class="plan-features">
+      <div>Unlimited items</div>
+      <div>Custom branding</div>
+      <div>Automated reminders</div>
+    </div>
+  </div>
+  <div class="plan-card" data-plan="enterprise">
+    <h3>Enterprise</h3>
+    <div class="plan-price">$30/mo</div>
+    <div class="plan-features">
+      <div>Team accounts</div>
+      <div>Advanced analytics</div>
+      <div>Priority support</div>
+    </div>
+  </div>
+</div>
+
+<div class="section row" id="invoiceSection">
   <div>
-    <label>Document Type <span class="info-icon" data-tip="Choose Invoice, Quote or Receipt">?</span></label>
+    <label>Document Type
+      <span class="tooltip"><span class="tooltip-icon">i</span>
+        <span class="tooltiptext">Choose whether this is an invoice, quote, or receipt</span>
+      </span>
+    </label>
     <select id="docType">
       <option value="INV">Invoice</option>
       <option value="QUO">Quote</option>
@@ -62,14 +243,22 @@ iframe{ width:100%; height:720px; border-radius:14px; border:1px solid #e5e7eb; 
     </select>
   </div>
   <div>
-    <label>Invoice Number <span class="info-icon" data-tip="Auto-generated invoice number">?</span></label>
+    <label>Invoice Number
+      <span class="tooltip"><span class="tooltip-icon">i</span>
+        <span class="tooltiptext">Auto-generated invoice number</span>
+      </span>
+    </label>
     <div style="display:flex;gap:4px;">
       <input id="invoicePrefix" readonly style="width:60px;text-align:center;border-right:none;">
       <input id="invoiceNumber" style="flex:1;" placeholder="0001">
     </div>
   </div>
   <div>
-    <label>Status</label>
+    <label>Status
+      <span class="tooltip"><span class="tooltip-icon">i</span>
+        <span class="tooltiptext">Invoice status: Draft, Sent, or Paid</span>
+      </span>
+    </label>
     <select id="status">
       <option>Draft</option>
       <option>Sent</option>
@@ -81,17 +270,17 @@ iframe{ width:100%; height:720px; border-radius:14px; border:1px solid #e5e7eb; 
 <div class="section row">
   <div>
     <h3>Your Info</h3>
-    <input id="fromName" placeholder="Business name"><span class="info-icon" data-tip="Enter your company name">?</span>
-    <input id="fromEmail" placeholder="Email"><span class="info-icon" data-tip="Enter your business email">?</span>
-    <input id="fromPhone" placeholder="Contact number"><span class="info-icon" data-tip="Optional phone number">?</span>
+    <input id="fromName" placeholder="Business name">
+    <input id="fromEmail" placeholder="Email">
+    <input id="fromPhone" placeholder="Contact number">
     <label>Logo (optional)</label>
     <input type="file" id="logoInput" accept="image/*">
   </div>
   <div>
     <h3>Client Info</h3>
-    <input id="toName" placeholder="Client name"><span class="info-icon" data-tip="Enter the client's name">?</span>
-    <input id="toEmail" placeholder="Client email"><span class="info-icon" data-tip="Enter the client's email">?</span>
-    <input id="toPhone" placeholder="Client phone number"><span class="info-icon" data-tip="Optional phone number">?</span>
+    <input id="toName" placeholder="Client name">
+    <input id="toEmail" placeholder="Client email">
+    <input id="toPhone" placeholder="Client phone number">
   </div>
 </div>
 
@@ -155,69 +344,70 @@ iframe{ width:100%; height:720px; border-radius:14px; border:1px solid #e5e7eb; 
 </div>
 
 <div class="button-group">
-  <button id="previewBtn">Preview Invoice</button>
-  <button id="downloadBtn">Download PDF</button>
-  <button id="sendBtn">Send Invoice</button>
-  <button id="saveBtn">Save</button>
+  <button onclick="updatePreview()">Preview Invoice</button>
+  <button onclick="alert('Download PDF (Premium)')" class="feature-btn" id="pdfBtn">Download PDF</button>
+  <button onclick="alert('Send Invoice (Premium)')" class="feature-btn" id="sendBtn">Send Invoice</button>
+  <button onclick="alert('Save Invoice (Premium)')" class="feature-btn" id="saveBtn">Save</button>
 </div>
 
 <h3>Invoice Preview</h3>
 <iframe id="preview"></iframe>
 
 <script>
-// --- Dynamic Tooltip System ---
-document.querySelectorAll('.info-icon').forEach(icon=>{
-  const tip = document.createElement('div');
-  tip.className='tooltip';
-  tip.innerText = icon.dataset.tip;
-  icon.appendChild(tip);
+// ----- Plan logic -----
+const planButtons = document.querySelectorAll('.plan-card');
+let selectedPlan = 'free';
 
-  icon.addEventListener('mouseenter',()=>tip.style.display='block');
-  icon.addEventListener('mouseleave',()=>tip.style.display='none');
+planButtons.forEach(card => {
+  card.addEventListener('click', () => {
+    selectedPlan = card.getAttribute('data-plan');
+    planButtons.forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    updateFeatureAccess();
+  });
 });
 
-// --- Plan Features ---
-const planFeatures = {
-  Free: { maxItems:2, canDownload:false, canSend:false, canSave:false },
-  Starter: { maxItems:5, canDownload:true, canSend:false, canSave:true },
-  Pro: { maxItems:20, canDownload:true, canSend:true, canSave:true },
-  Business: { maxItems:Infinity, canDownload:true, canSend:true, canSave:true }
-};
-
-let currentPlan = 'Free';
-const addItemBtn = document.getElementById('addItemBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const sendBtn = document.getElementById('sendBtn');
-const saveBtn = document.getElementById('saveBtn');
-
-function updatePlanFeatures(){
-  const f = planFeatures[currentPlan];
-
-  addItemBtn.disabled = items.length >= f.maxItems;
-  addItemBtn.className = addItemBtn.disabled?'disabled-btn':'';
-
-  downloadBtn.disabled = !f.canDownload;
-  sendBtn.disabled = !f.canSend;
-  saveBtn.disabled = !f.canSave;
-
-  downloadBtn.className = f.canDownload?'':'disabled-btn';
-  sendBtn.className = f.canSend?'':'disabled-btn';
-  saveBtn.className = f.canSave?'':'disabled-btn';
+function updateFeatureAccess() {
+  const pdfBtn = document.getElementById('pdfBtn');
+  const sendBtn = document.getElementById('sendBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  if(selectedPlan === 'free'){
+    pdfBtn.classList.remove('unlocked');
+    sendBtn.classList.remove('unlocked');
+    saveBtn.classList.remove('unlocked');
+  } else if(selectedPlan === 'basic'){
+    pdfBtn.classList.add('unlocked');
+    sendBtn.classList.remove('unlocked');
+    saveBtn.classList.add('unlocked');
+  } else if(selectedPlan === 'pro'){
+    pdfBtn.classList.add('unlocked');
+    sendBtn.classList.add('unlocked');
+    saveBtn.classList.add('unlocked');
+  } else if(selectedPlan === 'enterprise'){
+    pdfBtn.classList.add('unlocked');
+    sendBtn.classList.add('unlocked');
+    saveBtn.classList.add('unlocked');
+  }
 }
 
-document.getElementById('plan').addEventListener('change', e=>{
-  currentPlan = e.target.value;
-  updatePlanFeatures();
-});
+// ----- Invoice logic -----
+const categories=[
+"Professional Services","Consulting","Construction","Automotive",
+"Healthcare","Education","Retail","Manufacturing","Hospitality",
+"Logistics","Freelance","Agriculture","Media","Legal","Finance",
+"Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"
+];
 
-// --- Invoice Items & Preview ---
-const categories=["Professional Services","Consulting","Construction","Automotive","Healthcare","Education","Retail","Manufacturing","Hospitality","Logistics","Freelance","Agriculture","Media","Legal","Finance","Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"];
 const counters={INV:0,QUO:0,REC:0};
 const docType=document.getElementById("docType");
 const invoicePrefix=document.getElementById("invoicePrefix");
 const invoiceNumber=document.getElementById("invoiceNumber");
 
-function updateInvoiceNumber(){ counters[docType.value]++; invoicePrefix.value=docType.value; invoiceNumber.value=String(counters[docType.value]).padStart(4,"0"); }
+function updateInvoiceNumber(){
+  counters[docType.value]++;
+  invoicePrefix.value = docType.value;
+  invoiceNumber.value = String(counters[docType.value]).padStart(4,"0");
+}
 updateInvoiceNumber();
 docType.addEventListener("change",updateInvoiceNumber);
 
@@ -225,73 +415,101 @@ let items=[];
 const itemsBody=document.getElementById("itemsBody");
 
 function addItem(){
-  if(items.length >= planFeatures[currentPlan].maxItems){ alert('Item limit reached for this plan'); return; }
-  const index = items.length;
+  const index=items.length;
   items.push({name:"",cat:"",qty:1,price:0});
 
-  const tr=document.createElement('tr');
+  const tr=document.createElement("tr");
 
-  const nameTd=document.createElement('td');
-  const nameInput=document.createElement('input');
-  nameInput.oninput=e=>{ items[index].name=e.target.value; updatePreview();}
+  const nameTd=document.createElement("td");
+  const nameInput=document.createElement("input");
+  nameInput.oninput=e=>{items[index].name=e.target.value; updatePreview();}
   nameTd.appendChild(nameInput);
 
-  const catTd=document.createElement('td');
-  const catSelect=document.createElement('select');
-  categories.forEach(c=>{ const o=document.createElement('option'); o.textContent=c; catSelect.appendChild(o); });
-  catSelect.onchange=e=>{ items[index].cat=e.target.value; updatePreview();}
+  const catTd=document.createElement("td");
+  const catSelect=document.createElement("select");
+  categories.forEach(c=>{
+    const o=document.createElement("option");
+    o.textContent=c;
+    catSelect.appendChild(o);
+  });
+  catSelect.onchange=e=>{items[index].cat=e.target.value; updatePreview();}
   catTd.appendChild(catSelect);
 
-  const qtyTd=document.createElement('td');
-  const qtyInput=document.createElement('input'); qtyInput.type='number'; qtyInput.value=1; qtyInput.min=1;
-  qtyInput.oninput=e=>{ items[index].qty=Number(e.target.value); updatePreview();}
+  const qtyTd=document.createElement("td");
+  const qtyInput=document.createElement("input");
+  qtyInput.type="number";
+  qtyInput.value=1;
+  qtyInput.min=1;
+  qtyInput.oninput=e=>{items[index].qty=Number(e.target.value); updatePreview();}
   qtyTd.appendChild(qtyInput);
 
-  const priceTd=document.createElement('td');
-  const priceInput=document.createElement('input'); priceInput.type='number'; priceInput.value=0; priceInput.min=0;
-  priceInput.oninput=e=>{ items[index].price=Number(e.target.value); updatePreview();}
+  const priceTd=document.createElement("td");
+  const priceInput=document.createElement("input");
+  priceInput.type="number";
+  priceInput.value=0;
+  priceInput.min=0;
+  priceInput.oninput=e=>{items[index].price=Number(e.target.value); updatePreview();}
   priceTd.appendChild(priceInput);
 
-  const actionTd=document.createElement('td');
-  const removeBtn=document.createElement('button'); removeBtn.className='remove-btn'; removeBtn.textContent='Remove';
-  removeBtn.onclick=()=>{ items.splice(index,1); tr.remove(); updatePreview(); updatePlanFeatures();}
+  const actionTd=document.createElement("td");
+  const removeBtn=document.createElement("button");
+  removeBtn.className="remove-btn";
+  removeBtn.textContent="Remove";
+  removeBtn.onclick=()=>{items.splice(index,1); tr.remove(); updatePreview();}
   actionTd.appendChild(removeBtn);
 
   tr.append(nameTd,catTd,qtyTd,priceTd,actionTd);
   itemsBody.appendChild(tr);
-  updatePlanFeatures();
 }
 
-addItemBtn.addEventListener('click',addItem);
+document.getElementById("addItemBtn").addEventListener("click",addItem);
 addItem();
 
-const terms=document.getElementById('terms');
-const dueDate=document.getElementById('dueDate');
-terms.addEventListener('change',()=>{
-  const d=new Date(); d.setDate(d.getDate()+Number(terms.value)); dueDate.value=d.toISOString().split('T')[0]; updatePreview();
+const terms=document.getElementById("terms");
+const dueDate=document.getElementById("dueDate");
+
+terms.addEventListener("change",()=>{
+  const d=new Date();
+  d.setDate(d.getDate()+Number(terms.value));
+  dueDate.value=d.toISOString().split("T")[0];
+  updatePreview();
 });
-terms.dispatchEvent(new Event('change'));
+terms.dispatchEvent(new Event("change"));
 
 let logoData="";
-document.getElementById('logoInput').addEventListener('change',e=>{
+document.getElementById("logoInput").addEventListener("change",e=>{
   const file=e.target.files[0];
-  if(file){ const reader=new FileReader(); reader.onload=ev=>{ logoData=ev.target.result; updatePreview();} reader.readAsDataURL(file);}
+  if(file){
+    const reader=new FileReader();
+    reader.onload=ev=>{ logoData=ev.target.result; updatePreview();}
+    reader.readAsDataURL(file);
+  }
 });
 
-["fromName","fromEmail","fromPhone","toName","toEmail","toPhone","discount","tax","paid","note","currency","status","invoiceNumber","dueDate","docType"].forEach(id=>{
+["fromName","fromEmail","fromPhone","toName","toEmail","toPhone","discount","tax","paid","note","currency","status","invoiceNumber","dueDate"].forEach(id=>{
   document.getElementById(id).addEventListener("input",updatePreview);
 });
-
-document.getElementById('previewBtn').addEventListener('click',updatePreview);
+invoicePrefix.addEventListener("input",()=>{invoicePrefix.value = docType.value;});
 
 function updatePreview(){
   const cur=document.getElementById("currency").value;
   let subtotal=0;
-  const rows = items.map(i=>{ const t=i.qty*i.price; subtotal+=t; return `<tr><td>${i.name||"-"}<br><small>${i.cat||""}</small></td><td>${i.qty}</td><td>${cur}${t.toFixed(2)}</td></tr>`; }).join('');
+
+  const rows=items.map(i=>{
+    const t=i.qty*i.price;
+    subtotal+=t;
+    return `<tr>
+      <td>${i.name||"-"}<br><small>${i.cat||""}</small></td>
+      <td>${i.qty}</td>
+      <td>${cur}${t.toFixed(2)}</td>
+    </tr>`;
+  }).join("");
+
   const disc=subtotal*(document.getElementById("discount").value/100);
   const taxAmt=subtotal*(document.getElementById("tax").value/100);
   const total=subtotal-disc+taxAmt;
   const balance=total-document.getElementById("paid").value;
+
   const due=new Date(dueDate.value);
   const overdue=balance>0 && new Date()>due;
 
@@ -301,9 +519,10 @@ function updatePreview(){
   if(overdue){badge="red";text="Overdue";}
 
   const preview=document.getElementById("preview");
-  preview.srcdoc=`<div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,.08)">
+
+  preview.srcdoc=`<div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2 style="color:#1e40af;margin:0">${document.getElementById("docType").selectedOptions[0].text} ${invoicePrefix.value}${invoiceNumber.value}</h2>
+      <h2 style="color:#1e40af;margin:0">${docType.selectedOptions[0].text} ${invoicePrefix.value}${invoiceNumber.value}</h2>
       <span class="badge ${badge}">${text}</span>
     </div>
     ${logoData?`<img src="${logoData}" style="height:60px;margin-top:12px">`:''}
@@ -321,7 +540,8 @@ function updatePreview(){
       </div>
     </div>
     <table style="width:100%;margin-top:20px">
-      <tr style="background:#e5e7eb"><th>Item</th><th>Qty</th><th>Total</th></tr>${rows}
+      <tr style="background:#e5e7eb"><th>Item</th><th>Qty</th><th>Total</th></tr>
+      ${rows}
     </table>
     <div style="margin-top:20px;max-width:360px;margin-left:auto;background:#f1f5f9;padding:16px;border-radius:10px">
       <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
@@ -334,12 +554,11 @@ function updatePreview(){
     </div>
     ${document.getElementById("note").value?`<p style="margin-top:12px"><strong>Note:</strong><br>${document.getElementById("note").value}</p>`:""}
   </div>`;
-  updatePlanFeatures();
 }
 
-updatePlanFeatures();
 updatePreview();
+updateFeatureAccess();
 </script>
 
 </body>
-</html>
+</html
