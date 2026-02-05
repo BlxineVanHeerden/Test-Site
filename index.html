@@ -9,21 +9,13 @@
 body{font-family:Inter,sans-serif;background:#f5f7fb;padding:20px;color:#1f2937;}
 h1{text-align:center;color:#111827;font-weight:700;margin-bottom:10px;}
 h2,h3{color:#1f2937;}
-.section{background:#fff;padding:20px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 25px rgba(0,0,0,.06);transition:all .3s;}
-input,select,textarea,button{width:100%;padding:10px 12px;margin-top:8px;border-radius:8px;border:1px solid #d1d5db;font-size:14px;box-sizing:border-box;}
-button{font-weight:600;border:none;cursor:pointer;background:#3b82f6;color:#fff;}
-button:hover{background:#2563eb;}
+.section{background:#fff;padding:20px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 25px rgba(0,0,0,.06);}
 .row{display:flex;gap:16px;flex-wrap:wrap}
 .row>div{flex:1;min-width:200px}
-.plan-card{border:1px solid #d1d5db;border-radius:16px;padding:20px;flex:1;cursor:pointer;text-align:center;transition:.3s;background:#fff;}
-.plan-card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,.12);}
-.plan-card.selected{border-color:#3b82f6;box-shadow:0 12px 28px rgba(59,130,246,.2);}
-.plan-price{font-size:22px;font-weight:700;margin:10px 0;}
-.paypal-btn-container{
-  max-width:220px;
-  margin:16px auto;
-}
-iframe{width:100%;height:720px;border-radius:16px;border:none;}
+button{padding:10px;border-radius:8px;border:none;background:#3b82f6;color:#fff;font-weight:600;cursor:pointer}
+button:hover{background:#2563eb}
+iframe{width:100%;height:720px;border-radius:16px;border:none}
+.paypal-box{max-width:260px;margin:auto}
 </style>
 </head>
 
@@ -33,74 +25,50 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;}
 
 <h2>Select a Plan</h2>
 <div class="row" id="planContainer">
-  <div class="plan-card" data-plan="free">
-    <h3>Free</h3>
-    <div class="plan-price">$0</div>
-    <div>Max 2 items<br>Preview only</div>
-  </div>
-  <div class="plan-card" data-plan="basic">
-    <h3>Basic</h3>
-    <div class="plan-price">$5/mo</div>
-    <div>Max 5 items<br>PDF Download</div>
-  </div>
-  <div class="plan-card" data-plan="pro">
-    <h3>Pro</h3>
-    <div class="plan-price">$10/mo</div>
-    <div>Unlimited items<br>Automation</div>
-  </div>
+  <div class="plan-card" data-plan="free"><h3>Free</h3><div>$0</div></div>
+  <div class="plan-card" data-plan="basic"><h3>Basic</h3><div>$5/mo</div></div>
+  <div class="plan-card" data-plan="pro"><h3>Pro</h3><div>$10/mo</div></div>
 </div>
 
-<!-- PAYPAL MOVED HERE (UNDER PLANS) -->
-<div class="paypal-btn-container" id="paypalBtnContainer"></div>
+<!-- ================= PAYMENT OPTIONS ================= -->
+<div class="section">
+  <h3>Payment Options</h3>
+  <p><strong>Pay with PayPal</strong></p>
 
-<!-- Invoice Section -->
-<div class="section row" id="invoiceSection">
-  <div>
-    <label>Document Type</label>
-    <select id="docType">
-      <option value="INV">Invoice</option>
-      <option value="QUO">Quote</option>
-      <option value="REC">Receipt</option>
-    </select>
-  </div>
-  <div>
-    <label>Invoice Number</label>
-    <div style="display:flex;gap:6px;">
-      <input id="invoicePrefix" readonly style="width:60px;text-align:center;">
-      <input id="invoiceNumber" style="flex:1;" placeholder="0001">
+  <div class="row">
+    <div class="paypal-box">
+      <div id="paypalBtn1"></div>
+    </div>
+    <div class="paypal-box">
+      <div id="paypalBtn2"></div>
     </div>
   </div>
-  <div>
-    <label>Status</label>
-    <select id="status">
-      <option>Draft</option>
-      <option>Sent</option>
-      <option>Paid</option>
-    </select>
-  </div>
 </div>
 
+<!-- ================= INVOICE PREVIEW ================= -->
 <h3>Invoice Preview</h3>
 <iframe id="preview"></iframe>
 
-<!-- PAYPAL SDK (CARD / DEBIT REMOVED) -->
+<!-- PAYPAL SDK (NO CARD / DEBIT) -->
 <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&disable-funding=card,credit"></script>
 
 <script>
-// --- Plan logic ---
-const planButtons=document.querySelectorAll('.plan-card');
-let selectedPlan='free';
+// -------- INVOICE DEMO CONTENT (unchanged logic placeholder) ----------
+document.getElementById("preview").srcdoc = `
+  <div style="font-family:Inter;padding:20px">
+    <h2>Invoice INV-0001</h2>
+    <p><strong>From:</strong> Your Business</p>
+    <p><strong>To:</strong> Client Name</p>
+    <table width="100%" border="1" cellpadding="8" cellspacing="0">
+      <tr><th>Item</th><th>Qty</th><th>Total</th></tr>
+      <tr><td>Service</td><td>1</td><td>$100.00</td></tr>
+      <tr><td colspan="2">Total</td><td><strong>$100.00</strong></td></tr>
+    </table>
+  </div>
+`;
 
-planButtons.forEach(card=>{
-  card.addEventListener('click',()=>{
-    selectedPlan=card.dataset.plan;
-    planButtons.forEach(c=>c.classList.remove('selected'));
-    card.classList.add('selected');
-  });
-});
-
-// --- PayPal ---
-paypal.Buttons({
+// -------- PAYPAL BUTTONS ----------
+const paypalConfig = {
   style:{
     layout:'vertical',
     color:'blue',
@@ -110,15 +78,18 @@ paypal.Buttons({
   },
   createOrder:(data,actions)=>{
     return actions.order.create({
-      purchase_units:[{amount:{value:"5.00"}}]
+      purchase_units:[{amount:{value:'100.00'}}]
     });
   },
   onApprove:(data,actions)=>{
-    return actions.order.capture().then(details=>{
-      alert('Payment Completed by ' + details.payer.name.given_name);
+    return actions.order.capture().then(d=>{
+      alert('Payment completed by ' + d.payer.name.given_name);
     });
   }
-}).render('#paypalBtnContainer');
+};
+
+paypal.Buttons(paypalConfig).render('#paypalBtn1');
+paypal.Buttons(paypalConfig).render('#paypalBtn2');
 </script>
 
 </body>
