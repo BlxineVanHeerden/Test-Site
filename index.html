@@ -2,10 +2,257 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Smart Invoice Generator</title>
+<title>Smart Invoice Generator - Modern</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* --- Styles omitted for brevity, same as your previous version --- */
+/* --- Base --- */
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f0f2f5;
+  color: #1f2937;
+  margin: 0;
+  padding: 0 20px 40px 20px;
+}
+
+h1 {
+  text-align: center;
+  font-weight: 800;
+  font-size: 2rem;
+  margin: 30px 0 10px;
+  color: #111827;
+}
+
+h2, h3 {
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+/* --- Sections --- */
+.section {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+}
+
+.section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* --- Inputs & Buttons --- */
+input, select, textarea, button {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+button {
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+/* --- Flex Layout --- */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.row > div {
+  flex: 1;
+  min-width: 250px;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flex-row {
+  display: flex;
+  gap: 16px;
+}
+
+/* --- Plan Cards --- */
+.plan-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px 20px;
+  flex: 1;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s, transform 0.2s;
+  background: #fff;
+}
+
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.plan-card.selected {
+  border-color: #3b82f6;
+  box-shadow: 0 12px 28px rgba(59, 130, 246, 0.2);
+}
+
+.plan-price {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 10px 0;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.plan-features {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* --- Table --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+th, td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  background: #f3f4f6;
+  text-align: left;
+}
+
+/* --- Remove Button --- */
+.remove-btn {
+  background: #ef4444;
+  color: #fff;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.remove-btn:hover {
+  background: #b91c1c;
+}
+
+/* --- Premium Feature Buttons --- */
+.feature-btn {
+  background: #e5e7eb;
+  color: #374151;
+  cursor: not-allowed;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.feature-btn.unlocked {
+  background: #3b82f6;
+  color: #fff;
+  cursor: pointer;
+}
+
+.feature-btn.unlocked:hover {
+  background: #2563eb;
+}
+
+/* --- Invoice Preview --- */
+iframe {
+  width: 100%;
+  height: 720px;
+  border-radius: 16px;
+  border: none;
+  background: #f9fafb;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+}
+
+/* --- Tooltips --- */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 220px;
+  background-color: #111;
+  color: #fff;
+  text-align: left;
+  border-radius: 8px;
+  padding: 8px 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -110px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-icon {
+  display: inline-block;
+  margin-left: 6px;
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* --- Misc --- */
+#note { min-height: 100px; }
+#dueDate { padding: 8px 10px; }
+.button-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.button-group button { flex: 1; }
 </style>
 </head>
 <body>
@@ -19,33 +266,47 @@
     <div class="plan-price">$0</div>
     <div class="plan-features">
       <div>Max 2 items</div>
-      <div>Preview Only</div>
+      <div>Basic Invoice</div>
+      <div>Share manually</div>
     </div>
   </div>
   <div class="plan-card" data-plan="basic">
     <h3>Basic</h3>
-    <div class="plan-price">$5/mo</div>
+    <div class="plan-price">$3/mo</div>
     <div class="plan-features">
       <div>Max 10 items</div>
-      <div>Download PDF</div>
+      <div>Invoice PDF download</div>
       <div>Email notifications</div>
     </div>
   </div>
   <div class="plan-card" data-plan="pro">
     <h3>Pro</h3>
-    <div class="plan-price">$10/mo</div>
+    <div class="plan-price">$13/mo</div>
     <div class="plan-features">
       <div>Unlimited items</div>
       <div>Custom branding</div>
       <div>Automated reminders</div>
     </div>
   </div>
+  <div class="plan-card" data-plan="enterprise">
+    <h3>Enterprise</h3>
+    <div class="plan-price">$30/mo</div>
+    <div class="plan-features">
+      <div>Team accounts</div>
+      <div>Advanced analytics</div>
+      <div>Priority support</div>
+    </div>
+  </div>
 </div>
 
-<!-- Invoice Form (always visible) -->
+<!-- Invoice Section -->
 <div class="section row" id="invoiceSection">
   <div>
-    <label>Document Type</label>
+    <label>Document Type
+      <span class="tooltip"><span class="tooltip-icon">i</span>
+        <span class="tooltiptext">Choose whether this is an invoice, quote, or receipt</span>
+      </span>
+    </label>
     <select id="docType">
       <option value="INV">Invoice</option>
       <option value="QUO">Quote</option>
@@ -53,14 +314,22 @@
     </select>
   </div>
   <div>
-    <label>Invoice Number</label>
+    <label>Invoice Number
+      <span class="tooltip"><span class="tooltip-icon">i</span>
+        <span class="tooltiptext">Auto-generated invoice number</span>
+      </span>
+    </label>
     <div style="display:flex;gap:6px;">
       <input id="invoicePrefix" readonly style="width:60px;text-align:center;border-right:none;">
       <input id="invoiceNumber" style="flex:1;" placeholder="0001">
     </div>
   </div>
   <div>
-    <label>Status</label>
+    <label>Status
+      <span class="tooltip"><span class="tooltip-icon">i</span>
+        <span class="tooltiptext">Invoice status: Draft, Sent, or Paid</span>
+      </span>
+    </label>
     <select id="status">
       <option>Draft</option>
       <option>Sent</option>
@@ -69,6 +338,7 @@
   </div>
 </div>
 
+<!-- Your Info & Client Info -->
 <div class="section row">
   <div>
     <h3>Your Info</h3>
@@ -86,12 +356,17 @@
   </div>
 </div>
 
+<!-- Invoice Items -->
 <div class="section">
   <h3>Invoice Items</h3>
   <table>
     <thead>
       <tr>
-        <th>Item</th><th>Category</th><th>Qty</th><th>Price</th><th>Action</th>
+        <th>Item</th>
+        <th>Category</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody id="itemsBody"></tbody>
@@ -99,6 +374,7 @@
   <button id="addItemBtn">Add Item</button>
 </div>
 
+<!-- Totals & Payment -->
 <div class="section row">
   <div>
     <label>Currency</label>
@@ -106,6 +382,7 @@
       <option value="$">USD ($)</option>
       <option value="€">EUR (€)</option>
       <option value="£">GBP (£)</option>
+      <option value="R">ZAR (R)</option>
     </select>
   </div>
   <div>
@@ -142,39 +419,40 @@
 
 <div class="button-group">
   <button onclick="updatePreview()">Preview Invoice</button>
-  <button class="feature-btn" id="pdfBtn">Download PDF</button>
-  <button class="feature-btn" id="sendBtn">Send Invoice</button>
-  <button class="feature-btn" id="saveBtn">Save</button>
+  <button onclick="alert('Download PDF (Premium)')" class="feature-btn" id="pdfBtn">Download PDF</button>
+  <button onclick="alert('Send Invoice (Premium)')" class="feature-btn" id="sendBtn">Send Invoice</button>
+  <button onclick="alert('Save Invoice (Premium)')" class="feature-btn" id="saveBtn">Save</button>
 </div>
 
 <h3>Invoice Preview</h3>
 <iframe id="preview"></iframe>
 
 <script>
+// --- Plan logic ---
 const planButtons = document.querySelectorAll('.plan-card');
 let selectedPlan = 'free';
-planButtons.forEach(card=>{
-  card.addEventListener('click',()=>{
-    selectedPlan=card.getAttribute('data-plan');
-    planButtons.forEach(c=>c.classList.remove('selected'));
+planButtons.forEach(card => {
+  card.addEventListener('click', () => {
+    selectedPlan = card.getAttribute('data-plan');
+    planButtons.forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     updateFeatureAccess();
   });
 });
 
-function updateFeatureAccess(){
-  const pdfBtn=document.getElementById('pdfBtn');
-  const sendBtn=document.getElementById('sendBtn');
-  const saveBtn=document.getElementById('saveBtn');
-  if(selectedPlan==='free'){
+function updateFeatureAccess() {
+  const pdfBtn = document.getElementById('pdfBtn');
+  const sendBtn = document.getElementById('sendBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  if(selectedPlan === 'free'){
     pdfBtn.classList.remove('unlocked');
     sendBtn.classList.remove('unlocked');
     saveBtn.classList.remove('unlocked');
-  } else if(selectedPlan==='basic'){
+  } else if(selectedPlan === 'basic'){
     pdfBtn.classList.add('unlocked');
     sendBtn.classList.remove('unlocked');
     saveBtn.classList.add('unlocked');
-  } else if(selectedPlan==='pro'){
+  } else {
     pdfBtn.classList.add('unlocked');
     sendBtn.classList.add('unlocked');
     saveBtn.classList.add('unlocked');
@@ -182,7 +460,13 @@ function updateFeatureAccess(){
 }
 
 // --- Invoice logic ---
-const categories=["Professional Services","Consulting","Retail","IT","Misc"];
+const categories=[
+"Professional Services","Consulting","Construction","Automotive",
+"Healthcare","Education","Retail","Manufacturing","Hospitality",
+"Logistics","Freelance","Agriculture","Media","Legal","Finance",
+"Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"
+];
+
 const counters={INV:0,QUO:0,REC:0};
 const docType=document.getElementById("docType");
 const invoicePrefix=document.getElementById("invoicePrefix");
@@ -190,8 +474,8 @@ const invoiceNumber=document.getElementById("invoiceNumber");
 
 function updateInvoiceNumber(){
   counters[docType.value]++;
-  invoicePrefix.value=docType.value;
-  invoiceNumber.value=String(counters[docType.value]).padStart(4,"0");
+  invoicePrefix.value = docType.value;
+  invoiceNumber.value = String(counters[docType.value]).padStart(4,"0");
 }
 updateInvoiceNumber();
 docType.addEventListener("change",updateInvoiceNumber);
@@ -200,33 +484,67 @@ let items=[];
 const itemsBody=document.getElementById("itemsBody");
 
 function addItem(){
-  if(selectedPlan==='free' && items.length>=2) { alert("Free plan allows only 2 items"); return; }
   const index=items.length;
   items.push({name:"",cat:"",qty:1,price:0});
 
   const tr=document.createElement("tr");
-  tr.innerHTML=`
-    <td><input oninput="items[${index}].name=this.value;updatePreview()"></td>
-    <td><select onchange="items[${index}].cat=this.value;updatePreview()">
-      ${categories.map(c=>`<option>${c}</option>`).join("")}
-    </select></td>
-    <td><input type="number" value="1" min="1" oninput="items[${index}].qty=Number(this.value);updatePreview()"></td>
-    <td><input type="number" value="0" min="0" oninput="items[${index}].price=Number(this.value);updatePreview()"></td>
-    <td><button class="remove-btn" onclick="items.splice(${index},1);this.parentElement.parentElement.remove();updatePreview()">Remove</button></td>
-  `;
+
+  const nameTd=document.createElement("td");
+  const nameInput=document.createElement("input");
+  nameInput.oninput=e=>{items[index].name=e.target.value; updatePreview();}
+  nameTd.appendChild(nameInput);
+
+  const catTd=document.createElement("td");
+  const catSelect=document.createElement("select");
+  categories.forEach(c=>{
+    const o=document.createElement("option");
+    o.textContent=c;
+    catSelect.appendChild(o);
+  });
+  catSelect.onchange=e=>{items[index].cat=e.target.value; updatePreview();}
+  catTd.appendChild(catSelect);
+
+  const qtyTd=document.createElement("td");
+  const qtyInput=document.createElement("input");
+  qtyInput.type="number";
+  qtyInput.value=1;
+  qtyInput.min=1;
+  qtyInput.oninput=e=>{items[index].qty=Number(e.target.value); updatePreview();}
+  qtyTd.appendChild(qtyInput);
+
+  const priceTd=document.createElement("td");
+  const priceInput=document.createElement("input");
+  priceInput.type="number";
+  priceInput.value=0;
+  priceInput.min=0;
+  priceInput.oninput=e=>{items[index].price=Number(e.target.value); updatePreview();}
+  priceTd.appendChild(priceInput);
+
+  const actionTd=document.createElement("td");
+  const removeBtn=document.createElement("button");
+  removeBtn.className="remove-btn";
+  removeBtn.textContent="Remove";
+  removeBtn.onclick=()=>{items.splice(index,1); tr.remove(); updatePreview();}
+  actionTd.appendChild(removeBtn);
+
+  tr.append(nameTd,catTd,qtyTd,priceTd,actionTd);
   itemsBody.appendChild(tr);
-  updatePreview();
 }
 
 document.getElementById("addItemBtn").addEventListener("click",addItem);
 addItem();
 
-// --- Other inputs ---
-["fromName","fromEmail","fromPhone","toName","toEmail","toPhone","discount","tax","paid","note","currency","status","invoiceNumber","dueDate"].forEach(id=>{
-  document.getElementById(id).addEventListener("input",updatePreview);
-});
+const terms=document.getElementById("terms");
+const dueDate=document.getElementById("dueDate");
 
-// Logo upload
+terms.addEventListener("change",()=>{
+  const d=new Date();
+  d.setDate(d.getDate()+Number(terms.value));
+  dueDate.value=d.toISOString().split("T")[0];
+  updatePreview();
+});
+terms.dispatchEvent(new Event("change"));
+
 let logoData="";
 document.getElementById("logoInput").addEventListener("change",e=>{
   const file=e.target.files[0];
@@ -237,62 +555,81 @@ document.getElementById("logoInput").addEventListener("change",e=>{
   }
 });
 
-// Terms & due date
-const terms=document.getElementById("terms");
-const dueDate=document.getElementById("dueDate");
-terms.addEventListener("change",()=>{
-  const d=new Date();
-  d.setDate(d.getDate()+Number(terms.value));
-  dueDate.value=d.toISOString().split("T")[0];
-  updatePreview();
+["fromName","fromEmail","fromPhone","toName","toEmail","toPhone","discount","tax","paid","note","currency","status","invoiceNumber","dueDate"].forEach(id=>{
+  document.getElementById(id).addEventListener("input",updatePreview);
 });
-terms.dispatchEvent(new Event("change"));
+invoicePrefix.addEventListener("input",()=>{invoiceNumber.value="";updatePreview();});
 
-// --- Preview ---
 function updatePreview(){
-  const cur=document.getElementById("currency").value;
+  const currency=document.getElementById("currency").value;
+  const discount=Number(document.getElementById("discount").value);
+  const tax=Number(document.getElementById("tax").value);
+  const paid=Number(document.getElementById("paid").value);
+
+  const fromName=document.getElementById("fromName").value;
+  const fromEmail=document.getElementById("fromEmail").value;
+  const fromPhone=document.getElementById("fromPhone").value;
+  const toName=document.getElementById("toName").value;
+  const toEmail=document.getElementById("toEmail").value;
+  const toPhone=document.getElementById("toPhone").value;
+  const note=document.getElementById("note").value;
+  const invNum=document.getElementById("invoicePrefix").value+document.getElementById("invoiceNumber").value;
+  const status=document.getElementById("status").value;
+  const due=document.getElementById("dueDate").value;
+
   let subtotal=0;
-  const rows=items.map(i=>{
-    const t=i.qty*i.price;
-    subtotal+=t;
-    return `<tr>
-      <td>${i.name||"-"}<br><small>${i.cat||""}</small></td>
-      <td>${i.qty}</td>
-      <td>${cur}${t.toFixed(2)}</td>
+  let itemsHtml="";
+  items.forEach(it=>{
+    const total=it.qty*it.price;
+    subtotal+=total;
+    itemsHtml+=`<tr>
+      <td>${it.name}</td>
+      <td>${it.cat}</td>
+      <td>${it.qty}</td>
+      <td>${currency}${it.price.toFixed(2)}</td>
+      <td>${currency}${total.toFixed(2)}</td>
     </tr>`;
-  }).join("");
-  const disc=subtotal*(document.getElementById("discount").value/100);
-  const tax=subtotal*(document.getElementById("tax").value/100);
-  const total=subtotal-disc+tax-document.getElementById("paid").value*1;
+  });
 
-  document.getElementById("preview").srcdoc=`
-    <div style="font-family:Inter,sans-serif;padding:20px;background:#f9fafb">
-      ${logoData?`<img src="${logoData}" style="max-height:60px;margin-bottom:12px;">`:''}
-      <h2>${docType.value} #${invoiceNumber.value}</h2>
-      <p>Status: ${document.getElementById("status").value}</p>
-      <hr>
-      <h3>From</h3>
-      <p>${document.getElementById("fromName").value}<br>${document.getElementById("fromEmail").value}<br>${document.getElementById("fromPhone").value}</p>
-      <h3>To</h3>
-      <p>${document.getElementById("toName").value}<br>${document.getElementById("toEmail").value}<br>${document.getElementById("toPhone").value}</p>
-      <h3>Items</h3>
-      <table style="width:100%;border-collapse:collapse">
-        <tr style="background:#3b82f6;color:#fff"><th>Item</th><th>Qty</th><th>Total</th></tr>
-        ${rows}
-      </table>
-      <h3>Totals</h3>
-      <p>Subtotal: ${cur}${subtotal.toFixed(2)}<br>
-      Discount: ${cur}${disc.toFixed(2)}<br>
-      Tax: ${cur}${tax.toFixed(2)}<br>
-      <strong>Total Due: ${cur}${total.toFixed(2)}</strong></p>
-      <p>Due Date: ${dueDate.value}</p>
-      <p>Notes: ${document.getElementById("note").value}</p>
+  const discountAmount=subtotal*(discount/100);
+  const taxAmount=(subtotal-discountAmount)*(tax/100);
+  const total=subtotal-discountAmount+taxAmount;
+  const balance=total-paid;
+
+  const html=`
+  <div style="font-family:Inter,sans-serif;padding:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div><h2>${fromName}</h2><div>${fromEmail}<br>${fromPhone}</div></div>
+      ${logoData?`<img src="${logoData}" style="height:80px;">`:``}
     </div>
+    <hr>
+    <div style="display:flex;justify-content:space-between;">
+      <div><strong>Bill To:</strong><br>${toName}<br>${toEmail}<br>${toPhone}</div>
+      <div><strong>${document.getElementById("docType").value} #:</strong> ${invNum}<br>
+      <strong>Status:</strong> ${status}<br>
+      <strong>Due Date:</strong> ${due}</div>
+    </div>
+    <table style="width:100%;margin-top:20px;border-collapse:collapse;">
+      <thead style="background:#f3f4f6;">
+        <tr>
+          <th>Item</th><th>Category</th><th>Qty</th><th>Price</th><th>Total</th>
+        </tr>
+      </thead>
+      <tbody>${itemsHtml}</tbody>
+    </table>
+    <div style="margin-top:10px;text-align:right;">
+      <div>Subtotal: ${currency}${subtotal.toFixed(2)}</div>
+      <div>Discount: ${currency}${discountAmount.toFixed(2)}</div>
+      <div>Tax: ${currency}${taxAmount.toFixed(2)}</div>
+      <div><strong>Total: ${currency}${total.toFixed(2)}</strong></div>
+      <div>Amount Paid: ${currency}${paid.toFixed(2)}</div>
+      <div><strong>Balance Due: ${currency}${balance.toFixed(2)}</strong></div>
+    </div>
+    <div style="margin-top:20px;"><strong>Note:</strong> ${note}</div>
+  </div>
   `;
+  document.getElementById("preview").srcdoc=html;
 }
-
-// Initialize
-document.querySelector('.plan-card[data-plan="free"]').click();
 updatePreview();
 </script>
 
