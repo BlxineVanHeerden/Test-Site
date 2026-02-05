@@ -45,13 +45,6 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
 #note{height:90px;resize:vertical;}
 #dueDate{padding:8px 10px;}
 .paypal-btn-container{margin-top:12px;}
-/* --- Invoice Preview Styling --- */
-#preview { background:#fff; padding:20px; }
-#preview h2 { color:#1f2937; border-bottom:2px solid #3b82f6; padding-bottom:6px; }
-#preview table { border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; }
-#preview th, #preview td { border-bottom:1px solid #e5e7eb; padding:10px; }
-#preview th { background:#3b82f6; color:#fff; }
-#preview tr:last-child td { border-bottom:none; }
 </style>
 </head>
 <body>
@@ -67,6 +60,7 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
       <div>Max 2 items</div>
       <div>Invoice Preview Only</div>
     </div>
+    <!-- Free has no PayPal button -->
   </div>
   <div class="plan-card" data-plan="basic">
     <h3>Basic</h3>
@@ -215,7 +209,7 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
 <h3>Invoice Preview</h3>
 <iframe id="preview"></iframe>
 
-<!-- PayPal SDK -->
+<!-- PayPal SDK (disable debit/credit cards) -->
 <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&disable-funding=card,credit"></script>
 
 <script>
@@ -368,80 +362,41 @@ function updatePreview(){
   const total=subtotal-disc+tax-document.getElementById("paid").value*1;
 
   const html=`<div style="font-family:Inter,sans-serif;padding:20px;">
-    ${logoData?`<img src="${logoData}" style="max-width:120px;margin-bottom:12px;">`:''}
+    ${logoData?`<img src="${logoData}" style="max-width:120px;">`:''}
     <h2>${docType.value} ${invoiceNumber.value}</h2>
     <p><strong>From:</strong> ${document.getElementById("fromName").value} | ${document.getElementById("fromEmail").value} | ${document.getElementById("fromPhone").value}</p>
-   
     <p><strong>To:</strong> ${document.getElementById("toName").value} | ${document.getElementById("toEmail").value} | ${document.getElementById("toPhone").value}</p>
-    <table>
-      <thead>
-        <tr><th>Item</th><th>Qty</th><th>Amount</th></tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
+    <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+      <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
+      <tbody>${rows}</tbody>
     </table>
     <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
     <p>Discount: -${cur}${disc.toFixed(2)}</p>
     <p>Tax: +${cur}${tax.toFixed(2)}</p>
     <h3>Total Due: ${cur}${total.toFixed(2)}</h3>
     <p>Status: ${document.getElementById("status").value}</p>
-    <p>Payment Terms: ${terms.options[terms.selectedIndex].text}</p>
-    <p>Due Date: ${dueDate.value}</p>
-    <p>Client Note: ${document.getElementById("note").value}</p>
+    <p>Due Date: ${document.getElementById("dueDate").value}</p>
+    <p>Note: ${document.getElementById("note").value}</p>
   </div>`;
 
-  const preview = document.getElementById("preview");
-  preview.srcdoc = html;
+  document.getElementById("preview").srcdoc=html;
 }
 
-// --- PayPal Buttons ---
-paypal.Buttons({
-  style: {
-    layout: 'vertical',
-    color: 'blue',
-    shape: 'pill',
-    label: 'paypal'
-  },
-  createOrder: function(data, actions) {
-    // Total depends on selected plan
-    let amount = 0;
-    if(selectedPlan==='basic') amount = 5;
-    else if(selectedPlan==='pro') amount = 10;
-    return actions.order.create({
-      purchase_units: [{
-        amount: { value: amount.toString() }
-      }]
-    });
-  },
-  onApprove: function(data, actions) {
-    return actions.order.capture().then(function(details) {
-      alert('Transaction completed by ' + details.payer.name.given_name + '!');
-    });
-  }
-}).render('#paypal-basic'); // for Basic plan
+// --- PayPal buttons ---
+const paypalStyle = { layout: 'vertical', color: 'blue', shape: 'pill', label: 'paypal', height: 32 };
 
 paypal.Buttons({
-  style: {
-    layout: 'vertical',
-    color: 'blue',
-    shape: 'pill',
-    label: 'paypal'
-  },
-  createOrder: function(data, actions) {
-    let amount = selectedPlan==='pro' ? 10 : 0;
-    return actions.order.create({
-      purchase_units: [{
-        amount: { value: amount.toString() }
-      }]
-    });
-  },
-  onApprove: function(data, actions) {
-    return actions.order.capture().then(function(details) {
-      alert('Transaction completed by ' + details.payer.name.given_name + '!');
-    });
-  }
-}).render('#paypal-pro'); // for Pro plan
+  style: paypalStyle,
+  createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { value: '5.00' } }] }),
+  onApprove: () => { alert('Basic plan activated'); selectedPlan='basic'; updateFeatureAccess(); }
+}).render('#paypal-basic');
+
+paypal.Buttons({
+  style: paypalStyle,
+  createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { value: '10.00' } }] }),
+  onApprove: () => { alert('Pro plan activated'); selectedPlan='pro'; updateFeatureAccess(); }
+}).render('#paypal-pro');
 </script>
+
 </body>
 </html>
