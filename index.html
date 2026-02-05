@@ -10,7 +10,9 @@ body{
   background:#f8fafc;
   padding:20px;
 }
+
 h1{text-align:center;color:#1e40af}
+
 .section{
   background:#fff;
   padding:16px;
@@ -18,6 +20,7 @@ h1{text-align:center;color:#1e40af}
   margin-bottom:20px;
   box-shadow:0 6px 18px rgba(0,0,0,.06);
 }
+
 input,select,textarea,button{
   width:100%;
   padding:6px 8px;
@@ -27,25 +30,31 @@ input,select,textarea,button{
   font-size:13px;
   box-sizing:border-box;
 }
+
 button{
   font-weight:600;
   border:none;
   cursor:pointer;
 }
+
 .button-group{
   display:flex;
   gap:10px;
   margin-bottom:20px;
 }
+
 .button-group button{
   flex:1;
   padding:6px 8px;
   font-size:13px;
 }
+
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
+
 .flex-row{display:flex;gap:12px;}
 .flex-column{display:flex;flex-direction:column;gap:8px;}
+
 table{
   width:100%;
   border-collapse:collapse;
@@ -56,6 +65,7 @@ th,td{
   border-bottom:1px solid #e5e7eb;
 }
 th{background:#e5e7eb}
+
 .badge{
   display:inline-block;
   padding:6px 12px;
@@ -67,6 +77,7 @@ th{background:#e5e7eb}
 .blue{background:#3b82f6;color:#fff}
 .green{background:#22c55e;color:#fff}
 .red{background:#ef4444;color:#fff}
+
 iframe{
   width:100%;
   height:720px;
@@ -74,6 +85,7 @@ iframe{
   border:1px solid #e5e7eb;
   background:#f9fafb;
 }
+
 .remove-btn{
   background:#ef4444;
   padding:4px 8px;
@@ -84,13 +96,16 @@ iframe{
 .remove-btn:hover{
   background:#b91c1c;
 }
+
 #note{
   height:80px;
   resize:vertical;
 }
+
 #dueDate{
   padding:5px 8px;
 }
+
 /* Plan cards */
 .plan-card{
   border:1px solid #cbd5e1;
@@ -117,18 +132,25 @@ iframe{
   gap:6px;
 }
 .feature-btn{
-  padding:4px 6px;
+  padding:6px 12px;
   border-radius:6px;
-  font-size:12px;
-  cursor:not-allowed;
+  font-size:13px;
+  cursor:pointer;
   background:#e5e7eb;
   color:#374151;
+  border:none;
+  transition:0.2s;
 }
 .feature-btn.unlocked{
   background:#3b82f6;
   color:#fff;
-  cursor:pointer;
 }
+.feature-btn.locked{
+  cursor:not-allowed;
+  background:#e5e7eb;
+  color:#9ca3af;
+}
+
 /* Tooltip */
 .tooltip{
   position:relative;
@@ -180,22 +202,22 @@ iframe{
     <div class="plan-price">$0</div>
     <div class="plan-features">
       <div>Max 2 items</div>
-      <div>Basic invoice</div>
-      <div>Manual share</div>
+      <div>Basic Invoice</div>
+      <div>Share manually</div>
     </div>
   </div>
   <div class="plan-card" data-plan="basic">
     <h3>Basic</h3>
-    <div class="plan-price">$5/mo</div>
+    <div class="plan-price">$7/mo</div>
     <div class="plan-features">
       <div>Max 10 items</div>
-      <div>PDF download</div>
+      <div>Invoice PDF download</div>
       <div>Email notifications</div>
     </div>
   </div>
   <div class="plan-card" data-plan="pro">
     <h3>Pro</h3>
-    <div class="plan-price">$10/mo</div>
+    <div class="plan-price">$17/mo</div>
     <div class="plan-features">
       <div>Unlimited items</div>
       <div>Custom branding</div>
@@ -204,7 +226,7 @@ iframe{
   </div>
   <div class="plan-card" data-plan="enterprise">
     <h3>Enterprise</h3>
-    <div class="plan-price">$20/mo</div>
+    <div class="plan-price">$30/mo</div>
     <div class="plan-features">
       <div>Team accounts</div>
       <div>Advanced analytics</div>
@@ -328,10 +350,10 @@ iframe{
 </div>
 
 <div class="button-group">
-  <button onclick="updatePreview()">Preview Invoice</button>
-  <button onclick="alert('Download PDF')" class="feature-btn" id="pdfBtn">Download PDF</button>
-  <button onclick="alert('Send Invoice')" class="feature-btn" id="sendBtn">Send Invoice</button>
-  <button onclick="alert('Save Invoice')" class="feature-btn" id="saveBtn">Save</button>
+  <button class="feature-btn" id="previewBtn">Preview Invoice</button>
+  <button class="feature-btn" id="pdfBtn">Download PDF</button>
+  <button class="feature-btn" id="sendBtn">Send Invoice</button>
+  <button class="feature-btn" id="saveBtn">Save Invoice</button>
 </div>
 
 <h3>Invoice Preview</h3>
@@ -339,31 +361,46 @@ iframe{
 
 <script>
 // ----- Plan logic -----
-const planButtons = document.querySelectorAll('.plan-card');
-let selectedPlan = 'free';
-planButtons.forEach(card => {
-  card.addEventListener('click', () => {
-    selectedPlan = card.getAttribute('data-plan');
-    planButtons.forEach(c => c.classList.remove('selected'));
+const planButtons=document.querySelectorAll('.plan-card');
+let selectedPlan='free';
+
+planButtons.forEach(card=>{
+  card.addEventListener('click',()=>{
+    selectedPlan=card.getAttribute('data-plan');
+    planButtons.forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
     updateFeatureAccess();
   });
 });
 
-function updateFeatureAccess() {
-  // Unlock all buttons for testing
-  document.getElementById('pdfBtn').classList.add('unlocked');
-  document.getElementById('sendBtn').classList.add('unlocked');
-  document.getElementById('saveBtn').classList.add('unlocked');
+function updateFeatureAccess(){
+  const pdfBtn=document.getElementById("pdfBtn");
+  const sendBtn=document.getElementById("sendBtn");
+  const saveBtn=document.getElementById("saveBtn");
+
+  if(selectedPlan==="free"){
+    pdfBtn.className="feature-btn locked";
+    sendBtn.className="feature-btn locked";
+    saveBtn.className="feature-btn unlocked";
+  }else if(selectedPlan==="basic"){
+    pdfBtn.className="feature-btn unlocked";
+    sendBtn.className="feature-btn unlocked";
+    saveBtn.className="feature-btn unlocked";
+  }else{ // pro & enterprise
+    pdfBtn.className="feature-btn unlocked";
+    sendBtn.className="feature-btn unlocked";
+    saveBtn.className="feature-btn unlocked";
+  }
 }
 
 // ----- Invoice logic -----
 const categories=[
-  "Professional Services","Consulting","Construction","Automotive",
-  "Healthcare","Education","Retail","Manufacturing","Hospitality",
-  "Logistics","Freelance","Agriculture","Media","Legal","Finance",
-  "Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"
+"Professional Services","Consulting","Construction","Automotive",
+"Healthcare","Education","Retail","Manufacturing","Hospitality",
+"Logistics","Freelance","Agriculture","Media","Legal","Finance",
+"Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"
 ];
+
 const counters={INV:0,QUO:0,REC:0};
 const docType=document.getElementById("docType");
 const invoicePrefix=document.getElementById("invoicePrefix");
@@ -379,14 +416,18 @@ docType.addEventListener("change",updateInvoiceNumber);
 
 let items=[];
 const itemsBody=document.getElementById("itemsBody");
+
 function addItem(){
   const index=items.length;
   items.push({name:"",cat:"",qty:1,price:0});
+
   const tr=document.createElement("tr");
+
   const nameTd=document.createElement("td");
   const nameInput=document.createElement("input");
   nameInput.oninput=e=>{items[index].name=e.target.value; updatePreview();}
   nameTd.appendChild(nameInput);
+
   const catTd=document.createElement("td");
   const catSelect=document.createElement("select");
   categories.forEach(c=>{
@@ -396,29 +437,40 @@ function addItem(){
   });
   catSelect.onchange=e=>{items[index].cat=e.target.value; updatePreview();}
   catTd.appendChild(catSelect);
+
   const qtyTd=document.createElement("td");
   const qtyInput=document.createElement("input");
-  qtyInput.type="number"; qtyInput.value=1; qtyInput.min=1;
+  qtyInput.type="number";
+  qtyInput.value=1;
+  qtyInput.min=1;
   qtyInput.oninput=e=>{items[index].qty=Number(e.target.value); updatePreview();}
   qtyTd.appendChild(qtyInput);
+
   const priceTd=document.createElement("td");
   const priceInput=document.createElement("input");
-  priceInput.type="number"; priceInput.value=0; priceInput.min=0;
+  priceInput.type="number";
+  priceInput.value=0;
+  priceInput.min=0;
   priceInput.oninput=e=>{items[index].price=Number(e.target.value); updatePreview();}
   priceTd.appendChild(priceInput);
+
   const actionTd=document.createElement("td");
   const removeBtn=document.createElement("button");
-  removeBtn.className="remove-btn"; removeBtn.textContent="Remove";
+  removeBtn.className="remove-btn";
+  removeBtn.textContent="Remove";
   removeBtn.onclick=()=>{items.splice(index,1); tr.remove(); updatePreview();}
   actionTd.appendChild(removeBtn);
+
   tr.append(nameTd,catTd,qtyTd,priceTd,actionTd);
   itemsBody.appendChild(tr);
 }
+
 document.getElementById("addItemBtn").addEventListener("click",addItem);
 addItem();
 
 const terms=document.getElementById("terms");
 const dueDate=document.getElementById("dueDate");
+
 terms.addEventListener("change",()=>{
   const d=new Date();
   d.setDate(d.getDate()+Number(terms.value));
@@ -445,6 +497,7 @@ invoicePrefix.addEventListener("input",()=>{invoicePrefix.value = docType.value;
 function updatePreview(){
   const cur=document.getElementById("currency").value;
   let subtotal=0;
+
   const rows=items.map(i=>{
     const t=i.qty*i.price;
     subtotal+=t;
@@ -454,34 +507,80 @@ function updatePreview(){
       <td>${cur}${t.toFixed(2)}</td>
     </tr>`;
   }).join("");
+
   const disc=subtotal*(document.getElementById("discount").value/100);
   const taxAmt=subtotal*(document.getElementById("tax").value/100);
   const total=subtotal-disc+taxAmt;
   const balance=total-document.getElementById("paid").value;
+
   const due=new Date(dueDate.value);
   const overdue=balance>0 && new Date()>due;
+
   let badge="grey",text=document.getElementById("status").value;
   if(text==="Paid") badge="green";
   if(text==="Sent") badge="blue";
   if(overdue){badge="red";text="Overdue";}
+
   const preview=document.getElementById("preview");
+
   preview.srcdoc=`<div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2 style="color:#1e40af;margin:0">${docType.value}${invoiceNumber.value}</h2>
+      <h2 style="color:#1e40af;margin:0">${docType.selectedOptions[0].text} ${invoicePrefix.value}${invoiceNumber.value}</h2>
       <span class="badge ${badge}">${text}</span>
     </div>
     ${logoData?`<img src="${logoData}" style="height:60px;margin-top:12px">`:''}
-    <table style="width:100%;margin-top:20px">
-      <tr style="background:#e5e7eb"><th>Item</th><th>Qty</th><th>Total</th></tr>
-      ${rows}
-    </table>
-    <div style="margin-top:20px;max-width:360px;margin-left:auto;background:#f1f5f9;padding:16px;border-radius:10px">
-      <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
-      <p>Discount: -${cur}${disc.toFixed(2)}</p>
-      <p>Tax: ${cur}${taxAmt.toFixed(2)}</p>
-      <p><strong>Total Due: ${cur}${total.toFixed(2)}</strong></p>
-      <p>Amount Paid: ${cur}${document.getElementById("paid").value}</p>
-      <p><strong>Balance: ${cur}${balance.toFixed(2)}</strong></p>
-      <p><strong>Due Date:</strong> ${dueDate.value}</p>
+    <div style="display:flex;justify-content:space-between;margin-top:20px">
+      <div>
+        <strong>${document.getElementById("fromName").value}</strong><br>
+        ${document.getElementById("fromEmail").value}<br>
+        ${document.getElementById("fromPhone").value?`Phone: ${document.getElementById("fromPhone").value}`:''}
+      </div>
+      <div>
+        <strong>Bill To:</strong><br>
+        ${document.getElementById("toName").value}<br>
+        ${document.getElementById("toEmail").value}<br>
+        ${document.getElementById("toPhone").value?`Phone: ${document.getElementById("toPhone").value}`:''}
+      </div>
     </div>
-    ${document.getElementById("note").value?`<p style="margin-top:12
+    <table style="width:100%;margin-top:20px;border-collapse:collapse">
+      <thead>
+        <tr>
+          <th style="text-align:left;border-bottom:1px solid #e5e7eb">Item</th>
+          <th style="border-bottom:1px solid #e5e7eb">Qty</th>
+          <th style="border-bottom:1px solid #e5e7eb">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+    <div style="text-align:right;margin-top:12px">
+      Subtotal: ${cur}${subtotal.toFixed(2)}<br>
+      Discount: ${cur}${disc.toFixed(2)}<br>
+      Tax: ${cur}${taxAmt.toFixed(2)}<br>
+      <strong>Total: ${cur}${total.toFixed(2)}</strong><br>
+      Amount Paid: ${cur}${Number(document.getElementById("paid").value).toFixed(2)}<br>
+      <strong>Balance: ${cur}${balance.toFixed(2)}</strong><br>
+      Due Date: ${dueDate.value}<br>
+      Note: ${document.getElementById("note").value}
+    </div>
+  </div>`;
+}
+
+// ----- Buttons -----
+document.getElementById("previewBtn").addEventListener("click",updatePreview);
+document.getElementById("pdfBtn").addEventListener("click",()=>{
+  if(selectedPlan!=="free") alert("Download PDF");
+});
+document.getElementById("sendBtn").addEventListener("click",()=>{
+  if(selectedPlan!=="free") alert("Send Invoice");
+});
+document.getElementById("saveBtn").addEventListener("click",()=>alert("Save Invoice"));
+
+// ----- Initialize -----
+updateFeatureAccess();
+updatePreview();
+</script>
+
+</body>
+</html>
