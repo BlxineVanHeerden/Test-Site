@@ -1,6 +1,5 @@
 // ---------- INIT ----------
-document.getElementById("invoiceDate").textContent =
-  new Date().toLocaleDateString();
+document.getElementById("invoiceDate").textContent = new Date().toLocaleDateString();
 
 const currencySelect = document.getElementById("currencySelect");
 const currencyInfo = document.getElementById("currencyInfo");
@@ -10,78 +9,10 @@ const taxDisplay = document.getElementById("taxDisplay");
 const totalDisplay = document.getElementById("totalDisplay");
 
 const itemsBody = document.getElementById("itemsBody");
-
-const pdfBtn = document.getElementById("pdfBtn");
-
-// ---------- PLAN / FEATURE LOCK ----------
-let selectedPlan = "free";      // unlocked plan (paid)
-let intendedPlan = "free";      // plan user clicked but not paid yet
-
 const planCards = document.querySelectorAll(".plan-card");
 
-planCards.forEach(card => {
-  card.addEventListener("click", () => {
-    const plan = card.getAttribute("data-plan");
-    intendedPlan = plan;
-
-    planCards.forEach(c => c.classList.remove("selected"));
-    card.classList.add("selected");
-
-    if (plan === "free") {
-      selectedPlan = "free";
-      updateFeatureAccess();
-    } else {
-      alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment to unlock features.`);
-      updateFeatureAccess(); // keep current unlocked features
-    }
-  });
-});
-
-function updateFeatureAccess() {
-  // Lock everything first
-  pdfBtn.disabled = true;
-  pdfBtn.classList.remove("unlocked");
-
-  if (selectedPlan === "free") {
-    pdfBtn.disabled = true; // PDF download locked in free plan
-  } else if (selectedPlan === "basic") {
-    pdfBtn.disabled = false;
-    pdfBtn.classList.add("unlocked");
-  } else if (selectedPlan === "pro") {
-    pdfBtn.disabled = false;
-    pdfBtn.classList.add("unlocked");
-  }
-}
-
-updateFeatureAccess();
-
-// ---------- PAYPAL INTEGRATION ----------
-function setupPaypalButton(containerId, plan, amount) {
-  paypal.Buttons({
-    createOrder: function(data, actions) {
-      return actions.order.create({
-        purchase_units: [{ amount: { value: amount.toString() } }]
-      });
-    },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(details => {
-        alert(`Payment completed by ${details.payer.name.given_name}. ${plan} Plan unlocked!`);
-        selectedPlan = intendedPlan;
-        planCards.forEach(c => c.classList.remove("selected"));
-        document.querySelector(`.plan-card[data-plan="${selectedPlan}"]`).classList.add("selected");
-        updateFeatureAccess();
-      });
-    },
-    onError: function(err) {
-      console.error(err);
-      alert("Payment could not be processed.");
-    }
-  }).render(`#${containerId}`);
-}
-
-// Replace with your PayPal container IDs and amounts
-setupPaypalButton("paypal-basic", "basic", 5);
-setupPaypalButton("paypal-pro", "pro", 10);
+let selectedPlan = "free";   // Active plan (features unlocked)
+let intendedPlan = "free";   // Plan user clicked (may require payment)
 
 // ---------- CURRENCIES ----------
 const currencies = [
@@ -112,19 +43,77 @@ currencySelect.addEventListener("change", () => {
   recalc();
 });
 
+// ---------- PLAN LOGIC ----------
+planCards.forEach(card => {
+  card.addEventListener('click', () => {
+    const plan = card.getAttribute('data-plan');
+
+    // Free plan unlocks immediately
+    if(plan === "free") {
+      selectedPlan = "free";
+      intendedPlan = "free";
+      updateFeatureAccess();
+      planCards.forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      return;
+    }
+
+    // Paid plans: show alert, require payment
+    intendedPlan = plan;
+    alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment. Use the PayPal button to unlock.`);
+
+    // Highlight clicked plan
+    planCards.forEach(c => c.classList.remove("selected"));
+    card.classList.add("selected");
+
+    // Do NOT update selectedPlan yet
+    updateFeatureAccess(); // keeps features locked
+  });
+});
+
+function updateFeatureAccess() {
+  const pdfBtn = document.getElementById('pdfBtn');
+  const sendBtn = document.getElementById('sendBtn');
+  const saveBtn = document.getElementById('saveBtn');
+
+  // Free: only basic preview
+  if(selectedPlan === "free") {
+    pdfBtn.classList.remove("unlocked");
+    sendBtn.classList.remove("unlocked");
+    saveBtn.classList.remove("unlocked");
+  }
+
+  // Basic plan: unlock PDF + Save
+  else if(selectedPlan === "basic") {
+    pdfBtn.classList.add("unlocked");
+    sendBtn.classList.remove("unlocked");
+    saveBtn.classList.add("unlocked");
+  }
+
+  // Pro plan: unlock all
+  else if(selectedPlan === "pro") {
+    pdfBtn.classList.add("unlocked");
+    sendBtn.classList.add("unlocked");
+    saveBtn.classList.add("unlocked");
+  }
+}
+
+updateFeatureAccess();
+
 // ---------- ITEMS ----------
 function addRow() {
   const maxItems = selectedPlan === "free" ? 2 : selectedPlan === "basic" ? 5 : 999;
-  if (itemsBody.rows.length >= maxItems) {
-    alert(`${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} plan allows max ${maxItems} items. Upgrade for more.`);
+
+  if(itemsBody.rows.length >= maxItems) {
+    alert(`Your plan allows maximum ${maxItems} items. Upgrade for more.`);
     return;
   }
 
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td><input placeholder="Description"></td>
-    <td><input type="number" value="1"></td>
-    <td><input type="number" value="0"></td>
+    <td><input type="number" value="1" min="1"></td>
+    <td><input type="number" value="0" min="0"></td>
     <td class="lineTotal">0.00</td>
     <td><button onclick="removeRow(this)">✕</button></td>
   `;
@@ -137,20 +126,19 @@ function removeRow(btn) {
   recalc();
 }
 
+document.getElementById("addItemBtn").addEventListener("click", addRow);
+addRow();
+
 // ---------- CALCULATOR ----------
 document.addEventListener("input", recalc);
 
 function recalc() {
   let subtotal = 0;
-
   [...itemsBody.rows].forEach(row => {
     const qty = Number(row.cells[1].querySelector("input").value) || 0;
     const price = Number(row.cells[2].querySelector("input").value) || 0;
     const lineTotal = qty * price;
-
-    row.cells[3].textContent =
-      `${activeCurrency.symbol}${lineTotal.toFixed(2)}`;
-
+    row.cells[3].textContent = `${activeCurrency.symbol}${lineTotal.toFixed(2)}`;
     subtotal += lineTotal;
   });
 
@@ -158,72 +146,59 @@ function recalc() {
   const taxAmount = subtotal * (taxRate / 100);
   const grandTotal = subtotal + taxAmount;
 
-  subtotalDisplay.textContent =
-    `${activeCurrency.symbol}${subtotal.toFixed(2)}`;
-  taxDisplay.textContent =
-    `${activeCurrency.symbol}${taxAmount.toFixed(2)}`;
-  totalDisplay.textContent =
-    `${activeCurrency.symbol}${grandTotal.toFixed(2)}`;
-
-  updateHealth(subtotal);
+  subtotalDisplay.textContent = `${activeCurrency.symbol}${subtotal.toFixed(2)}`;
+  taxDisplay.textContent = `${activeCurrency.symbol}${taxAmount.toFixed(2)}`;
+  totalDisplay.textContent = `${activeCurrency.symbol}${grandTotal.toFixed(2)}`;
 }
 
-// ---------- HEALTH ----------
-function updateHealth(subtotal) {
-  let score = 100;
-  let tips = [];
+// ---------- PAYPAL BUTTONS ----------
+paypal.Buttons({
+  style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'pay' },
+  createOrder: function(data, actions) {
+    let amount = 0;
+    if(intendedPlan === 'basic') amount = 5;
+    else if(intendedPlan === 'pro') amount = 10;
 
-  if (!clientName.value) { score -= 20; tips.push("Add client name"); }
-  if (subtotal <= 0) { score -= 40; tips.push("Invoice total is zero"); }
-
-  const el = document.getElementById("healthScore");
-  el.textContent = score + "/100";
-  el.className = "score " + (score >= 80 ? "good" : score >= 50 ? "warn" : "bad");
-
-  document.getElementById("tips").innerHTML = tips.join("<br>");
-}
-
-// ---------- CLIENT VIEW ----------
-function toggleClientView() {
-  document.body.classList.toggle("clientView");
-}
-
-// ---------- PDF ----------
-pdfBtn.addEventListener("click", () => {
-  if (selectedPlan === "free") {
-    alert("PDF download is a premium feature. Please upgrade.");
-    return;
+    return actions.order.create({
+      purchase_units: [{
+        amount: { value: amount.toString() },
+        description: `${intendedPlan.charAt(0).toUpperCase()+intendedPlan.slice(1)} Plan`
+      }]
+    });
+  },
+  onApprove: function(data, actions) {
+    return actions.order.capture().then(details => {
+      alert(`Payment completed by ${details.payer.name.given_name}. ${intendedPlan} plan unlocked!`);
+      selectedPlan = intendedPlan; // Unlock features after payment
+      updateFeatureAccess();
+    });
+  },
+  onError: function(err) {
+    console.error(err);
+    alert('Payment could not be processed.');
   }
-  generateInvoice(); // your existing generateInvoice function
-});
+}).render('#paypal-basic');
 
-function generateInvoice() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.text("INVOICE", 20, 20);
-  doc.text(`Currency: ${activeCurrency.code}`, 150, 20);
-
-  const rows = [];
-  [...itemsBody.rows].forEach(r => {
-    rows.push([
-      r.cells[0].querySelector("input").value,
-      r.cells[1].querySelector("input").value,
-      `${activeCurrency.symbol}${r.cells[2].querySelector("input").value}`,
-      r.cells[3].textContent
-    ]);
-  });
-
-  doc.autoTable({
-    startY: 40,
-    head: [["Item","Qty","Price","Total"]],
-    body: rows
-  });
-
-  doc.text(`Total: ${totalDisplay.textContent}`, 150, doc.lastAutoTable.finalY + 10);
-  invoicePreview.src = doc.output("datauristring");
-}
-
-// ---------- START ----------
-addRow();
-currencyInfo.textContent = "Currency: USD";
+paypal.Buttons({
+  style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'pay' },
+  createOrder: function(data, actions) {
+    return actions.order.create({
+      purchase_units: [{
+        amount: { value: "10" },
+        description: `Pro Plan`
+      }]
+    });
+  },
+  onApprove: function(data, actions) {
+    return actions.order.capture().then(details => {
+      alert(`Payment completed by ${details.payer.name.given_name}. Pro plan unlocked!`);
+      selectedPlan = "pro";
+      intendedPlan = "pro";
+      updateFeatureAccess();
+    });
+  },
+  onError: function(err) {
+    console.error(err);
+    alert('Payment could not be processed.');
+  }
+}).render('#paypal-pro');
