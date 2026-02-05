@@ -25,6 +25,7 @@ body{
 }
 
 h1{text-align:center;font-weight:700;margin-bottom:24px;color:var(--primary)}
+h2,h3{margin-bottom:16px}
 
 .row{display:flex;flex-wrap:wrap;gap:16px}
 .flex-row{display:flex;gap:12px}
@@ -47,7 +48,6 @@ input,select,textarea,button{
   transition:0.2s;
 }
 input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:none;box-shadow:0 0 8px rgba(79,70,229,0.2)}
-
 textarea{resize:vertical}
 
 button{
@@ -166,10 +166,121 @@ iframe{
   </div>
 </div>
 
-<!-- The rest of invoice form and preview sections can remain same as before -->
+<!-- Invoice Form -->
+<div class="section row" id="invoiceSection">
+  <div>
+    <label>Document Type</label>
+    <select id="docType">
+      <option value="INV">Invoice</option>
+      <option value="QUO">Quote</option>
+      <option value="REC">Receipt</option>
+    </select>
+  </div>
+  <div>
+    <label>Invoice Number</label>
+    <div style="display:flex;gap:4px;">
+      <input id="invoicePrefix" readonly style="width:60px;text-align:center;border-right:none;">
+      <input id="invoiceNumber" style="flex:1;" placeholder="0001">
+    </div>
+  </div>
+  <div>
+    <label>Status</label>
+    <select id="status">
+      <option>Draft</option>
+      <option>Sent</option>
+      <option>Paid</option>
+    </select>
+  </div>
+</div>
+
+<div class="section row">
+  <div>
+    <h3>Your Info</h3>
+    <input id="fromName" placeholder="Business name">
+    <input id="fromEmail" placeholder="Email">
+    <input id="fromPhone" placeholder="Contact number">
+    <label>Logo (optional)</label>
+    <input type="file" id="logoInput" accept="image/*">
+  </div>
+  <div>
+    <h3>Client Info</h3>
+    <input id="toName" placeholder="Client name">
+    <input id="toEmail" placeholder="Client email">
+    <input id="toPhone" placeholder="Client phone number">
+  </div>
+</div>
+
+<div class="section">
+  <h3>Invoice Items</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Category</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="itemsBody"></tbody>
+  </table>
+  <button id="addItemBtn">Add Item</button>
+</div>
+
+<div class="section row">
+  <div>
+    <label>Currency</label>
+    <select id="currency">
+      <option value="$">USD ($)</option>
+      <option value="€">EUR (€)</option>
+      <option value="£">GBP (£)</option>
+      <option value="R">ZAR (R)</option>
+    </select>
+  </div>
+  <div>
+    <label>Discount %</label>
+    <input type="number" id="discount" value="0">
+  </div>
+  <div>
+    <label>Tax %</label>
+    <input type="number" id="tax" value="0">
+  </div>
+  <div>
+    <label>Amount Paid</label>
+    <input type="number" id="paid" value="0">
+  </div>
+</div>
+
+<div class="section flex-row">
+  <div class="flex-column" style="flex:1">
+    <label>Payment Terms</label>
+    <select id="terms">
+      <option value="0">Due on receipt</option>
+      <option value="7">Net 7</option>
+      <option value="14">Net 14</option>
+      <option value="30">Net 30</option>
+    </select>
+    <label>Due Date</label>
+    <input type="date" id="dueDate">
+  </div>
+  <div style="flex:1">
+    <label>Client Note</label>
+    <textarea id="note"></textarea>
+  </div>
+</div>
+
+<div class="button-group">
+  <button onclick="updatePreview()">Preview Invoice</button>
+  <button class="feature-btn" id="pdfBtn">Download PDF</button>
+  <button class="feature-btn" id="sendBtn">Send Invoice</button>
+  <button class="feature-btn" id="saveBtn">Save</button>
+</div>
+
+<h3>Invoice Preview</h3>
+<iframe id="preview"></iframe>
 
 <script>
-// Plan logic
+// --- Plan logic ---
 const planButtons=document.querySelectorAll('.plan-card');
 let selectedPlan='free';
 
@@ -198,8 +309,160 @@ function updateFeatureAccess(){
   }
 }
 
-// Initialize
+// --- Invoice logic ---
+const categories=[
+"Professional Services","Consulting","Construction","Automotive",
+"Healthcare","Education","Retail","Manufacturing","Hospitality",
+"Logistics","Freelance","Agriculture","Media","Legal","Finance",
+"Real Estate","IT & Technology","Cleaning","Security","Events","Miscellaneous"
+];
+
+let items=[];
+const itemsBody=document.getElementById("itemsBody");
+const docType=document.getElementById("docType");
+const invoicePrefix=document.getElementById("invoicePrefix");
+const invoiceNumber=document.getElementById("invoiceNumber");
+let logoData="";
+
+const counters={INV:0,QUO:0,REC:0};
+
+function updateInvoiceNumber(){
+  counters[docType.value]++;
+  invoicePrefix.value=docType.value;
+  invoiceNumber.value=String(counters[docType.value]).padStart(4,"0");
+}
+updateInvoiceNumber();
+docType.addEventListener("change",updateInvoiceNumber);
+
+function addItem(){
+  const index=items.length;
+  items.push({name:"",cat:"",qty:1,price:0});
+
+  const tr=document.createElement("tr");
+
+  const nameTd=document.createElement("td");
+  const nameInput=document.createElement("input");
+  nameInput.oninput=e=>{items[index].name=e.target.value; updatePreview();}
+  nameTd.appendChild(nameInput);
+
+  const catTd=document.createElement("td");
+  const catSelect=document.createElement("select");
+  categories.forEach(c=>{const o=document.createElement("option"); o.textContent=c; catSelect.appendChild(o);});
+  catSelect.onchange=e=>{items[index].cat=e.target.value; updatePreview();}
+  catTd.appendChild(catSelect);
+
+  const qtyTd=document.createElement("td");
+  const qtyInput=document.createElement("input"); qtyInput.type="number"; qtyInput.min=1; qtyInput.value=1;
+  qtyInput.oninput=e=>{items[index].qty=Number(e.target.value); updatePreview();}
+  qtyTd.appendChild(qtyInput);
+
+  const priceTd=document.createElement("td");
+  const priceInput=document.createElement("input"); priceInput.type="number"; priceInput.min=0; priceInput.value=0;
+  priceInput.oninput=e=>{items[index].price=Number(e.target.value); updatePreview();}
+  priceTd.appendChild(priceInput);
+
+  const actionTd=document.createElement("td");
+  const removeBtn=document.createElement("button");
+  removeBtn.className="remove-btn"; removeBtn.textContent="Remove";
+  removeBtn.onclick=()=>{items.splice(index,1); tr.remove(); updatePreview();}
+  actionTd.appendChild(removeBtn);
+
+  tr.append(nameTd,catTd,qtyTd,priceTd,actionTd);
+  itemsBody.appendChild(tr);
+}
+
+document.getElementById("addItemBtn").addEventListener("click",addItem);
+addItem();
+
+document.getElementById("logoInput").addEventListener("change",e=>{
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=ev=>{logoData=ev.target.result; updatePreview();}
+    reader.readAsDataURL(file);
+  }
+});
+
+["fromName","fromEmail","fromPhone","toName","toEmail","toPhone","discount","tax","paid","note","currency","status","invoiceNumber","dueDate"].forEach(id=>{
+  document.getElementById(id).addEventListener("input",updatePreview);
+});
+
+invoicePrefix.addEventListener("input",()=>{invoicePrefix.value=docType.value;});
+
+const terms=document.getElementById("terms");
+const dueDate=document.getElementById("dueDate");
+terms.addEventListener("change",()=>{
+  const d=new Date(); d.setDate(d.getDate()+Number(terms.value)); dueDate.value=d.toISOString().split("T")[0]; updatePreview();
+});
+terms.dispatchEvent(new Event("change"));
+
+function updatePreview(){
+  const cur=document.getElementById("currency").value;
+  let subtotal=0;
+
+  const rows=items.map(i=>{
+    const t=i.qty*i.price; subtotal+=t;
+    return `<tr>
+      <td>${i.name||"-"}<br><small>${i.cat||""}</small></td>
+      <td>${i.qty}</td>
+      <td>${cur}${t.toFixed(2)}</td>
+    </tr>`;
+  }).join("");
+
+  const disc=subtotal*(document.getElementById("discount").value/100);
+  const taxAmt=subtotal*(document.getElementById("tax").value/100);
+  const total=subtotal-disc+taxAmt;
+  const balance=total-document.getElementById("paid").value;
+
+  const due=new Date(dueDate.value);
+  const overdue=balance>0 && new Date()>due;
+
+  let badge="grey",text=document.getElementById("status").value;
+  if(text==="Paid") badge="green";
+  if(text==="Sent") badge="blue";
+  if(overdue){badge="red";text="Overdue";}
+
+  const preview=document.getElementById("preview");
+
+  preview.srcdoc=`<div style="font-family:Inter;padding:32px;background:#fff;border-radius:12px;margin:16px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="color:#4f46e5;margin:0">${docType.selectedOptions[0].text} ${invoicePrefix.value}${invoiceNumber.value}</h2>
+      <span class="badge ${badge}">${text}</span>
+    </div>
+    ${logoData?`<img src="${logoData}" style="height:60px;margin-top:12px">`:''}
+    <div style="display:flex;justify-content:space-between;margin-top:20px">
+      <div>
+        <strong>${document.getElementById("fromName").value}</strong><br>
+        ${document.getElementById("fromEmail").value}<br>
+        ${document.getElementById("fromPhone").value?`Phone: ${document.getElementById("fromPhone").value}`:''}
+      </div>
+      <div>
+        <strong>Bill To:</strong><br>
+        ${document.getElementById("toName").value}<br>
+        ${document.getElementById("toEmail").value}<br>
+        ${document.getElementById("toPhone").value}
+      </div>
+    </div>
+    <table style="width:100%;margin-top:20px">
+      <tr style="background:#e5e7eb"><th>Item</th><th>Qty</th><th>Total</th></tr>
+      ${rows}
+    </table>
+    <div style="margin-top:20px;max-width:360px;margin-left:auto;background:#f1f5f9;padding:16px;border-radius:10px">
+      <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
+      <p>Discount: -${cur}${disc.toFixed(2)}</p>
+      <p>Tax: ${cur}${taxAmt.toFixed(2)}</p>
+      <p><strong>Total Due: ${cur}${total.toFixed(2)}</strong></p>
+      <p>Amount Paid: ${cur}${document.getElementById("paid").value}</p>
+      <p><strong>Balance: ${cur}${balance.toFixed(2)}</strong></p>
+      <p>Due Date: ${dueDate.value}</p>
+      ${document.getElementById("note").value?`<p>Note: ${document.getElementById("note").value}</p>`:''}
+    </div>
+  </div>`;
+}
+
+// --- Initialize ---
 updateFeatureAccess();
+updatePreview();
 </script>
 
 </body>
