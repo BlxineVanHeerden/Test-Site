@@ -31,19 +31,10 @@ input,select,textarea,button{
   font-size:13px;
 }
 
-button{
-  font-weight:600;
-  cursor:pointer;
-}
+button{font-weight:600;cursor:pointer;border:none}
 
 .row{display:flex;gap:12px;flex-wrap:wrap}
-.row>div{flex:1;min-width:200px}
-
-.button-group{
-  display:flex;
-  gap:10px;
-  margin-bottom:20px;
-}
+.row>div{flex:1;min-width:180px}
 
 iframe{
   width:100%;
@@ -62,26 +53,23 @@ iframe{
   text-align:center;
   transition:.2s;
 }
-
 .plan-card.selected{
   border-color:#3b82f6;
-  box-shadow:0 6px 20px rgba(0,0,0,.1);
+  box-shadow:0 4px 20px rgba(0,0,0,.1);
 }
-
 .plan-price{
   font-size:20px;
   font-weight:600;
   margin:8px 0;
 }
-
 .plan-features{
-  margin-top:12px;
+  margin-top:10px;
   display:flex;
   flex-direction:column;
   gap:6px;
 }
 
-/* Feature badges */
+/* Feature state */
 .feature{
   padding:6px 10px;
   border-radius:6px;
@@ -91,7 +79,6 @@ iframe{
   background:#f1f5f9;
   color:#475569;
 }
-
 .feature.locked::after{content:"🔒";}
 .feature.unlocked{
   background:#3b82f6;
@@ -117,6 +104,7 @@ iframe{
 
 <h2>Select a Plan</h2>
 <div class="row">
+
   <div class="plan-card selected" data-plan="free">
     <h3>Free</h3>
     <div class="plan-price">$0</div>
@@ -124,29 +112,29 @@ iframe{
       <div class="feature" data-feature="items">Max 2 items</div>
       <div class="feature" data-feature="basic">Basic Invoice</div>
       <div class="feature" data-feature="share">Manual Sharing</div>
-      <div class="feature" data-feature="pdf">PDF Export</div>
+      <div class="feature" data-feature="pdf">PDF Download</div>
       <div class="feature" data-feature="email">Email Invoice</div>
     </div>
   </div>
 
   <div class="plan-card" data-plan="basic">
     <h3>Basic</h3>
-    <div class="plan-price">$5 / mo</div>
+    <div class="plan-price">$5/mo</div>
     <div class="plan-features">
       <div class="feature" data-feature="items">Max 10 items</div>
       <div class="feature" data-feature="basic">Basic Invoice</div>
       <div class="feature" data-feature="share">Manual Sharing</div>
-      <div class="feature" data-feature="pdf">PDF Export</div>
+      <div class="feature" data-feature="pdf">PDF Download</div>
       <div class="feature" data-feature="email">Email Invoice</div>
     </div>
   </div>
 
   <div class="plan-card" data-plan="pro">
     <h3>Pro</h3>
-    <div class="plan-price">$15 / mo</div>
+    <div class="plan-price">$15/mo</div>
     <div class="plan-features">
-      <div class="feature" data-feature="items">Unlimited items</div>
-      <div class="feature" data-feature="pdf">PDF Export</div>
+      <div class="feature" data-feature="items">Unlimited Items</div>
+      <div class="feature" data-feature="pdf">PDF Download</div>
       <div class="feature" data-feature="email">Email Invoice</div>
       <div class="feature" data-feature="branding">Custom Branding</div>
       <div class="feature" data-feature="reminders">Auto Reminders</div>
@@ -155,7 +143,7 @@ iframe{
 
   <div class="plan-card" data-plan="enterprise">
     <h3>Enterprise</h3>
-    <div class="plan-price">$30 / mo</div>
+    <div class="plan-price">$30/mo</div>
     <div class="plan-features">
       <div class="feature" data-feature="team">Team Accounts</div>
       <div class="feature" data-feature="analytics">Advanced Analytics</div>
@@ -163,21 +151,19 @@ iframe{
       <div class="feature" data-feature="reminders">Auto Reminders</div>
     </div>
   </div>
+
 </div>
 
 <div class="section">
-  <div class="button-group">
-    <button onclick="alert('Preview')" class="feature-btn">Preview</button>
-    <button id="pdfBtn" class="feature-btn">Download PDF</button>
-    <button id="sendBtn" class="feature-btn">Send Invoice</button>
-    <button id="saveBtn" class="feature-btn">Save Invoice</button>
-  </div>
+  <button class="feature-btn" id="pdfBtn">Download PDF</button>
+  <button class="feature-btn" id="sendBtn">Send Invoice</button>
+  <button class="feature-btn" id="saveBtn">Save Invoice</button>
 </div>
 
 <iframe></iframe>
 
 <script>
-// ---------------- PLAN FEATURE MAP ----------------
+/* ---------- PLAN FEATURE MAP ---------- */
 const planFeatures = {
   free: ["items","basic","share"],
   basic: ["items","basic","share","pdf","email"],
@@ -185,33 +171,31 @@ const planFeatures = {
   enterprise: ["items","basic","share","pdf","email","branding","reminders","analytics","team"]
 };
 
-let selectedPlan = "free";
-const planCards = document.querySelectorAll(".plan-card");
+let selectedPlan="free";
+const planCards=document.querySelectorAll(".plan-card");
 
 function updatePlanUI(){
   document.querySelectorAll(".feature").forEach(f=>{
     f.classList.remove("unlocked","locked");
-    const key = f.dataset.feature;
-    if(planFeatures[selectedPlan].includes(key)){
-      f.classList.add("unlocked");
-    }else{
-      f.classList.add("locked");
-    }
+    const key=f.dataset.feature;
+    planFeatures[selectedPlan].includes(key)
+      ? f.classList.add("unlocked")
+      : f.classList.add("locked");
   });
 
-  toggleButton("pdfBtn","pdf");
-  toggleButton("sendBtn","email");
-  toggleButton("saveBtn","branding");
+  toggleBtn("pdfBtn","pdf");
+  toggleBtn("sendBtn","email");
+  toggleBtn("saveBtn","branding");
 }
 
-function toggleButton(btnId,feature){
-  const btn = document.getElementById(btnId);
+function toggleBtn(id,feature){
+  const btn=document.getElementById(id);
   btn.classList.toggle("unlocked",planFeatures[selectedPlan].includes(feature));
 }
 
 planCards.forEach(card=>{
   card.addEventListener("click",()=>{
-    selectedPlan = card.dataset.plan;
+    selectedPlan=card.dataset.plan;
     planCards.forEach(c=>c.classList.remove("selected"));
     card.classList.add("selected");
     updatePlanUI();
