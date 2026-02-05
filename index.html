@@ -45,6 +45,20 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
 #note{height:90px;resize:vertical;}
 #dueDate{padding:8px 10px;}
 .paypal-btn-container{margin-top:12px;}
+/* --- Invoice Preview Styling --- */
+.invoice-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 10px 28px rgba(0,0,0,0.08);font-family:Inter,sans-serif;color:#1f2937;}
+.invoice-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.invoice-header h2{margin:0;background:linear-gradient(90deg,#3b82f6,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.invoice-table{width:100%;border-collapse:collapse;margin-top:16px;}
+.invoice-table th, .invoice-table td{padding:12px;text-align:left;}
+.invoice-table th{background:#f3f4f6;border-bottom:2px solid #e5e7eb;}
+.invoice-table td{border-bottom:1px solid #e5e7eb;}
+.invoice-summary{margin-top:16px;display:flex;flex-direction:column;gap:6px;}
+.invoice-summary div{display:flex;justify-content:space-between;padding:6px 12px;border-radius:8px;}
+.invoice-summary div.total{background:linear-gradient(90deg,#3b82f6,#60a5fa);color:#fff;font-weight:700;}
+.invoice-info{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+.invoice-box{flex:1;background:#f9fafb;padding:12px;border-radius:12px;}
+.invoice-footer{margin-top:24px;background:#f3f4f6;padding:12px;border-radius:12px;}
 </style>
 </head>
 <body>
@@ -60,7 +74,6 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
       <div>Max 2 items</div>
       <div>Invoice Preview Only</div>
     </div>
-    <!-- Free has no PayPal button -->
   </div>
   <div class="plan-card" data-plan="basic">
     <h3>Basic</h3>
@@ -70,7 +83,6 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
       <div>Invoice PDF download</div>
       <div>Email notifications</div>
     </div>
-    <div class="paypal-btn-container" id="paypal-basic"></div>
   </div>
   <div class="plan-card" data-plan="pro">
     <h3>Pro</h3>
@@ -80,7 +92,6 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
       <div>Custom branding</div>
       <div>Automated reminders</div>
     </div>
-    <div class="paypal-btn-container" id="paypal-pro"></div>
   </div>
 </div>
 
@@ -209,8 +220,9 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
 <h3>Invoice Preview</h3>
 <iframe id="preview"></iframe>
 
-<!-- PayPal SDK (disable debit/credit cards) -->
-<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&disable-funding=card,credit"></script>
+<!-- PayPal Sandbox Buttons -->
+<div class="paypal-btn-container" id="paypalBtnContainer"></div>
+<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
 
 <script>
 // --- Plan logic ---
@@ -222,6 +234,7 @@ planButtons.forEach(card => {
     planButtons.forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     updateFeatureAccess();
+    renderPaypalButtons();
   });
 });
 
@@ -353,49 +366,72 @@ function updatePreview(){
     return `<tr>
       <td>${i.name||"-"}<br><small>${i.cat||""}</small></td>
       <td>${i.qty}</td>
+      <td>${cur}${i.price.toFixed(2)}</td>
       <td>${cur}${t.toFixed(2)}</td>
     </tr>`;
   }).join("");
 
-  const disc=subtotal*(document.getElementById("discount").value/100);
-  const tax=subtotal*(document.getElementById("tax").value/100);
-  const total=subtotal-disc+tax-document.getElementById("paid").value*1;
+  const discount=Number(document.getElementById("discount").value);
+  const tax=Number(document.getElementById("tax").value);
+  const paid=Number(document.getElementById("paid").value);
 
-  const html=`<div style="font-family:Inter,sans-serif;padding:20px;">
-    ${logoData?`<img src="${logoData}" style="max-width:120px;">`:''}
-    <h2>${docType.value} ${invoiceNumber.value}</h2>
-    <p><strong>From:</strong> ${document.getElementById("fromName").value} | ${document.getElementById("fromEmail").value} | ${document.getElementById("fromPhone").value}</p>
-    <p><strong>To:</strong> ${document.getElementById("toName").value} | ${document.getElementById("toEmail").value} | ${document.getElementById("toPhone").value}</p>
-    <table style="width:100%;border-collapse:collapse;margin-top:12px;">
-      <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
-    <p>Discount: -${cur}${disc.toFixed(2)}</p>
-    <p>Tax: +${cur}${tax.toFixed(2)}</p>
-    <h3>Total Due: ${cur}${total.toFixed(2)}</h3>
-    <p>Status: ${document.getElementById("status").value}</p>
-    <p>Due Date: ${document.getElementById("dueDate").value}</p>
-    <p>Note: ${document.getElementById("note").value}</p>
-  </div>`;
+  let total=subtotal*(1-discount/100)*(1+tax/100);
+  const balance=total-paid;
 
-  document.getElementById("preview").srcdoc=html;
+  const html=`
+    <div class="invoice-card">
+      <div class="invoice-header">
+        <h2>${document.getElementById("docType").value} ${document.getElementById("invoiceNumber").value}</h2>
+        ${logoData ? `<img src="${logoData}" style="height:50px;border-radius:8px;">` : ""}
+      </div>
+      <div class="invoice-info">
+        <div class="invoice-box">
+          <strong>From:</strong><br>
+          ${document.getElementById("fromName").value}<br>
+          ${document.getElementById("fromEmail").value}<br>
+          ${document.getElementById("fromPhone").value}
+        </div>
+        <div class="invoice-box">
+          <strong>To:</strong><br>
+          ${document.getElementById("toName").value}<br>
+          ${document.getElementById("toEmail").value}<br>
+          ${document.getElementById("toPhone").value}
+        </div>
+      </div>
+      <table class="invoice-table">
+        <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="invoice-summary">
+        <div><span>Subtotal</span><span>${cur}${subtotal.toFixed(2)}</span></div>
+        <div><span>Discount</span><span>${discount}%</span></div>
+        <div><span>Tax</span><span>${tax}%</span></div>
+        <div class="total"><span>Total</span><span>${cur}${total.toFixed(2)}</span></div>
+        <div><span>Amount Paid</span><span>${cur}${paid.toFixed(2)}</span></div>
+        <div><strong>Balance Due</strong><span>${cur}${balance.toFixed(2)}</span></div>
+      </div>
+      <div class="invoice-footer">
+        <strong>Due Date:</strong> ${dueDate.value}<br>
+        <strong>Note:</strong> ${document.getElementById("note").value}
+      </div>
+    </div>
+  `;
+  const preview=document.getElementById("preview");
+  preview.srcdoc=html;
 }
 
-// --- PayPal buttons ---
-const paypalStyle = { layout: 'vertical', color: 'blue', shape: 'pill', label: 'paypal', height: 32 };
-
-paypal.Buttons({
-  style: paypalStyle,
-  createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { value: '5.00' } }] }),
-  onApprove: () => { alert('Basic plan activated'); selectedPlan='basic'; updateFeatureAccess(); }
-}).render('#paypal-basic');
-
-paypal.Buttons({
-  style: paypalStyle,
-  createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { value: '10.00' } }] }),
-  onApprove: () => { alert('Pro plan activated'); selectedPlan='pro'; updateFeatureAccess(); }
-}).render('#paypal-pro');
+// --- PayPal Sandbox Buttons ---
+function renderPaypalButtons(){
+  const container=document.getElementById("paypalBtnContainer");
+  container.innerHTML="";
+  if(selectedPlan!=='free'){
+    paypal.Buttons({
+      createOrder:(data,actions)=>actions.order.create({purchase_units:[{amount:{value:selectedPlan==='basic'?5:10}}]}),
+      onApprove:(data,actions)=>actions.order.capture().then(details=>alert("Payment completed: "+details.status))
+    }).render('#paypalBtnContainer');
+  }
+}
+renderPaypalButtons();
 </script>
 
 </body>
