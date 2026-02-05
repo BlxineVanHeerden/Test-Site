@@ -2,203 +2,138 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Smart Invoice Generator - Modern Design</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<title>Smart Invoice Generator - Plans</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+/* Your original modern design CSS here */
 body{
   font-family:Inter,sans-serif;
-  background:#0f172a;
-  color:#f1f5f9;
-  margin:0;
+  background:#f5f7fb;
   padding:20px;
+  color:#1f2937;
 }
-h1,h2{text-align:center;color:#38bdf8;margin:4px 0}
-
+h1{text-align:center;color:#111827;font-weight:700;margin-bottom:10px;}
+h2,h3{color:#1f2937;}
 .section{
-  background:#1e293b;
-  padding:16px;
+  background:#fff;
+  padding:20px;
   border-radius:16px;
-  margin-bottom:20px;
-  box-shadow:0 6px 24px rgba(0,0,0,.4);
+  margin-bottom:24px;
+  box-shadow:0 10px 25px rgba(0,0,0,.06);
+  transition:all .3s;
 }
-
 input,select,textarea,button{
   width:100%;
-  padding:8px 10px;
-  margin-top:6px;
+  padding:10px 12px;
+  margin-top:8px;
   border-radius:8px;
-  border:1px solid #334155;
-  background:#0f172a;
-  color:#f1f5f9;
+  border:1px solid #d1d5db;
   font-size:14px;
   box-sizing:border-box;
+  transition:border .3s,background .3s,color .3s;
 }
-input:focus,select:focus,textarea:focus{outline:none;border-color:#38bdf8;}
-
+input:focus, select:focus, textarea:focus{
+  outline:none;
+  border-color:#3b82f6;
+  box-shadow:0 0 0 2px rgba(59,130,246,0.2);
+}
 button{
   font-weight:600;
   border:none;
   cursor:pointer;
-  background:#0ea5e9;
-  color:#fff;
   transition:all .2s;
-}
-button:hover{background:#0284c7;}
-
-.button-group{
-  display:flex;
-  gap:10px;
-  margin-bottom:20px;
-}
-.button-group button{flex:1;padding:8px 10px;font-size:14px;}
-
-.row{display:flex;gap:12px;flex-wrap:wrap}
-.row>div{flex:1;min-width:180px}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-  color:#f1f5f9;
-}
-th,td{
-  padding:8px;
-  border-bottom:1px solid #334155;
-}
-th{background:#334155}
-
-.plan-card{
-  border:1px solid #334155;
-  border-radius:16px;
-  padding:20px;
-  flex:1;
-  cursor:pointer;
-  text-align:center;
-  transition:all .3s;
-  background:#1e293b;
-}
-.plan-card.selected{
-  border-color:#38bdf8;
-  box-shadow:0 6px 24px rgba(56,189,248,.4);
-}
-.plan-price{font-size:22px;font-weight:700;margin:12px 0}
-.plan-features{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
-.feature-btn{
-  padding:6px 10px;
-  border-radius:8px;
-  font-size:13px;
-  cursor:not-allowed;
-  background:#334155;
-  color:#94a3b8;
-}
-.feature-btn.unlocked{
-  background:#0284c7;
+  background:#3b82f6;
   color:#fff;
-  cursor:pointer;
 }
-iframe{
-  width:100%;
-  height:720px;
-  border-radius:16px;
-  border:1px solid #334155;
-  background:#1e293b;
+button:hover{
+  background:#2563eb;
 }
-.remove-btn{
-  background:#ef4444;
-  padding:4px 8px;
-  font-size:12px;
-  border-radius:8px;
-  cursor:pointer;
-}
+.button-group{display:flex;gap:12px;flex-wrap:wrap;}
+.button-group button{flex:1;padding:10px;font-size:14px;}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.row>div{flex:1;min-width:200px}
+.flex-row{display:flex;gap:16px;}
+.flex-column{display:flex;flex-direction:column;gap:10px;}
+table{width:100%;border-collapse:collapse;margin-top:12px;}
+th,td{padding:12px;border-bottom:1px solid #e5e7eb;}
+th{background:#f3f4f6;text-align:left;}
+.plan-card{border:1px solid #d1d5db;border-radius:16px;padding:20px;flex:1;cursor:pointer;text-align:center;transition:all .3s, transform .2s;background:#fff;}
+.plan-card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,0.12);}
+.plan-card.selected{border-color:#3b82f6;box-shadow:0 12px 28px rgba(59,130,246,0.2);}
+.plan-price{font-size:22px;font-weight:700;margin:10px 0;background:linear-gradient(90deg,#3b82f6,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.plan-features{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
+.feature-btn{padding:6px 10px;border-radius:8px;font-size:13px;cursor:not-allowed;background:#e5e7eb;color:#374151;}
+.feature-btn.unlocked{background:#3b82f6;color:#fff;cursor:pointer;transition:all .2s;}
+.feature-btn.unlocked:hover{background:#2563eb;}
+.remove-btn{background:#ef4444;padding:6px 12px;font-size:13px;border-radius:8px;cursor:pointer;color:#fff;transition:all .2s;}
 .remove-btn:hover{background:#b91c1c;}
-#note{height:80px;resize:vertical;}
+iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb;box-shadow:0 10px 24px rgba(0,0,0,0.08);transition:all .3s;}
+#note{height:90px;resize:vertical;}
 </style>
 </head>
 <body>
 
 <h1>Smart Invoice Generator</h1>
-<h2>Select Your Plan</h2>
-
+<h2>Select a Plan</h2>
 <div class="row" id="planContainer">
-  <div class="plan-card" data-plan="free">
-    <h3>Free</h3>
-    <div class="plan-price">$0</div>
-    <div class="plan-features">
-      <div>Max 2 items</div>
-      <div>Basic Invoice</div>
-      <div>Share manually</div>
-    </div>
-  </div>
-  <div class="plan-card" data-plan="basic">
-    <h3>Basic</h3>
-    <div class="plan-price">$5/mo</div>
-    <div class="plan-features">
-      <div>Max 10 items</div>
-      <div>Invoice PDF download</div>
-      <div>Email notifications</div>
-    </div>
-  </div>
-  <div class="plan-card" data-plan="pro">
-    <h3>Pro</h3>
-    <div class="plan-price">$20/mo</div>
-    <div class="plan-features">
-      <div>Unlimited items</div>
-      <div>Custom branding</div>
-      <div>Automated reminders</div>
-    </div>
-  </div>
-  <div class="plan-card" data-plan="enterprise">
-    <h3>Enterprise</h3>
-    <div class="plan-price">$30/mo</div>
-    <div class="plan-features">
-      <div>Team accounts</div>
-      <div>Advanced analytics</div>
-      <div>Priority support</div>
-    </div>
-  </div>
+  <div class="plan-card" data-plan="free"><h3>Free</h3><div class="plan-price">$0</div><div class="plan-features"><div>Max 2 items</div><div>Basic Invoice</div><div>Share manually</div></div></div>
+  <div class="plan-card" data-plan="basic"><h3>Basic</h3><div class="plan-price">$5/mo</div><div class="plan-features"><div>Max 10 items</div><div>Invoice PDF download</div><div>Email notifications</div></div></div>
+  <div class="plan-card" data-plan="pro"><h3>Pro</h3><div class="plan-price">$20/mo</div><div class="plan-features"><div>Unlimited items</div><div>Custom branding</div><div>Automated reminders</div></div></div>
+  <div class="plan-card" data-plan="enterprise"><h3>Enterprise</h3><div class="plan-price">$30/mo</div><div class="plan-features"><div>Team accounts</div><div>Advanced analytics</div><div>Priority support</div></div></div>
 </div>
 
-<div id="paymentSection" class="section" style="display:none">
+<div id="paypalSection" class="section" style="display:none">
   <h3>Pay with PayPal (Sandbox)</h3>
   <div id="paypal-button-container"></div>
 </div>
 
-<div id="invoiceForm" style="display:none">
-  <div class="section">
-    <h3>Invoice Preview</h3>
-    <iframe id="preview"></iframe>
-  </div>
+<!-- Invoice Section (keep your full invoice form) -->
+<div id="invoiceSection">
+  <!-- Your full invoice form here (from your code above) -->
+  <!-- Invoice items, client info, totals, buttons -->
 </div>
+
+<h3>Invoice Preview</h3>
+<iframe id="preview"></iframe>
 
 <script src="https://www.paypal.com/sdk/js?client-id=ASrqoC_iNPodEFNeqORNw&currency=USD"></script>
 <script>
-// ---------------- PLAN LOGIC ----------------
-const planButtons = document.querySelectorAll('.plan-card');
-let selectedPlan = 'free';
-let planPaid = {free:true,basic:false,pro:false,enterprise:false};
+// --- Plan logic ---
+const planButtons=document.querySelectorAll('.plan-card');
+let selectedPlan='free';
+let planPaid={free:true,basic:false,pro:false,enterprise:false};
 
-planButtons.forEach(card => {
-  card.addEventListener('click', () => {
-    selectedPlan = card.getAttribute('data-plan');
-    planButtons.forEach(c => c.classList.remove('selected'));
+planButtons.forEach(card=>{
+  card.addEventListener('click',()=>{
+    selectedPlan=card.getAttribute('data-plan');
+    planButtons.forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
-
     if(planPaid[selectedPlan] || selectedPlan==='free'){
-      document.getElementById('invoiceForm').style.display='block';
-      document.getElementById('paymentSection').style.display='none';
+      document.getElementById('paypalSection').style.display='none';
+      document.getElementById('invoiceSection').style.display='block';
+      updateFeatureAccess();
       updatePreview();
     } else {
-      document.getElementById('invoiceForm').style.display='none';
-      document.getElementById('paymentSection').style.display='block';
+      document.getElementById('paypalSection').style.display='block';
+      document.getElementById('invoiceSection').style.display='none';
     }
   });
 });
 
-// ---------------- PAYPAL ----------------
+function updateFeatureAccess(){
+  const pdfBtn=document.getElementById('pdfBtn');
+  const sendBtn=document.getElementById('sendBtn');
+  const saveBtn=document.getElementById('saveBtn');
+  if(selectedPlan==='free'){pdfBtn.classList.remove('unlocked');sendBtn.classList.remove('unlocked');saveBtn.classList.remove('unlocked');}
+  else if(selectedPlan==='basic'){pdfBtn.classList.add('unlocked');sendBtn.classList.remove('unlocked');saveBtn.classList.add('unlocked');}
+  else if(selectedPlan==='pro'){pdfBtn.classList.add('unlocked');sendBtn.classList.add('unlocked');saveBtn.classList.add('unlocked');}
+  else if(selectedPlan==='enterprise'){pdfBtn.classList.add('unlocked');sendBtn.classList.add('unlocked');saveBtn.classList.add('unlocked');}
+}
+
+// --- PayPal ---
 paypal.Buttons({
-  style:{color:'blue',shape:'pill',label:'pay'},
   createOrder:(data,actions)=>{
-    let amount = 0;
+    let amount=0;
     if(selectedPlan==='basic') amount=5;
     else if(selectedPlan==='pro') amount=20;
     else if(selectedPlan==='enterprise') amount=30;
@@ -208,24 +143,20 @@ paypal.Buttons({
     return actions.order.capture().then(details=>{
       alert(`Payment successful for ${selectedPlan} plan!`);
       planPaid[selectedPlan]=true;
-      document.getElementById('invoiceForm').style.display='block';
-      document.getElementById('paymentSection').style.display='none';
+      document.getElementById('paypalSection').style.display='none';
+      document.getElementById('invoiceSection').style.display='block';
+      updateFeatureAccess();
       updatePreview();
     });
   }
 }).render('#paypal-button-container');
 
-// ---------------- INVOICE PREVIEW ----------------
-function updatePreview(){
-  let html=`<div style="padding:20px;font-family:Inter;color:#f1f5f9">
-  <h2>${selectedPlan.toUpperCase()} Plan Invoice</h2>
-  <p>Invoice preview for demonstration purposes.</p>
-  </div>`;
-  document.getElementById('preview').srcdoc=html;
-}
-
-// Initialize Free Plan
+// Initialize with Free plan
 document.querySelector('.plan-card[data-plan="free"]').click();
+
+// --- Invoice preview function (use your existing updatePreview from your code above) ---
+function updatePreview(){ /* your full invoice preview logic here */ }
 </script>
+
 </body>
 </html>
