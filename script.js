@@ -11,7 +11,79 @@ const totalDisplay = document.getElementById("totalDisplay");
 
 const itemsBody = document.getElementById("itemsBody");
 
-// ---------- CURRENCIES (NO FLAGS) ----------
+const pdfBtn = document.getElementById("pdfBtn");
+
+// ---------- PLAN / FEATURE LOCK ----------
+let selectedPlan = "free";      // unlocked plan (paid)
+let intendedPlan = "free";      // plan user clicked but not paid yet
+
+const planCards = document.querySelectorAll(".plan-card");
+
+planCards.forEach(card => {
+  card.addEventListener("click", () => {
+    const plan = card.getAttribute("data-plan");
+    intendedPlan = plan;
+
+    planCards.forEach(c => c.classList.remove("selected"));
+    card.classList.add("selected");
+
+    if (plan === "free") {
+      selectedPlan = "free";
+      updateFeatureAccess();
+    } else {
+      alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment to unlock features.`);
+      updateFeatureAccess(); // keep current unlocked features
+    }
+  });
+});
+
+function updateFeatureAccess() {
+  // Lock everything first
+  pdfBtn.disabled = true;
+  pdfBtn.classList.remove("unlocked");
+
+  if (selectedPlan === "free") {
+    pdfBtn.disabled = true; // PDF download locked in free plan
+  } else if (selectedPlan === "basic") {
+    pdfBtn.disabled = false;
+    pdfBtn.classList.add("unlocked");
+  } else if (selectedPlan === "pro") {
+    pdfBtn.disabled = false;
+    pdfBtn.classList.add("unlocked");
+  }
+}
+
+updateFeatureAccess();
+
+// ---------- PAYPAL INTEGRATION ----------
+function setupPaypalButton(containerId, plan, amount) {
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{ amount: { value: amount.toString() } }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(details => {
+        alert(`Payment completed by ${details.payer.name.given_name}. ${plan} Plan unlocked!`);
+        selectedPlan = intendedPlan;
+        planCards.forEach(c => c.classList.remove("selected"));
+        document.querySelector(`.plan-card[data-plan="${selectedPlan}"]`).classList.add("selected");
+        updateFeatureAccess();
+      });
+    },
+    onError: function(err) {
+      console.error(err);
+      alert("Payment could not be processed.");
+    }
+  }).render(`#${containerId}`);
+}
+
+// Replace with your PayPal container IDs and amounts
+setupPaypalButton("paypal-basic", "basic", 5);
+setupPaypalButton("paypal-pro", "pro", 10);
+
+// ---------- CURRENCIES ----------
 const currencies = [
   { code:"USD", symbol:"$", name:"US Dollar" },
   { code:"EUR", symbol:"€", name:"Euro" },
@@ -42,6 +114,12 @@ currencySelect.addEventListener("change", () => {
 
 // ---------- ITEMS ----------
 function addRow() {
+  const maxItems = selectedPlan === "free" ? 2 : selectedPlan === "basic" ? 5 : 999;
+  if (itemsBody.rows.length >= maxItems) {
+    alert(`${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} plan allows max ${maxItems} items. Upgrade for more.`);
+    return;
+  }
+
   const tr = document.createElement("tr");
   tr.innerHTML = `
     <td><input placeholder="Description"></td>
@@ -59,7 +137,7 @@ function removeRow(btn) {
   recalc();
 }
 
-// ---------- CALCULATOR (FIXED) ----------
+// ---------- CALCULATOR ----------
 document.addEventListener("input", recalc);
 
 function recalc() {
@@ -111,6 +189,14 @@ function toggleClientView() {
 }
 
 // ---------- PDF ----------
+pdfBtn.addEventListener("click", () => {
+  if (selectedPlan === "free") {
+    alert("PDF download is a premium feature. Please upgrade.");
+    return;
+  }
+  generateInvoice(); // your existing generateInvoice function
+});
+
 function generateInvoice() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
