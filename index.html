@@ -5,7 +5,6 @@
 <title>Smart Invoice Generator - Plans</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* Your original modern design CSS here */
 body{
   font-family:Inter,sans-serif;
   background:#f5f7fb;
@@ -74,12 +73,44 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
 <body>
 
 <h1>Smart Invoice Generator</h1>
+
 <h2>Select a Plan</h2>
 <div class="row" id="planContainer">
-  <div class="plan-card" data-plan="free"><h3>Free</h3><div class="plan-price">$0</div><div class="plan-features"><div>Max 2 items</div><div>Basic Invoice</div><div>Share manually</div></div></div>
-  <div class="plan-card" data-plan="basic"><h3>Basic</h3><div class="plan-price">$5/mo</div><div class="plan-features"><div>Max 10 items</div><div>Invoice PDF download</div><div>Email notifications</div></div></div>
-  <div class="plan-card" data-plan="pro"><h3>Pro</h3><div class="plan-price">$20/mo</div><div class="plan-features"><div>Unlimited items</div><div>Custom branding</div><div>Automated reminders</div></div></div>
-  <div class="plan-card" data-plan="enterprise"><h3>Enterprise</h3><div class="plan-price">$30/mo</div><div class="plan-features"><div>Team accounts</div><div>Advanced analytics</div><div>Priority support</div></div></div>
+  <div class="plan-card" data-plan="free">
+    <h3>Free</h3>
+    <div class="plan-price">$0</div>
+    <div class="plan-features">
+      <div>Max 2 items</div>
+      <div>Preview Only</div>
+    </div>
+  </div>
+  <div class="plan-card" data-plan="basic">
+    <h3>Basic</h3>
+    <div class="plan-price">$5/mo</div>
+    <div class="plan-features">
+      <div>Max 10 items</div>
+      <div>Invoice PDF download</div>
+      <div>Email notifications</div>
+    </div>
+  </div>
+  <div class="plan-card" data-plan="pro">
+    <h3>Pro</h3>
+    <div class="plan-price">$20/mo</div>
+    <div class="plan-features">
+      <div>Unlimited items</div>
+      <div>Custom branding</div>
+      <div>Automated reminders</div>
+    </div>
+  </div>
+  <div class="plan-card" data-plan="enterprise">
+    <h3>Enterprise</h3>
+    <div class="plan-price">$30/mo</div>
+    <div class="plan-features">
+      <div>Team accounts</div>
+      <div>Advanced analytics</div>
+      <div>Priority support</div>
+    </div>
+  </div>
 </div>
 
 <div id="paypalSection" class="section" style="display:none">
@@ -87,10 +118,26 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
   <div id="paypal-button-container"></div>
 </div>
 
-<!-- Invoice Section (keep your full invoice form) -->
-<div id="invoiceSection">
-  <!-- Your full invoice form here (from your code above) -->
-  <!-- Invoice items, client info, totals, buttons -->
+<!-- Invoice Section (always visible) -->
+<div id="invoiceSection" class="section">
+  <!-- Invoice form simplified for clarity, you can include your full invoice form here -->
+  <h3>Invoice Items</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th><th>Qty</th><th>Price</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="itemsBody"></tbody>
+  </table>
+  <button id="addItemBtn">Add Item</button>
+
+  <div class="button-group">
+    <button onclick="updatePreview()">Preview Invoice</button>
+    <button id="pdfBtn" class="feature-btn">Download PDF</button>
+    <button id="sendBtn" class="feature-btn">Send Invoice</button>
+    <button id="saveBtn" class="feature-btn">Save</button>
+  </div>
 </div>
 
 <h3>Invoice Preview</h3>
@@ -108,15 +155,16 @@ planButtons.forEach(card=>{
     selectedPlan=card.getAttribute('data-plan');
     planButtons.forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
+
+    // Show or hide PayPal button
     if(planPaid[selectedPlan] || selectedPlan==='free'){
       document.getElementById('paypalSection').style.display='none';
-      document.getElementById('invoiceSection').style.display='block';
-      updateFeatureAccess();
-      updatePreview();
     } else {
       document.getElementById('paypalSection').style.display='block';
-      document.getElementById('invoiceSection').style.display='none';
     }
+
+    updateFeatureAccess();
+    updatePreview();
   });
 });
 
@@ -124,10 +172,24 @@ function updateFeatureAccess(){
   const pdfBtn=document.getElementById('pdfBtn');
   const sendBtn=document.getElementById('sendBtn');
   const saveBtn=document.getElementById('saveBtn');
-  if(selectedPlan==='free'){pdfBtn.classList.remove('unlocked');sendBtn.classList.remove('unlocked');saveBtn.classList.remove('unlocked');}
-  else if(selectedPlan==='basic'){pdfBtn.classList.add('unlocked');sendBtn.classList.remove('unlocked');saveBtn.classList.add('unlocked');}
-  else if(selectedPlan==='pro'){pdfBtn.classList.add('unlocked');sendBtn.classList.add('unlocked');saveBtn.classList.add('unlocked');}
-  else if(selectedPlan==='enterprise'){pdfBtn.classList.add('unlocked');sendBtn.classList.add('unlocked');saveBtn.classList.add('unlocked');}
+
+  if(selectedPlan==='free'){
+    pdfBtn.classList.remove('unlocked');
+    sendBtn.classList.remove('unlocked');
+    saveBtn.classList.remove('unlocked');
+  } else if(selectedPlan==='basic'){
+    pdfBtn.classList.add('unlocked');
+    sendBtn.classList.remove('unlocked');
+    saveBtn.classList.add('unlocked');
+  } else if(selectedPlan==='pro'){
+    pdfBtn.classList.add('unlocked');
+    sendBtn.classList.add('unlocked');
+    saveBtn.classList.add('unlocked');
+  } else if(selectedPlan==='enterprise'){
+    pdfBtn.classList.add('unlocked');
+    sendBtn.classList.add('unlocked');
+    saveBtn.classList.add('unlocked');
+  }
 }
 
 // --- PayPal ---
@@ -144,18 +206,52 @@ paypal.Buttons({
       alert(`Payment successful for ${selectedPlan} plan!`);
       planPaid[selectedPlan]=true;
       document.getElementById('paypalSection').style.display='none';
-      document.getElementById('invoiceSection').style.display='block';
       updateFeatureAccess();
-      updatePreview();
     });
   }
 }).render('#paypal-button-container');
 
-// Initialize with Free plan
-document.querySelector('.plan-card[data-plan="free"]').click();
+// --- Invoice logic ---
+let items=[];
+const itemsBody=document.getElementById("itemsBody");
+function addItem(){
+  const index=items.length;
+  items.push({name:"Item",qty:1,price:0});
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
+    <td><input value="Item" oninput="items[${index}].name=this.value;updatePreview()"></td>
+    <td><input type="number" value="1" min="1" oninput="items[${index}].qty=Number(this.value);updatePreview()"></td>
+    <td><input type="number" value="0" min="0" oninput="items[${index}].price=Number(this.value);updatePreview()"></td>
+    <td><button class="remove-btn" onclick="items.splice(${index},1);this.parentElement.parentElement.remove();updatePreview()">Remove</button></td>
+  `;
+  itemsBody.appendChild(tr);
+}
+document.getElementById("addItemBtn").addEventListener("click",addItem);
+addItem();
 
-// --- Invoice preview function (use your existing updatePreview from your code above) ---
-function updatePreview(){ /* your full invoice preview logic here */ }
+// --- Invoice preview ---
+function updatePreview(){
+  const cur="$";
+  let subtotal=0;
+  const rows=items.map(i=>{
+    const t=i.qty*i.price;
+    subtotal+=t;
+    return `<tr><td>${i.name}</td><td>${i.qty}</td><td>${cur}${t.toFixed(2)}</td></tr>`;
+  }).join("");
+  const html=`<div style="font-family:Inter,sans-serif;padding:20px;background:#f9fafb">
+    <h2>Invoice Preview</h2>
+    <table style="width:100%;border-collapse:collapse">
+      <tr style="background:#3b82f6;color:#fff"><th>Item</th><th>Qty</th><th>Total</th></tr>
+      ${rows}
+    </table>
+    <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
+  </div>`;
+  document.getElementById("preview").srcdoc=html;
+}
+
+// Initialize
+document.querySelector('.plan-card[data-plan="free"]').click();
+updatePreview();
 </script>
 
 </body>
