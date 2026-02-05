@@ -11,7 +11,6 @@ body{
   background:#f8fafc;
   padding:20px;
 }
-
 h1,h2{text-align:center;color:#1e40af}
 
 .section{
@@ -43,7 +42,7 @@ iframe{
   border:1px solid #e5e7eb;
 }
 
-/* ---------- PLAN CARDS ---------- */
+/* ---------------- PLAN CARDS ---------------- */
 .plan-card{
   border:1px solid #cbd5e1;
   border-radius:12px;
@@ -68,8 +67,6 @@ iframe{
   flex-direction:column;
   gap:6px;
 }
-
-/* Feature state */
 .feature{
   padding:6px 10px;
   border-radius:6px;
@@ -104,7 +101,6 @@ iframe{
 
 <h2>Select a Plan</h2>
 <div class="row">
-
   <div class="plan-card selected" data-plan="free">
     <h3>Free</h3>
     <div class="plan-price">$0</div>
@@ -140,35 +136,50 @@ iframe{
       <div class="feature" data-feature="reminders">Auto Reminders</div>
     </div>
   </div>
+</div>
 
-  <div class="plan-card" data-plan="enterprise">
-    <h3>Enterprise</h3>
-    <div class="plan-price">$30/mo</div>
-    <div class="plan-features">
-      <div class="feature" data-feature="team">Team Accounts</div>
-      <div class="feature" data-feature="analytics">Advanced Analytics</div>
-      <div class="feature" data-feature="branding">Custom Branding</div>
-      <div class="feature" data-feature="reminders">Auto Reminders</div>
-    </div>
-  </div>
-
+<!-- ---------------- INVOICE APP (RESTORED) ---------------- -->
+<div class="section">
+  <h2>Invoice Items</h2>
+  <table width="100%">
+    <thead>
+      <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+    </thead>
+    <tbody id="itemsBody"></tbody>
+  </table>
+  <button id="addItemBtn">Add Item</button>
 </div>
 
 <div class="section">
-  <button class="feature-btn" id="pdfBtn">Download PDF</button>
-  <button class="feature-btn" id="sendBtn">Send Invoice</button>
-  <button class="feature-btn" id="saveBtn">Save Invoice</button>
+  <div class="row">
+    <div>
+      <label>Discount %</label>
+      <input type="number" id="discount" value="0">
+    </div>
+    <div>
+      <label>Tax %</label>
+      <input type="number" id="tax" value="0">
+    </div>
+  </div>
 </div>
 
-<iframe></iframe>
+<div class="section">
+  <div class="row">
+    <button class="feature-btn" id="pdfBtn">Download PDF</button>
+    <button class="feature-btn" id="sendBtn">Send Invoice</button>
+    <button class="feature-btn" id="saveBtn">Save Invoice</button>
+  </div>
+</div>
+
+<h2>Invoice Preview</h2>
+<iframe id="preview"></iframe>
 
 <script>
-/* ---------- PLAN FEATURE MAP ---------- */
-const planFeatures = {
-  free: ["items","basic","share"],
-  basic: ["items","basic","share","pdf","email"],
-  pro: ["items","basic","share","pdf","email","branding","reminders"],
-  enterprise: ["items","basic","share","pdf","email","branding","reminders","analytics","team"]
+// ---------------- PLAN LOGIC ----------------
+const planFeatures={
+  free:["items","basic","share"],
+  basic:["items","basic","share","pdf","email"],
+  pro:["items","basic","share","pdf","email","branding","reminders"]
 };
 
 let selectedPlan="free";
@@ -177,31 +188,58 @@ const planCards=document.querySelectorAll(".plan-card");
 function updatePlanUI(){
   document.querySelectorAll(".feature").forEach(f=>{
     f.classList.remove("unlocked","locked");
-    const key=f.dataset.feature;
-    planFeatures[selectedPlan].includes(key)
+    planFeatures[selectedPlan].includes(f.dataset.feature)
       ? f.classList.add("unlocked")
       : f.classList.add("locked");
   });
-
   toggleBtn("pdfBtn","pdf");
   toggleBtn("sendBtn","email");
   toggleBtn("saveBtn","branding");
 }
-
 function toggleBtn(id,feature){
-  const btn=document.getElementById(id);
-  btn.classList.toggle("unlocked",planFeatures[selectedPlan].includes(feature));
+  document.getElementById(id).classList.toggle(
+    "unlocked",
+    planFeatures[selectedPlan].includes(feature)
+  );
 }
-
 planCards.forEach(card=>{
-  card.addEventListener("click",()=>{
+  card.onclick=()=>{
     selectedPlan=card.dataset.plan;
     planCards.forEach(c=>c.classList.remove("selected"));
     card.classList.add("selected");
     updatePlanUI();
-  });
+  };
 });
 
+// ---------------- INVOICE LOGIC ----------------
+let items=[];
+const itemsBody=document.getElementById("itemsBody");
+
+function addItem(){
+  if(selectedPlan==="free" && items.length>=2){
+    alert("Upgrade to add more items");
+    return;
+  }
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
+    <td><input></td>
+    <td><input type="number" value="1"></td>
+    <td><input type="number" value="0"></td>`;
+  itemsBody.appendChild(tr);
+  items.push(tr);
+  updatePreview();
+}
+
+function updatePreview(){
+  document.getElementById("preview").srcdoc=
+    `<div style="padding:40px;font-family:Inter">
+      <h2>Invoice Preview</h2>
+      <p>Items: ${items.length}</p>
+    </div>`;
+}
+
+document.getElementById("addItemBtn").onclick=addItem;
+addItem();
 updatePlanUI();
 </script>
 
