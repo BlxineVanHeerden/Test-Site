@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Smart Invoice Generator - Plans</title>
+<title>Smart Invoice Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -25,69 +25,54 @@ h1,h2{text-align:center;color:#1e40af}
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
 
-/* ---------- PLAN CARDS ---------- */
-.plan-card{
-  border:1px solid #cbd5e1;
-  border-radius:12px;
-  padding:16px;
-  flex:1;
-  cursor:pointer;
-  text-align:center;
-  transition:.2s;
-}
-.plan-card.selected{
-  border-color:#3b82f6;
-  box-shadow:0 4px 20px rgba(0,0,0,.1);
-}
-.plan-price{
-  font-size:20px;
-  font-weight:600;
-  margin:8px 0;
-}
-.plan-features{
-  margin-top:10px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-/* Feature rows */
-.feature{
-  padding:6px 10px;
-  border-radius:6px;
-  font-size:12px;
-  display:flex;
-  justify-content:space-between;
-  background:#f1f5f9;
-  color:#475569;
-}
-.feature.locked::after{content:"🔒";}
-.feature.unlocked{
-  background:#3b82f6;
-  color:#fff;
-}
-.feature.unlocked::after{content:"✅";}
-
-/* Buttons */
-.feature-btn{
-  background:#e5e7eb;
-  color:#374151;
+input,select,textarea,button{
+  width:100%;
   padding:6px 8px;
+  margin-top:6px;
   border-radius:6px;
-  border:none;
-  cursor:not-allowed;
+  border:1px solid #cbd5e1;
+  font-size:13px;
 }
-.feature-btn.unlocked{
+
+button{
   background:#3b82f6;
   color:#fff;
+  font-weight:600;
   cursor:pointer;
+  border:none;
 }
 
 iframe{
   width:100%;
-  height:720px;
+  height:700px;
   border-radius:14px;
   border:1px solid #e5e7eb;
+  background:#fff;
+}
+
+/* ---------- PLANS ---------- */
+.plan-card{
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  padding:16px;
+  text-align:center;
+  cursor:pointer;
+  transition:.2s;
+}
+.plan-card:hover{
+  box-shadow:0 4px 20px rgba(0,0,0,.1);
+}
+.plan-card.selected{
+  border-color:#3b82f6;
+}
+.plan-price{
+  font-size:20px;
+  font-weight:600;
+}
+.plan-features{
+  margin-top:10px;
+  font-size:13px;
+  color:#475569;
 }
 </style>
 </head>
@@ -96,103 +81,147 @@ iframe{
 
 <h1>Smart Invoice Generator</h1>
 
-<h2>Select a Plan</h2>
-<div class="row">
-
-  <div class="plan-card selected" data-plan="free">
-    <h3>Free</h3>
-    <div class="plan-price">$0</div>
-    <div class="plan-features">
-      <div class="feature" data-feature="items">Max 2 items</div>
-      <div class="feature" data-feature="basic">Basic Invoice</div>
-      <div class="feature" data-feature="share">Manual Sharing</div>
-      <div class="feature" data-feature="pdf">PDF Download</div>
-      <div class="feature" data-feature="email">Email Invoice</div>
-    </div>
-  </div>
-
-  <div class="plan-card" data-plan="basic">
-    <h3>Basic</h3>
-    <div class="plan-price">$5/mo</div>
-    <div class="plan-features">
-      <div class="feature" data-feature="items">Max 10 items</div>
-      <div class="feature" data-feature="basic">Basic Invoice</div>
-      <div class="feature" data-feature="pdf">PDF Download</div>
-      <div class="feature" data-feature="email">Email Invoice</div>
-    </div>
-  </div>
-
-  <div class="plan-card" data-plan="pro">
-    <h3>Pro</h3>
-    <div class="plan-price">$15/mo</div>
-    <div class="plan-features">
-      <div class="feature" data-feature="items">Unlimited items</div>
-      <div class="feature" data-feature="pdf">PDF Download</div>
-      <div class="feature" data-feature="email">Email Invoice</div>
-      <div class="feature" data-feature="branding">Custom Branding</div>
-      <div class="feature" data-feature="reminders">Auto Reminders</div>
-    </div>
-  </div>
-
-  <div class="plan-card" data-plan="enterprise">
-    <h3>Enterprise</h3>
-    <div class="plan-price">$30/mo</div>
-    <div class="plan-features">
-      <div class="feature" data-feature="team">Team Accounts</div>
-      <div class="feature" data-feature="analytics">Advanced Analytics</div>
-      <div class="feature" data-feature="support">Priority Support</div>
-    </div>
-  </div>
-
-</div>
-
+<!-- PRICING -->
 <div class="section">
-  <button class="feature-btn" id="pdfBtn">Download PDF</button>
-  <button class="feature-btn" id="sendBtn">Send Invoice</button>
-  <button class="feature-btn" id="saveBtn">Save Invoice</button>
+  <h2>Select a Plan</h2>
+  <div class="row" id="planContainer">
+    <div class="plan-card selected" data-plan="free">
+      <h3>Free</h3>
+      <div class="plan-price">$0</div>
+      <div class="plan-features">Basic Invoice<br>2 Items</div>
+    </div>
+    <div class="plan-card" data-plan="basic">
+      <h3>Basic</h3>
+      <div class="plan-price">$5/mo</div>
+      <div class="plan-features">PDF Download<br>Email Invoice</div>
+    </div>
+    <div class="plan-card" data-plan="pro">
+      <h3>Pro</h3>
+      <div class="plan-price">$15/mo</div>
+      <div class="plan-features">Unlimited Items<br>Branding</div>
+    </div>
+    <div class="plan-card" data-plan="enterprise">
+      <h3>Enterprise</h3>
+      <div class="plan-price">$30/mo</div>
+      <div class="plan-features">Teams<br>Analytics</div>
+    </div>
+  </div>
 </div>
 
-<iframe id="preview"></iframe>
+<!-- LOCK NOTICE -->
+<div id="lockedNotice" class="section" style="text-align:center">
+  <h3>👆 Choose a plan to start invoicing</h3>
+  <p>For now everything is unlocked (test mode).</p>
+</div>
+
+<!-- APP AREA -->
+<div id="appArea" style="display:none;opacity:0;transition:.4s">
+
+  <!-- DOCUMENT INFO -->
+  <div class="section row">
+    <div>
+      <label>Document Type</label>
+      <select id="docType">
+        <option value="Invoice">Invoice</option>
+        <option value="Quote">Quote</option>
+        <option value="Receipt">Receipt</option>
+      </select>
+    </div>
+    <div>
+      <label>Invoice Number</label>
+      <input id="invoiceNumber" value="0001">
+    </div>
+    <div>
+      <label>Status</label>
+      <select id="status">
+        <option>Draft</option>
+        <option>Sent</option>
+        <option>Paid</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="section row">
+    <div>
+      <h3>Your Info</h3>
+      <input id="fromName" placeholder="Business name">
+      <input id="fromEmail" placeholder="Email">
+    </div>
+    <div>
+      <h3>Client Info</h3>
+      <input id="toName" placeholder="Client name">
+      <input id="toEmail" placeholder="Client email">
+    </div>
+  </div>
+
+  <!-- ITEMS -->
+  <div class="section">
+    <h3>Invoice Items</h3>
+    <table width="100%">
+      <thead>
+        <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+    <button onclick="addItem()">Add Item</button>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="section">
+    <h3>Invoice Preview</h3>
+    <iframe id="preview"></iframe>
+  </div>
+
+</div>
 
 <script>
-// -------- PLAN FEATURE MAP --------
-const planFeatures={
-  free:["items","basic","share"],
-  basic:["items","basic","pdf","email"],
-  pro:["items","basic","pdf","email","branding","reminders"],
-  enterprise:["items","basic","pdf","email","branding","reminders","team","analytics","support"]
-};
-
-let selectedPlan="free";
-
-function updatePlanUI(){
-  document.querySelectorAll(".feature").forEach(f=>{
-    f.classList.remove("locked","unlocked");
-    planFeatures[selectedPlan].includes(f.dataset.feature)
-      ? f.classList.add("unlocked")
-      : f.classList.add("locked");
-  });
-
-  toggleBtn("pdfBtn","pdf");
-  toggleBtn("sendBtn","email");
-  toggleBtn("saveBtn","branding");
-}
-
-function toggleBtn(id,feature){
-  document.getElementById(id)
-    .classList.toggle("unlocked",planFeatures[selectedPlan].includes(feature));
-}
+/* ---------- PLAN UX ---------- */
+const appArea = document.getElementById("appArea");
+const lockedNotice = document.getElementById("lockedNotice");
 
 document.querySelectorAll(".plan-card").forEach(card=>{
   card.onclick=()=>{
-    selectedPlan=card.dataset.plan;
     document.querySelectorAll(".plan-card").forEach(c=>c.classList.remove("selected"));
     card.classList.add("selected");
-    updatePlanUI();
+
+    lockedNotice.style.display="none";
+    appArea.style.display="block";
+    requestAnimationFrame(()=>{
+      appArea.style.opacity="1";
+      appArea.scrollIntoView({behavior:"smooth"});
+    });
   };
 });
 
-updatePlanUI();
+/* ---------- INVOICE ---------- */
+const itemsBody=document.getElementById("itemsBody");
+let items=[];
+
+function addItem(){
+  items.push({name:"Item",qty:1,price:0});
+  render();
+}
+
+function render(){
+  itemsBody.innerHTML=items.map(i=>`
+    <tr>
+      <td>${i.name}</td>
+      <td>${i.qty}</td>
+      <td>$${i.price}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("preview").srcdoc=`
+    <div style="font-family:Inter;padding:30px">
+      <h2>${docType.value} #${invoiceNumber.value}</h2>
+      <p><strong>From:</strong> ${fromName.value}</p>
+      <p><strong>To:</strong> ${toName.value}</p>
+    </div>`;
+}
+
+addItem();
+render();
 </script>
 
 </body>
