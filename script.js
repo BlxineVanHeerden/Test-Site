@@ -11,8 +11,8 @@ const totalDisplay = document.getElementById("totalDisplay");
 const itemsBody = document.getElementById("itemsBody");
 const planCards = document.querySelectorAll(".plan-card");
 
-let selectedPlan = "free";   // Active plan (features unlocked)
-let intendedPlan = "free";   // Plan user clicked (may require payment)
+let selectedPlan = "free";    // Active plan (features unlocked)
+let intendedPlan = null;      // Plan user clicked (requires payment)
 
 // ---------- CURRENCIES ----------
 const currencies = [
@@ -48,64 +48,67 @@ planCards.forEach(card => {
   card.addEventListener('click', () => {
     const plan = card.getAttribute('data-plan');
 
-    // Free plan unlocks immediately
+    // Free plan: unlock immediately
     if(plan === "free") {
       selectedPlan = "free";
-      intendedPlan = "free";
+      intendedPlan = null;
       updateFeatureAccess();
-      planCards.forEach(c => c.classList.remove("selected"));
-      card.classList.add("selected");
+      highlightPlanCard(plan);
       return;
     }
 
-    // Paid plans: show alert, require payment
+    // Paid plan: require payment
     intendedPlan = plan;
-    alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment. Use the PayPal button to unlock.`);
+    alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment. Use PayPal button to unlock.`);
 
-    // Highlight clicked plan
-    planCards.forEach(c => c.classList.remove("selected"));
-    card.classList.add("selected");
-
-    // Do NOT update selectedPlan yet
-    updateFeatureAccess(); // keeps features locked
+    // Only highlight visually
+    highlightPlanCard(plan);
+    updateFeatureAccess(); // keeps premium features locked
   });
 });
+
+function highlightPlanCard(plan) {
+  planCards.forEach(c => c.classList.remove("selected"));
+  const card = document.querySelector(`.plan-card[data-plan="${plan}"]`);
+  if(card) card.classList.add("selected");
+}
 
 function updateFeatureAccess() {
   const pdfBtn = document.getElementById('pdfBtn');
   const sendBtn = document.getElementById('sendBtn');
   const saveBtn = document.getElementById('saveBtn');
+  const addItemBtn = document.getElementById('addItemBtn');
 
-  // Free: only basic preview
-  if(selectedPlan === "free") {
-    pdfBtn.classList.remove("unlocked");
-    sendBtn.classList.remove("unlocked");
-    saveBtn.classList.remove("unlocked");
-  }
+  // Lock all premium features by default
+  pdfBtn.classList.remove("unlocked");
+  sendBtn.classList.remove("unlocked");
+  saveBtn.classList.remove("unlocked");
 
-  // Basic plan: unlock PDF + Save
-  else if(selectedPlan === "basic") {
+  // Set max items based on selected plan
+  let maxItems = 2; // Free default
+  if(selectedPlan === "free") maxItems = 2;
+  else if(selectedPlan === "basic") maxItems = 5;
+  else if(selectedPlan === "pro") maxItems = 999;
+
+  addItemBtn.dataset.maxItems = maxItems;
+
+  // Unlock features for paid plans
+  if(selectedPlan === "basic") {
     pdfBtn.classList.add("unlocked");
-    sendBtn.classList.remove("unlocked");
     saveBtn.classList.add("unlocked");
-  }
-
-  // Pro plan: unlock all
-  else if(selectedPlan === "pro") {
+  } else if(selectedPlan === "pro") {
     pdfBtn.classList.add("unlocked");
     sendBtn.classList.add("unlocked");
     saveBtn.classList.add("unlocked");
   }
 }
 
-updateFeatureAccess();
-
 // ---------- ITEMS ----------
 function addRow() {
-  const maxItems = selectedPlan === "free" ? 2 : selectedPlan === "basic" ? 5 : 999;
+  const maxItems = parseInt(document.getElementById("addItemBtn").dataset.maxItems || 2, 10);
 
   if(itemsBody.rows.length >= maxItems) {
-    alert(`Your plan allows maximum ${maxItems} items. Upgrade for more.`);
+    alert(`Your plan allows maximum ${maxItems} items. Upgrade to add more.`);
     return;
   }
 
@@ -152,53 +155,33 @@ function recalc() {
 }
 
 // ---------- PAYPAL BUTTONS ----------
-paypal.Buttons({
-  style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'pay' },
-  createOrder: function(data, actions) {
-    let amount = 0;
-    if(intendedPlan === 'basic') amount = 5;
-    else if(intendedPlan === 'pro') amount = 10;
+function createPayPalButton(containerId, plan, amount) {
+  paypal.Buttons({
+    style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'pay' },
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: { value: amount.toString() },
+          description: `${plan.charAt(0).toUpperCase()+plan.slice(1)} Plan`
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(details => {
+        alert(`Payment completed by ${details.payer.name.given_name}. ${plan.charAt(0).toUpperCase()+plan.slice(1)} plan unlocked!`);
+        selectedPlan = plan;    // Unlock features
+        intendedPlan = null;
+        updateFeatureAccess();
+        highlightPlanCard(plan);
+      });
+    },
+    onError: function(err) {
+      console.error(err);
+      alert('Payment could not be processed.');
+    }
+  }).render(containerId);
+}
 
-    return actions.order.create({
-      purchase_units: [{
-        amount: { value: amount.toString() },
-        description: `${intendedPlan.charAt(0).toUpperCase()+intendedPlan.slice(1)} Plan`
-      }]
-    });
-  },
-  onApprove: function(data, actions) {
-    return actions.order.capture().then(details => {
-      alert(`Payment completed by ${details.payer.name.given_name}. ${intendedPlan} plan unlocked!`);
-      selectedPlan = intendedPlan; // Unlock features after payment
-      updateFeatureAccess();
-    });
-  },
-  onError: function(err) {
-    console.error(err);
-    alert('Payment could not be processed.');
-  }
-}).render('#paypal-basic');
-
-paypal.Buttons({
-  style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'pay' },
-  createOrder: function(data, actions) {
-    return actions.order.create({
-      purchase_units: [{
-        amount: { value: "10" },
-        description: `Pro Plan`
-      }]
-    });
-  },
-  onApprove: function(data, actions) {
-    return actions.order.capture().then(details => {
-      alert(`Payment completed by ${details.payer.name.given_name}. Pro plan unlocked!`);
-      selectedPlan = "pro";
-      intendedPlan = "pro";
-      updateFeatureAccess();
-    });
-  },
-  onError: function(err) {
-    console.error(err);
-    alert('Payment could not be processed.');
-  }
-}).render('#paypal-pro');
+// PayPal buttons for basic and pro
+createPayPalButton('#paypal-basic', 'basic', 5);
+createPayPalButton('#paypal-pro', 'pro', 10);
