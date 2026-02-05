@@ -45,6 +45,13 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
 #note{height:90px;resize:vertical;}
 #dueDate{padding:8px 10px;}
 .paypal-btn-container{margin-top:12px;}
+/* --- Invoice Preview Styling --- */
+#preview { background:#fff; padding:20px; }
+#preview h2 { color:#1f2937; border-bottom:2px solid #3b82f6; padding-bottom:6px; }
+#preview table { border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; }
+#preview th, #preview td { border-bottom:1px solid #e5e7eb; padding:10px; }
+#preview th { background:#3b82f6; color:#fff; }
+#preview tr:last-child td { border-bottom:none; }
 </style>
 </head>
 <body>
@@ -208,7 +215,7 @@ iframe{width:100%;height:720px;border-radius:16px;border:none;background:#f9fafb
 <h3>Invoice Preview</h3>
 <iframe id="preview"></iframe>
 
-<!-- PayPal SDK (disable debit/credit cards) -->
+<!-- PayPal SDK -->
 <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&disable-funding=card,credit"></script>
 
 <script>
@@ -342,7 +349,6 @@ document.getElementById("logoInput").addEventListener("change",e=>{
 });
 invoicePrefix.addEventListener("input",()=>{invoicePrefix.value = docType.value;});
 
-// --- Updated prettier preview ---
 function updatePreview(){
   const cur=document.getElementById("currency").value;
   let subtotal=0;
@@ -351,9 +357,9 @@ function updatePreview(){
     const t=i.qty*i.price;
     subtotal+=t;
     return `<tr>
-      <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${i.name||"-"}<br><small style="color:#6b7280">${i.cat||""}</small></td>
-      <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${i.qty}</td>
-      <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${cur}${t.toFixed(2)}</td>
+      <td>${i.name||"-"}<br><small>${i.cat||""}</small></td>
+      <td>${i.qty}</td>
+      <td>${cur}${t.toFixed(2)}</td>
     </tr>`;
   }).join("");
 
@@ -361,63 +367,81 @@ function updatePreview(){
   const tax=subtotal*(document.getElementById("tax").value/100);
   const total=subtotal-disc+tax-document.getElementById("paid").value*1;
 
-  const html=`<div style="font-family:Inter,sans-serif;padding:24px;background:#f9fafb;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,0.08);max-width:800px;margin:auto;">
+  const html=`<div style="font-family:Inter,sans-serif;padding:20px;">
     ${logoData?`<img src="${logoData}" style="max-width:120px;margin-bottom:12px;">`:''}
-    <h1 style="margin:0;background:linear-gradient(90deg,#3b82f6,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${docType.value} ${invoiceNumber
-.value}</h1>
-    <div style="display:flex;justify-content:space-between;margin-top:16px;">
-      <div>
-        <strong>From:</strong><br>
-        ${document.getElementById("fromName").value || "-"}<br>
-        ${document.getElementById("fromEmail").value || ""}<br>
-        ${document.getElementById("fromPhone").value || ""}
-      </div>
-      <div>
-        <strong>To:</strong><br>
-        ${document.getElementById("toName").value || "-"}<br>
-        ${document.getElementById("toEmail").value || ""}<br>
-        ${document.getElementById("toPhone").value || ""}
-      </div>
-      <div>
-        <strong>Due Date:</strong><br>
-        ${document.getElementById("dueDate").value || "-"}<br>
-        <strong>Status:</strong> ${document.getElementById("status").value}
-      </div>
-    </div>
-
-    <table style="width:100%;margin-top:16px;border-collapse:collapse;">
+    <h2>${docType.value} ${invoiceNumber.value}</h2>
+    <p><strong>From:</strong> ${document.getElementById("fromName").value} | ${document.getElementById("fromEmail").value} | ${document.getElementById("fromPhone").value}</p>
+   
+    <p><strong>To:</strong> ${document.getElementById("toName").value} | ${document.getElementById("toEmail").value} | ${document.getElementById("toPhone").value}</p>
+    <table>
       <thead>
-        <tr style="background:#f3f4f6;">
-          <th style="padding:8px;text-align:left;">Item</th>
-          <th style="padding:8px;text-align:left;">Qty</th>
-          <th style="padding:8px;text-align:left;">Total</th>
-        </tr>
+        <tr><th>Item</th><th>Qty</th><th>Amount</th></tr>
       </thead>
       <tbody>
         ${rows}
       </tbody>
     </table>
-
-    <div style="margin-top:16px;display:flex;justify-content:flex-end;flex-direction:column;gap:4px;">
-      <div>Subtotal: ${cur}${subtotal.toFixed(2)}</div>
-      <div>Discount: -${cur}${disc.toFixed(2)}</div>
-      <div>Tax: +${cur}${tax.toFixed(2)}</div>
-      <div><strong>Total Due: ${cur}${total.toFixed(2)}</strong></div>
-      <div>Amount Paid: ${cur}${document.getElementById("paid").value}</div>
-    </div>
-
-    <div style="margin-top:24px;">
-      <strong>Note:</strong><br>
-      ${document.getElementById("note").value || ""}
-    </div>
+    <p>Subtotal: ${cur}${subtotal.toFixed(2)}</p>
+    <p>Discount: -${cur}${disc.toFixed(2)}</p>
+    <p>Tax: +${cur}${tax.toFixed(2)}</p>
+    <h3>Total Due: ${cur}${total.toFixed(2)}</h3>
+    <p>Status: ${document.getElementById("status").value}</p>
+    <p>Payment Terms: ${terms.options[terms.selectedIndex].text}</p>
+    <p>Due Date: ${dueDate.value}</p>
+    <p>Client Note: ${document.getElementById("note").value}</p>
   </div>`;
 
-  document.getElementById("preview").srcdoc = html;
+  const preview = document.getElementById("preview");
+  preview.srcdoc = html;
 }
 
-// Initial preview
-updatePreview();
-</script>
+// --- PayPal Buttons ---
+paypal.Buttons({
+  style: {
+    layout: 'vertical',
+    color: 'blue',
+    shape: 'pill',
+    label: 'paypal'
+  },
+  createOrder: function(data, actions) {
+    // Total depends on selected plan
+    let amount = 0;
+    if(selectedPlan==='basic') amount = 5;
+    else if(selectedPlan==='pro') amount = 10;
+    return actions.order.create({
+      purchase_units: [{
+        amount: { value: amount.toString() }
+      }]
+    });
+  },
+  onApprove: function(data, actions) {
+    return actions.order.capture().then(function(details) {
+      alert('Transaction completed by ' + details.payer.name.given_name + '!');
+    });
+  }
+}).render('#paypal-basic'); // for Basic plan
 
+paypal.Buttons({
+  style: {
+    layout: 'vertical',
+    color: 'blue',
+    shape: 'pill',
+    label: 'paypal'
+  },
+  createOrder: function(data, actions) {
+    let amount = selectedPlan==='pro' ? 10 : 0;
+    return actions.order.create({
+      purchase_units: [{
+        amount: { value: amount.toString() }
+      }]
+    });
+  },
+  onApprove: function(data, actions) {
+    return actions.order.capture().then(function(details) {
+      alert('Transaction completed by ' + details.payer.name.given_name + '!');
+    });
+  }
+}).render('#paypal-pro'); // for Pro plan
+</script>
 </body>
 </html>
