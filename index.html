@@ -9,7 +9,7 @@
 <meta name="robots" content="index, follow">
 
 <!-- GOOGLE SITE VERIFICATION -->
-<meta name="google-site-verification" content="googlefd1c7551e367401f" />
+<meta name="google-site-verification" content="ViSzrzgnPNwFVFhTzFe_XG4w76Q2hh2LDpHjWY6P67A" />
 
 <!-- Open Graph for social sharing -->
 <meta property="og:title" content="Smart Invoice Generator - Plans">
@@ -338,21 +338,25 @@ document.getElementById("previewBtn").addEventListener("click",updatePreview);
 // --- PayPal Buttons ---
 function createPayPalButton(containerId, plan, amount){
   paypal.Buttons({
-    style:{color:'blue',shape:'rect',label:'pay',height:40},
-    createOrder:function(data,actions){return actions.order.create({purchase_units:[{amount:{value:amount.toString()}}]});},
-    onApprove:function(data,actions){return actions.order.capture().then(function(details){
-      alert(`${plan} plan unlocked!`);
-      selectedPlan=plan; intendedPlan=null;
-      highlightPlan(plan);
-      updateFeatureAccess();
-    });}
+    style:{color:'blue',shape:'rect',label:'pay'},
+    createOrder:function(data,actions){
+      return actions.order.create({purchase_units:[{amount:{value:amount}}]});
+    },
+    onApprove:function(data,actions){
+      return actions.order.capture().then(function(details){
+        selectedPlan=plan;
+        intendedPlan=null;
+        highlightPlan(plan);
+        updateFeatureAccess();
+        alert(`Payment completed! ${plan.charAt(0).toUpperCase()+plan.slice(1)} plan unlocked.`);
+      });
+    }
   }).render(`#${containerId}`);
 }
 
-createPayPalButton('paypal-basic','basic',5);
-createPayPalButton('paypal-pro','pro',10);
-
+createPayPalButton("paypal-basic","basic","5");
+createPayPalButton("paypal-pro","pro","10");
 </script>
+
 </body>
 </html>
-
