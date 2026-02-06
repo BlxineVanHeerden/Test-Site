@@ -14,6 +14,12 @@ const planCards = document.querySelectorAll(".plan-card");
 let selectedPlan = "free";    // Active plan (features unlocked)
 let intendedPlan = null;      // Plan user clicked (requires payment)
 
+// Track paid plans
+const paidPlans = {
+  basic: false,
+  pro: false
+};
+
 // ---------- CURRENCIES ----------
 const currencies = [
   { code:"USD", symbol:"$", name:"US Dollar" },
@@ -59,11 +65,14 @@ planCards.forEach(card => {
 
     // Paid plan: require payment
     intendedPlan = plan;
-    alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment. Use PayPal button to unlock.`);
+
+    if(!paidPlans[plan]) {
+      alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment. Use PayPal button to unlock.`);
+    }
 
     // Only highlight visually
     highlightPlanCard(plan);
-    updateFeatureAccess(); // keeps premium features locked
+    updateFeatureAccess(); // keeps premium features locked if not paid
   });
 });
 
@@ -84,19 +93,19 @@ function updateFeatureAccess() {
   sendBtn.classList.remove("unlocked");
   saveBtn.classList.remove("unlocked");
 
-  // Set max items based on selected plan
+  // Set max items based on selected plan and paid status
   let maxItems = 2; // Free default
   if(selectedPlan === "free") maxItems = 2;
-  else if(selectedPlan === "basic") maxItems = 5;
-  else if(selectedPlan === "pro") maxItems = 999;
+  else if(selectedPlan === "basic" && paidPlans.basic) maxItems = 5;
+  else if(selectedPlan === "pro" && paidPlans.pro) maxItems = 999;
 
   addItemBtn.dataset.maxItems = maxItems;
 
-  // Unlock features for paid plans
-  if(selectedPlan === "basic") {
+  // Unlock features for paid plans if actually paid
+  if(selectedPlan === "basic" && paidPlans.basic) {
     pdfBtn.classList.add("unlocked");
     saveBtn.classList.add("unlocked");
-  } else if(selectedPlan === "pro") {
+  } else if(selectedPlan === "pro" && paidPlans.pro) {
     pdfBtn.classList.add("unlocked");
     sendBtn.classList.add("unlocked");
     saveBtn.classList.add("unlocked");
@@ -169,7 +178,10 @@ function createPayPalButton(containerId, plan, amount) {
     onApprove: function(data, actions) {
       return actions.order.capture().then(details => {
         alert(`Payment completed by ${details.payer.name.given_name}. ${plan.charAt(0).toUpperCase()+plan.slice(1)} plan unlocked!`);
-        selectedPlan = plan;    // Unlock features
+        
+        // Mark plan as paid
+        paidPlans[plan] = true;
+        selectedPlan = plan;
         intendedPlan = null;
         updateFeatureAccess();
         highlightPlanCard(plan);
