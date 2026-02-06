@@ -197,4 +197,4 @@ function createPayPalButton(containerId, plan, amount) {
 }
 
 createPayPalButton('#paypal-basic', 'basic', 5);
-createPayPalButton('#paypal-pro', 'pro', 10)
+createPayPalButton('#paypal-pro', 'pro', 10);
