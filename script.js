@@ -10,15 +10,11 @@ const totalDisplay = document.getElementById("totalDisplay");
 
 const itemsBody = document.getElementById("itemsBody");
 const planCards = document.querySelectorAll(".plan-card");
+const addItemBtn = document.getElementById("addItemBtn");
 
 let selectedPlan = "free";    // Active plan (features unlocked)
 let intendedPlan = null;      // Plan user clicked (requires payment)
-
-// Track paid plans
-const paidPlans = {
-  basic: false,
-  pro: false
-};
+let paidPlans = { basic: false, pro: false }; // Tracks if user paid for plans
 
 // ---------- CURRENCIES ----------
 const currencies = [
@@ -54,25 +50,31 @@ planCards.forEach(card => {
   card.addEventListener('click', () => {
     const plan = card.getAttribute('data-plan');
 
-    // Free plan: unlock immediately
     if(plan === "free") {
       selectedPlan = "free";
       intendedPlan = null;
-      updateFeatureAccess();
       highlightPlanCard(plan);
+      updateFeatureAccess();
       return;
     }
 
-    // Paid plan: require payment
+    // Paid plan clicked but not yet paid
     intendedPlan = plan;
 
-    if(!paidPlans[plan]) {
-      alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment. Use PayPal button to unlock.`);
+    // If the user has already paid, allow
+    if(paidPlans[plan]) {
+      selectedPlan = plan;
+      intendedPlan = null;
+      highlightPlanCard(plan);
+      updateFeatureAccess();
+      return;
     }
 
-    // Only highlight visually
+    // Lock Add Item button until payment
+    alert(`The ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan requires payment. Use PayPal button to unlock features.`);
+    addItemBtn.disabled = true; // LOCK add item button
     highlightPlanCard(plan);
-    updateFeatureAccess(); // keeps premium features locked if not paid
+    updateFeatureAccess(); // keeps premium features locked
   });
 });
 
@@ -86,35 +88,37 @@ function updateFeatureAccess() {
   const pdfBtn = document.getElementById('pdfBtn');
   const sendBtn = document.getElementById('sendBtn');
   const saveBtn = document.getElementById('saveBtn');
-  const addItemBtn = document.getElementById('addItemBtn');
 
-  // Lock all premium features by default
+  // Default: lock premium features
   pdfBtn.classList.remove("unlocked");
   sendBtn.classList.remove("unlocked");
   saveBtn.classList.remove("unlocked");
 
-  // Set max items based on selected plan and paid status
-  let maxItems = 2; // Free default
+  let maxItems = 2; // Free plan
   if(selectedPlan === "free") maxItems = 2;
-  else if(selectedPlan === "basic" && paidPlans.basic) maxItems = 5;
-  else if(selectedPlan === "pro" && paidPlans.pro) maxItems = 999;
+  else if(selectedPlan === "basic") maxItems = 5;
+  else if(selectedPlan === "pro") maxItems = 999;
 
   addItemBtn.dataset.maxItems = maxItems;
 
-  // Unlock features for paid plans if actually paid
-  if(selectedPlan === "basic" && paidPlans.basic) {
+  // Unlock features if plan is paid
+  if(selectedPlan === "basic") {
     pdfBtn.classList.add("unlocked");
     saveBtn.classList.add("unlocked");
-  } else if(selectedPlan === "pro" && paidPlans.pro) {
+    addItemBtn.disabled = false; // UNLOCK add items
+  } else if(selectedPlan === "pro") {
     pdfBtn.classList.add("unlocked");
     sendBtn.classList.add("unlocked");
     saveBtn.classList.add("unlocked");
+    addItemBtn.disabled = false; // UNLOCK add items
+  } else {
+    addItemBtn.disabled = false; // Free plan can add items
   }
 }
 
 // ---------- ITEMS ----------
 function addRow() {
-  const maxItems = parseInt(document.getElementById("addItemBtn").dataset.maxItems || 2, 10);
+  const maxItems = parseInt(addItemBtn.dataset.maxItems || 2, 10);
 
   if(itemsBody.rows.length >= maxItems) {
     alert(`Your plan allows maximum ${maxItems} items. Upgrade to add more.`);
@@ -138,7 +142,7 @@ function removeRow(btn) {
   recalc();
 }
 
-document.getElementById("addItemBtn").addEventListener("click", addRow);
+addItemBtn.addEventListener("click", addRow);
 addRow();
 
 // ---------- CALCULATOR ----------
@@ -178,12 +182,10 @@ function createPayPalButton(containerId, plan, amount) {
     onApprove: function(data, actions) {
       return actions.order.capture().then(details => {
         alert(`Payment completed by ${details.payer.name.given_name}. ${plan.charAt(0).toUpperCase()+plan.slice(1)} plan unlocked!`);
-        
-        // Mark plan as paid
-        paidPlans[plan] = true;
         selectedPlan = plan;
+        paidPlans[plan] = true;      // Mark plan as paid
         intendedPlan = null;
-        updateFeatureAccess();
+        updateFeatureAccess();        // Unlock add items + features
         highlightPlanCard(plan);
       });
     },
@@ -194,6 +196,5 @@ function createPayPalButton(containerId, plan, amount) {
   }).render(containerId);
 }
 
-// PayPal buttons for basic and pro
 createPayPalButton('#paypal-basic', 'basic', 5);
-createPayPalButton('#paypal-pro', 'pro', 10);
+createPayPalButton('#paypal-pro', 'pro', 10)
