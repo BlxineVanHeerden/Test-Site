@@ -1,78 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Invoice Tool - Professional Business Suite</title>
-<meta name="description" content="Generate professional invoices, quotes, and receipts instantly. Custom branding, tax calculations, and PDF export.">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Invoice Tool - Professional Business Suite</title>
+    <meta name="description" content="Generate professional invoices, quotes, and receipts instantly. Custom branding, tax calculations, and PDF export.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <style>
+        /* --- DESIGN SYSTEM (Optimized for Speed) --- */
+        body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1f2937; margin: 0; padding: 0; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+        .main-wrapper { display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; gap: 20px; padding: 15px; }
 
-<style>
-/* --- CRITICAL CSS: Inlined for instant paint --- */
-body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1f2937; margin: 0; padding: 0; text-rendering: optimizeLegibility; }
-.main-wrapper { display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; gap: 20px; padding: 15px; }
+        @media(min-width: 1024px) {
+            .main-wrapper { flex-direction: row; height: 95vh; padding: 25px; }
+            .editor-pane { flex: 0 0 550px; overflow-y: auto; padding-right: 15px; height: 100%; scrollbar-width: thin; }
+            .preview-pane { flex: 1; height: 100%; position: sticky; top: 0; }
+        }
 
-@media(min-width: 1024px) {
-    .main-wrapper { flex-direction: row; height: 95vh; padding: 25px; }
-    .editor-pane { flex: 0 0 550px; overflow-y: auto; padding-right: 15px; height: 100%; scrollbar-width: thin; }
-    .preview-pane { flex: 1; height: 100%; position: sticky; top: 0; }
-}
+        .section { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #edf2f7; contain: content; }
+        h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: #111827; letter-spacing: -1px; }
+        .sub-heading { font-size: 14px; color: #6366f1; font-weight: 600; margin-bottom: 25px; display: block; }
+        h3 { font-size: 10px; text-transform: uppercase; color: #94a3b8; margin-bottom: 12px; letter-spacing: 1.5px; font-weight: 800; border-left: 3px solid #6366f1; padding-left: 8px; }
 
-.section { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #edf2f7; contain: content; }
-h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: #111827; letter-spacing: -1px; }
-.sub-heading { font-size: 14px; color: #6366f1; font-weight: 600; margin-bottom: 25px; display: block; }
-h3 { font-size: 10px; text-transform: uppercase; color: #94a3b8; margin-bottom: 12px; letter-spacing: 1.5px; font-weight: 800; border-left: 3px solid #6366f1; padding-left: 8px; }
+        label { font-size: 10px; font-weight: 700; color: #4b5563; text-transform: uppercase; display: flex; align-items: center; margin-bottom: 4px; }
+        input, select, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 13px; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
 
-.info-icon { display: inline-block; width: 13px; height: 13px; background: #e2e8f0; color: #64748b; font-size: 8px; border-radius: 50%; text-align: center; line-height: 13px; cursor: help; margin-left: 5px; position: relative; font-weight: bold; }
-.info-icon:hover::after { content: attr(data-tip); position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 6px 10px; border-radius: 4px; width: 130px; font-size: 9px; line-height: 1.3; font-weight: 400; text-transform: none; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .plan-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .plan-box { border: 2px solid #e5e7eb; padding: 15px 10px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s ease; background: #fff; }
+        .plan-box.active { border-color: #6366f1; background: #f5f3ff; }
+        .plan-box b { display: block; font-size: 14px; margin-bottom: 5px; }
+        .plan-box p { font-size: 9px; line-height: 1.3; color: #64748b; margin: 0; }
 
-label { font-size: 10px; font-weight: 700; color: #4b5563; text-transform: uppercase; display: flex; align-items: center; margin-bottom: 4px; }
-input, select, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 13px; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
+        .doc-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .doc-btn { padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; text-align: center; font-size: 11px; font-weight: 700; background: #fff; }
+        .doc-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
 
-.plan-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-.plan-box { border: 2px solid #e5e7eb; padding: 15px 10px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s ease; background: #fff; }
-.plan-box.active { border-color: #6366f1; background: #f5f3ff; }
-.plan-box b { display: block; font-size: 14px; margin-bottom: 5px; }
-.plan-box p { font-size: 9px; line-height: 1.3; color: #64748b; margin: 0; }
+        iframe { width: 100%; height: 100%; border-radius: 16px; border: 1px solid #e5e7eb; background: #fff; }
 
-.doc-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.doc-btn { padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; text-align: center; font-size: 11px; font-weight: 700; background: #fff; }
-.doc-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
+        button { padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 12px; transition: 0.2s ease; }
+        .btn-main { background: #111827; color: white; width: 48%; }
+        .btn-locked { background: #cbd5e1 !important; cursor: not-allowed; color: #94a3b8; }
 
-iframe { width: 100%; height: 100%; border-radius: 16px; border: 1px solid #e5e7eb; background: #fff; }
-
-button { padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 12px; transition: transform 0.1s; }
-button:active { transform: scale(0.98); }
-.btn-main { background: #111827; color: white; width: 48%; }
-.btn-locked { background: #cbd5e1 !important; cursor: not-allowed; color: #94a3b8; }
-
-.chip { display: inline-block; padding: 5px 10px; background: #f1f5f9; border-radius: 20px; font-size: 10px; margin: 0 4px 4px 0; cursor: pointer; color: #475569; border: 1px solid #e2e8f0; font-weight: 600; }
-.remove-btn { background: none; color: #f43f5e; font-size: 16px; border: none; cursor: pointer; }
-.badge-pro { font-size: 8px; background: #fbbf24; color: #78350f; padding: 1px 4px; border-radius: 4px; margin-left: 4px; }
-</style>
+        .chip { display: inline-block; padding: 5px 10px; background: #f1f5f9; border-radius: 20px; font-size: 10px; margin: 0 4px 4px 0; cursor: pointer; color: #475569; border: 1px solid #e2e8f0; font-weight: 600; }
+        .remove-btn { background: none; color: #f43f5e; font-size: 16px; border: none; cursor: pointer; }
+        .badge-pro { font-size: 8px; background: #fbbf24; color: #78350f; padding: 1px 4px; border-radius: 4px; margin-left: 4px; }
+    </style>
 </head>
 <body>
 
 <div class="main-wrapper">
     <div class="editor-pane">
         <h1>Smart Invoice Tool</h1>
-        <span class="sub-heading">Global Billing & Financial Record Management</span>
+        <span class="sub-heading">Professional Billing & Financial Suite</span>
         
         <div class="section">
             <h3>1. Selection & Licensing</h3>
             <div class="plan-row">
                 <div class="plan-box active" id="p-free" onclick="updatePlan('free')">
-                    <b>Free</b><p>Trial Mode. Branded PDF preview only.</p>
+                    <b>Free</b><p>Watermarked Previews</p>
                 </div>
                 <div class="plan-box" id="p-basic">
-                    <b>Basic</b><p>Unlock PDF downloads & CSV exports.</p>
+                    <b>Basic</b><p>Clean PDF & CSV</p>
                     <div id="paypal-basic" style="margin-top:10px;"></div>
                 </div>
                 <div class="plan-box" id="p-pro">
-                    <b>Pro</b><p>Full Branding, Premium Themes & Logos.</p>
+                    <b>Pro</b><p>Branding & Logos</p>
                     <div id="paypal-pro" style="margin-top:10px;"></div>
                 </div>
             </div>
@@ -86,8 +82,8 @@ button:active { transform: scale(0.98); }
                 <div class="doc-btn" onclick="setDocType('RECEIPT', this)">Receipt</div>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-                <div><label>Doc #</label><input id="docNum" value="INV-001" oninput="updatePreview()"></div>
-                <div><label>Project Term</label><input type="text" id="projectDate" placeholder="e.g. Feb 2026" oninput="updatePreview()"></div>
+                <div><label>Doc #</label><input id="docNum" value="INV-001" oninput="debounceUpdate()"></div>
+                <div><label>Project Term</label><input type="text" id="projectDate" placeholder="e.g. Feb 2026" oninput="debounceUpdate()"></div>
             </div>
         </div>
 
@@ -101,32 +97,32 @@ button:active { transform: scale(0.98); }
                     </select>
                 </div>
                 <div>
-                    <label>Style Theme</label>
+                    <label>Theme</label>
                     <select id="themeChoice" onchange="checkTheme(this)">
-                        <option value="#3b82f6">Ocean Blue</option>
-                        <option value="#111827">Modern Dark</option>
+                        <option value="#3b82f6">Blue</option>
+                        <option value="#111827">Dark</option>
                         <option value="#059669">Emerald (Pro)</option>
                         <option value="#dc2626">Crimson (Pro)</option>
                     </select>
                 </div>
             </div>
-            <label style="margin-top:10px;">Corporate Logo <span class="badge-pro">PRO</span></label>
-            <input type="file" id="logoUpload" disabled>
+            <label style="margin-top:10px;">Company Logo <span class="badge-pro">PRO</span></label>
+            <input type="file" id="logoUpload" disabled aria-label="Upload Logo">
         </div>
 
         <div class="section">
             <h3>4. Entity Details</h3>
             <label>Issuer (You)</label>
-            <input id="fromName" placeholder="Your Name/Business" oninput="updatePreview()">
+            <input id="fromName" placeholder="Your Name/Business" oninput="debounceUpdate()">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                <input id="fromEmail" placeholder="Email" oninput="updatePreview()">
-                <input id="fromPhone" placeholder="Phone" oninput="updatePreview()">
+                <input id="fromEmail" placeholder="Email" oninput="debounceUpdate()">
+                <input id="fromPhone" placeholder="Phone" oninput="debounceUpdate()">
             </div>
-            <textarea id="fromAddr" placeholder="Address & Tax ID" oninput="updatePreview()" style="height:45px;"></textarea>
+            <textarea id="fromAddr" placeholder="Address & Tax ID" oninput="debounceUpdate()" style="height:45px;"></textarea>
 
             <label style="margin-top:10px;">Recipient (Client)</label>
-            <input id="toName" placeholder="Client Name" oninput="updatePreview()">
-            <textarea id="toAddr" placeholder="Billing Address" oninput="updatePreview()" style="height:45px;"></textarea>
+            <input id="toName" placeholder="Client Name" oninput="debounceUpdate()">
+            <textarea id="toAddr" placeholder="Billing Address" oninput="debounceUpdate()" style="height:45px;"></textarea>
         </div>
 
         <div class="section">
@@ -143,9 +139,9 @@ button:active { transform: scale(0.98); }
         <div class="section">
             <h3>6. Financial Summary</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div><label>Tax %</label><input type="number" id="tax" value="0" oninput="updatePreview()"></div>
-                <div><label>Discount %</label><input type="number" id="discount" value="0" oninput="updatePreview()"></div>
-                <div><label>Paid Already</label><input type="number" id="paid" value="0" oninput="updatePreview()"></div>
+                <div><label>Tax %</label><input type="number" id="tax" value="0" oninput="debounceUpdate()"></div>
+                <div><label>Discount %</label><input type="number" id="discount" value="0" oninput="debounceUpdate()"></div>
+                <div><label>Paid</label><input type="number" id="paid" value="0" oninput="debounceUpdate()"></div>
                 <div><label>Late Fee <span class="badge-pro">PRO</span></label>
                     <select id="lateFee" disabled onchange="updatePreview()"><option value="0">None</option><option value="25">$25 Fee</option><option value="0.05">5% Penalty</option></select>
                 </div>
@@ -157,7 +153,7 @@ button:active { transform: scale(0.98); }
 
         <div class="section">
             <h3>7. Notes & Terms</h3>
-            <textarea id="notes" oninput="updatePreview()" placeholder="Payment instructions..."></textarea>
+            <textarea id="notes" oninput="debounceUpdate()" placeholder="Payment instructions..."></textarea>
             <div style="display:flex; align-items:center; gap:8px;">
                 <input type="checkbox" id="showTerms" onchange="updatePreview()" style="width:auto; margin:0;">
                 <label style="margin:0; text-transform:none; color: #64748b;">Append Legal Terms</label>
@@ -165,13 +161,13 @@ button:active { transform: scale(0.98); }
         </div>
 
         <div style="display:flex; gap:10px; margin-bottom: 80px;">
-            <button id="pdfBtn" class="btn-main btn-locked">Export PDF</button>
-            <button id="shareBtn" class="btn-main btn-locked" style="background:#6366f1;">Share Portal</button>
+            <button id="pdfBtn" class="btn-main btn-locked" aria-label="Export PDF">Export PDF</button>
+            <button id="shareBtn" class="btn-main btn-locked" style="background:#6366f1;" aria-label="Share">Share Portal</button>
         </div>
     </div>
 
     <div class="preview-pane">
-        <iframe id="preview" title="Document Preview"></iframe>
+        <iframe id="preview" title="Document Live Preview"></iframe>
     </div>
 </div>
 
@@ -179,141 +175,141 @@ button:active { transform: scale(0.98); }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 
 <script>
-let items = [];
-let selectedPlan = 'free';
-let currentDocType = 'INVOICE';
-let logoBase64 = "";
+    let items = [];
+    let selectedPlan = 'free';
+    let currentDocType = 'INVOICE';
+    let logoBase64 = "";
+    let updateTimeout;
 
-const subCats = ["IT", "Creative", "Legal", "Marketing", "Admin", "Consulting", "Support", "Development", "Design"];
+    const subCats = ["IT", "Creative", "Legal", "Marketing", "Admin", "Consulting", "Support", "Development", "Design"];
 
-// PERFORMANCE: Debounce preview updates to save CPU cycles
-let updateTimeout;
-function debounceUpdate() {
-    clearTimeout(updateTimeout);
-    updateTimeout = setTimeout(updatePreview, 150);
-}
-
-function checkTheme(sel) {
-    if ((sel.value === "#059669" || sel.value === "#dc2626") && selectedPlan !== 'pro') {
-        alert("Unlock Emerald & Crimson themes with a Pro License!");
-        sel.value = "#3b82f6";
+    // PERFORMANCE: Debounce updates to keep Interaction to Next Paint (INP) low
+    function debounceUpdate() {
+        clearTimeout(updateTimeout);
+        updateTimeout = setTimeout(updatePreview, 150);
     }
-    updatePreview();
-}
 
-function setDocType(type, btn) {
-    currentDocType = type;
-    document.querySelectorAll('.doc-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    updatePreview();
-}
-
-function updatePreview() {
-    const cur = document.getElementById("currency").value;
-    const accent = document.getElementById("themeChoice").value;
-    const lateVal = Number(document.getElementById("lateFee").value);
-    const docNum = document.getElementById("docNum").value;
-    const pDate = document.getElementById("projectDate").value;
-    
-    let sub = 0;
-    const itemRows = items.map(i => {
-        const line = i.q * i.p; sub += line;
-        return `<tr><td style="padding:12px; border-bottom:1px solid #f1f5f9;"><b>${i.n||'---'}</b><br><small style="color:#94a3b8">${i.c}</small></td>
-                <td style="text-align:center;">${i.q}</td><td style="text-align:right;">${cur}${line.toLocaleString()}</td></tr>`;
-    }).join("");
-
-    let lateAmt = lateVal < 1 ? sub * lateVal : lateVal;
-    const tax = sub * (Number(document.getElementById("tax").value)/100);
-    const disc = sub * (Number(document.getElementById("discount").value)/100);
-    const total = sub + tax + (lateVal > 0 ? lateAmt : 0) - disc - Number(document.getElementById("paid").value);
-
-    document.getElementById("totalNet").innerText = `Balance Due: ${cur}${total.toLocaleString()}`;
-    const watermark = selectedPlan === 'free' ? `<div style="position:fixed; top:45%; left:50%; transform:translate(-50%,-50%) rotate(-45deg); font-size:70px; color:rgba(0,0,0,0.03); font-weight:900; pointer-events:none; white-space:nowrap; letter-spacing:10px;">PREVIEW ONLY</div>` : '';
-
-    const html = `<!DOCTYPE html><html><head><style>
-        body { font-family: 'Inter', sans-serif; padding: 40px; background: white; color: #1e293b; line-height: 1.5; }
-        .header { display: flex; justify-content: space-between; border-bottom: 5px solid ${accent}; padding-bottom: 30px; margin-bottom: 40px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-        th { text-align: left; padding: 12px; background: #f8fafc; font-size: 11px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #edf2f7; }
-        .total-box { background: ${accent}; color: white; padding: 25px; border-radius: 12px; display: inline-block; min-width: 200px; margin-top: 30px; text-align: right; }
-    </style></head><body>${watermark}
-        <div class="header">
-            <div>${logoBase64 ? `<img src="${logoBase64}" style="max-height:60px; margin-bottom:15px;" alt="Logo">` : `<h2 style="color:${accent}; margin:0; font-size:24px;">${document.getElementById("fromName").value || 'BRAND'}</h2>`}
-            <p style="font-size:12px; color:#64748b; margin:0;">${document.getElementById("fromAddr").value}</p>
-            <p style="font-size:12px; color:#64748b; margin:0;">${document.getElementById("fromEmail").value} | ${document.getElementById("fromPhone").value}</p></div>
-            <div style="text-align:right;"><h1 style="margin:0; font-size:36px; color:${accent}; font-weight:800;">${currentDocType}</h1>
-            <p style="font-size:14px; font-weight:bold; margin:0;">#${docNum}</p>
-            <p style="font-size:12px; margin:0;">Date: ${new Date().toLocaleDateString()}</p>
-            ${pDate ? `<p style="font-size:12px; color:#6366f1; margin:0;">Period: ${pDate}</p>` : ''}</div>
-        </div>
-        <div style="font-size:13px; margin-bottom:40px;"><b>BILL TO:</b><br>${document.getElementById("toName").value || 'CLIENT'}<br>${document.getElementById("toAddr").value}</div>
-        <table><thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Total</th></tr></thead><tbody>${itemRows}</tbody></table>
-        <div style="text-align:right; margin-top:30px;">
-            <p style="font-size:14px; margin:4px 0;">Subtotal: ${cur}${sub.toLocaleString()}</p>
-            <div class="total-box"><small style="text-transform:uppercase; opacity:0.8;">Balance Due</small><br><b style="font-size:32px;">${cur}${total.toLocaleString()}</b></div>
-        </div>
-        <div style="margin-top:50px; font-size:12px; color:#64748b; border-top:1px solid #f1f5f9; padding-top:20px;">
-            ${document.getElementById("notes").value.replace(/\n/g, '<br>')}
-            ${document.getElementById("showTerms").checked ? `<br><br><b>Terms:</b> Please settle payment within 14 days.` : ''}
-        </div>
-    </body></html>`;
-
-    const dest = document.getElementById("preview").contentWindow.document;
-    dest.open(); dest.write(html); dest.close();
-}
-
-function removeItem(idx) { items.splice(idx, 1); renderItems(); updatePreview(); }
-
-function renderItems() {
-    const container = document.getElementById("itemsContainer"); container.innerHTML = "";
-    items.forEach((item, idx) => {
-        const div = document.createElement("div"); div.style = "display:grid; grid-template-columns: 2.2fr 1.5fr 0.8fr 1.2fr 30px; gap:5px; margin-bottom:8px;";
-        div.innerHTML = `<input value="${item.n}" oninput="items[${idx}].n=this.value;debounceUpdate()">
-            <select onchange="items[${idx}].c=this.value;updatePreview()">${subCats.map(cat => `<option value="${cat}" ${item.c===cat?'selected':''}>${cat}</option>`).join('')}</select>
-            <input type="number" value="${item.q}" oninput="items[${idx}].q=Number(this.value);debounceUpdate()">
-            <input type="number" value="${item.p}" oninput="items[${idx}].p=Number(this.value);debounceUpdate()">
-            <button class="remove-btn" onclick="removeItem(${idx})" aria-label="Remove Item">✕</button>`;
-        container.appendChild(div);
-    });
-}
-
-function addItem(n="", c="IT", q=1, p=0) { items.push({n, c, q, p}); renderItems(); updatePreview(); }
-
-function updatePlan(plan) {
-    selectedPlan = plan;
-    document.querySelectorAll('.plan-box').forEach(b => b.classList.remove('active'));
-    document.getElementById(`p-${plan}`).classList.add('active');
-    document.getElementById('pdfBtn').className = plan !== 'free' ? "btn-main" : "btn-main btn-locked";
-    document.getElementById('lateFee').disabled = plan !== 'pro';
-    document.getElementById('logoUpload').disabled = plan !== 'pro';
-    updatePreview();
-}
-
-document.getElementById("pdfBtn").onclick = () => {
-    if(selectedPlan==='free') return alert("License Required!");
-    html2pdf().from(document.getElementById("preview").contentWindow.document.body).set({margin:0, filename:'Doc.pdf', html2canvas:{scale:3}}).save();
-};
-
-document.getElementById('logoUpload').onchange = (e) => {
-    const reader = new FileReader();
-    reader.onload = (f) => { logoBase64 = f.target.result; updatePreview(); };
-    reader.readAsDataURL(e.target.files[0]);
-};
-
-function createPayBtn(id, plan){ 
-    if(typeof paypal !== 'undefined') {
-        paypal.Buttons({ style:{color:'blue', shape:'rect', height:25}, onApprove:() => updatePlan(plan) }).render(`#${id}`); 
-    } else {
-        setTimeout(() => createPayBtn(id, plan), 1000); // Wait if SDK isn't loaded yet
+    function checkTheme(sel) {
+        if ((sel.value === "#059669" || sel.value === "#dc2626") && selectedPlan !== 'pro') {
+            alert("Unlock Premium Themes with a Pro License!");
+            sel.value = "#3b82f6";
+        }
+        updatePreview();
     }
-}
 
-window.onload = () => { 
-    addItem(); 
-    updatePreview(); 
-    createPayBtn("paypal-basic","basic"); 
-    createPayBtn("paypal-pro","pro");
-};
+    function setDocType(type, btn) {
+        currentDocType = type;
+        document.querySelectorAll('.doc-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const cur = document.getElementById("currency").value;
+        const accent = document.getElementById("themeChoice").value;
+        const lateVal = Number(document.getElementById("lateFee").value);
+        const docNum = document.getElementById("docNum").value;
+        const pDate = document.getElementById("projectDate").value;
+        
+        let sub = 0;
+        const itemRows = items.map(i => {
+            const line = i.q * i.p; sub += line;
+            return `<tr><td style="padding:12px; border-bottom:1px solid #f1f5f9;"><b>${i.n||'---'}</b><br><small style="color:#94a3b8">${i.c}</small></td>
+                    <td style="text-align:center;">${i.q}</td><td style="text-align:right;">${cur}${line.toLocaleString()}</td></tr>`;
+        }).join("");
+
+        let lateAmt = lateVal < 1 ? sub * lateVal : lateVal;
+        const tax = sub * (Number(document.getElementById("tax").value)/100);
+        const disc = sub * (Number(document.getElementById("discount").value)/100);
+        const total = sub + tax + (lateVal > 0 ? lateAmt : 0) - disc - Number(document.getElementById("paid").value);
+
+        document.getElementById("totalNet").innerText = `Balance Due: ${cur}${total.toLocaleString()}`;
+        const watermark = selectedPlan === 'free' ? `<div style="position:fixed; top:45%; left:50%; transform:translate(-50%,-50%) rotate(-45deg); font-size:70px; color:rgba(0,0,0,0.03); font-weight:900; pointer-events:none; white-space:nowrap; letter-spacing:10px;">PREVIEW ONLY</div>` : '';
+
+        const html = `<!DOCTYPE html><html><head><style>
+            body { font-family: 'Inter', sans-serif; padding: 40px; background: white; color: #1e293b; line-height: 1.5; }
+            .header { display: flex; justify-content: space-between; border-bottom: 5px solid ${accent}; padding-bottom: 30px; margin-bottom: 40px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+            th { text-align: left; padding: 12px; background: #f8fafc; font-size: 11px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #edf2f7; }
+            .total-box { background: ${accent}; color: white; padding: 25px; border-radius: 12px; display: inline-block; min-width: 200px; margin-top: 30px; text-align: right; }
+        </style></head><body>${watermark}
+            <div class="header">
+                <div>${logoBase64 ? `<img src="${logoBase64}" style="max-height:60px; margin-bottom:15px;">` : `<h2 style="color:${accent}; margin:0; font-size:24px;">${document.getElementById("fromName").value || 'BRAND'}</h2>`}
+                <p style="font-size:12px; color:#64748b; margin:0;">${document.getElementById("fromAddr").value}</p>
+                <p style="font-size:12px; color:#64748b; margin:0;">${document.getElementById("fromEmail").value} | ${document.getElementById("fromPhone").value}</p></div>
+                <div style="text-align:right;"><h1 style="margin:0; font-size:36px; color:${accent}; font-weight:800;">${currentDocType}</h1>
+                <p style="font-size:14px; font-weight:bold; margin:0;">#${docNum}</p>
+                <p style="font-size:12px; margin:0;">Date: ${new Date().toLocaleDateString()}</p>
+                ${pDate ? `<p style="font-size:12px; color:#6366f1; margin:0;">Period: ${pDate}</p>` : ''}</div>
+            </div>
+            <div style="font-size:13px; margin-bottom:40px;"><b>BILL TO:</b><br>${document.getElementById("toName").value || 'CLIENT'}<br>${document.getElementById("toAddr").value}</div>
+            <table><thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Total</th></tr></thead><tbody>${itemRows}</tbody></table>
+            <div style="text-align:right; margin-top:30px;">
+                <p style="font-size:14px; margin:4px 0;">Subtotal: ${cur}${sub.toLocaleString()}</p>
+                <div class="total-box"><small style="text-transform:uppercase; opacity:0.8;">Balance Due</small><br><b style="font-size:32px;">${cur}${total.toLocaleString()}</b></div>
+            </div>
+            <div style="margin-top:50px; font-size:12px; color:#64748b; border-top:1px solid #f1f5f9; padding-top:20px;">
+                ${document.getElementById("notes").value.replace(/\n/g, '<br>')}
+                ${document.getElementById("showTerms").checked ? `<br><br><b>Terms:</b> Please settle payment within 14 days.` : ''}
+            </div>
+        </body></html>`;
+
+        const dest = document.getElementById("preview").contentWindow.document;
+        dest.open(); dest.write(html); dest.close();
+    }
+
+    function removeItem(idx) { items.splice(idx, 1); renderItems(); updatePreview(); }
+
+    function renderItems() {
+        const container = document.getElementById("itemsContainer"); container.innerHTML = "";
+        items.forEach((item, idx) => {
+            const div = document.createElement("div"); div.style = "display:grid; grid-template-columns: 2.2fr 1.5fr 0.8fr 1.2fr 30px; gap:5px; margin-bottom:8px;";
+            div.innerHTML = `<input value="${item.n}" oninput="items[${idx}].n=this.value;debounceUpdate()" aria-label="Item Name">
+                <select onchange="items[${idx}].c=this.value;updatePreview()" aria-label="Category">${subCats.map(cat => `<option value="${cat}" ${item.c===cat?'selected':''}>${cat}</option>`).join('')}</select>
+                <input type="number" value="${item.q}" oninput="items[${idx}].q=Number(this.value);debounceUpdate()" aria-label="Qty">
+                <input type="number" value="${item.p}" oninput="items[${idx}].p=Number(this.value);debounceUpdate()" aria-label="Price">
+                <button class="remove-btn" onclick="removeItem(${idx})" aria-label="Remove">✕</button>`;
+            container.appendChild(div);
+        });
+    }
+
+    function addItem(n="", c="IT", q=1, p=0) { items.push({n, c, q, p}); renderItems(); updatePreview(); }
+
+    function updatePlan(plan) {
+        selectedPlan = plan;
+        document.querySelectorAll('.plan-box').forEach(b => b.classList.remove('active'));
+        document.getElementById(`p-${plan}`).classList.add('active');
+        document.getElementById('pdfBtn').className = plan !== 'free' ? "btn-main" : "btn-main btn-locked";
+        document.getElementById('lateFee').disabled = plan !== 'pro';
+        document.getElementById('logoUpload').disabled = plan !== 'pro';
+        updatePreview();
+    }
+
+    document.getElementById("pdfBtn").onclick = () => {
+        if(selectedPlan==='free') return alert("License Required!");
+        html2pdf().from(document.getElementById("preview").contentWindow.document.body).set({margin:0, filename:'Invoice.pdf', html2canvas:{scale:3}}).save();
+    };
+
+    document.getElementById('logoUpload').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (f) => { logoBase64 = f.target.result; updatePreview(); };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    function createPayBtn(id, plan){ 
+        if(typeof paypal !== 'undefined') {
+            paypal.Buttons({ style:{color:'blue', shape:'rect', height:25}, onApprove:() => updatePlan(plan) }).render(`#${id}`); 
+        } else {
+            setTimeout(() => createPayBtn(id, plan), 1000); 
+        }
+    }
+
+    window.onload = () => { 
+        addItem(); 
+        updatePreview(); 
+        createPayBtn("paypal-basic","basic"); 
+        createPayBtn("paypal-pro","pro");
+    };
 </script>
 </body>
 </html>
