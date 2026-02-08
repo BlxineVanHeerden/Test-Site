@@ -5,10 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Invoice Tool - Professional Business Suite</title>
 <meta name="description" content="Generate professional invoices, quotes, and receipts instantly. Custom branding, tax calculations, and PDF export.">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+
 <style>
-/* --- DESIGN SYSTEM --- */
-body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1f2937; margin: 0; padding: 0; }
+/* --- CRITICAL CSS: Inlined for instant paint --- */
+body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1f2937; margin: 0; padding: 0; text-rendering: optimizeLegibility; }
 .main-wrapper { display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; gap: 20px; padding: 15px; }
 
 @media(min-width: 1024px) {
@@ -17,7 +21,7 @@ body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1f2937; ma
     .preview-pane { flex: 1; height: 100%; position: sticky; top: 0; }
 }
 
-.section { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #edf2f7; }
+.section { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #edf2f7; contain: content; }
 h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: #111827; letter-spacing: -1px; }
 .sub-heading { font-size: 14px; color: #6366f1; font-weight: 600; margin-bottom: 25px; display: block; }
 h3 { font-size: 10px; text-transform: uppercase; color: #94a3b8; margin-bottom: 12px; letter-spacing: 1.5px; font-weight: 800; border-left: 3px solid #6366f1; padding-left: 8px; }
@@ -40,7 +44,8 @@ input, select, textarea { width: 100%; padding: 10px; border-radius: 8px; border
 
 iframe { width: 100%; height: 100%; border-radius: 16px; border: 1px solid #e5e7eb; background: #fff; }
 
-button { padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 12px; }
+button { padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 12px; transition: transform 0.1s; }
+button:active { transform: scale(0.98); }
 .btn-main { background: #111827; color: white; width: 48%; }
 .btn-locked { background: #cbd5e1 !important; cursor: not-allowed; color: #94a3b8; }
 
@@ -166,12 +171,12 @@ button { padding: 12px; border-radius: 8px; border: none; font-weight: 700; curs
     </div>
 
     <div class="preview-pane">
-        <iframe id="preview"></iframe>
+        <iframe id="preview" title="Document Preview"></iframe>
     </div>
 </div>
 
-<script src="https://www.paypal.com/sdk/js?client-id=AX6SEngE_MrJHnM87AOoeOMYjECeo9Hu2QY3QMEzUKV97ahN1ttvJJndvcGhk9G27A8qEZGsGb95idNX&currency=USD"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AX6SEngE_MrJHnM87AOoeOMYjECeo9Hu2QY3QMEzUKV97ahN1ttvJJndvcGhk9G27A8qEZGsGb95idNX&currency=USD" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 
 <script>
 let items = [];
@@ -180,6 +185,13 @@ let currentDocType = 'INVOICE';
 let logoBase64 = "";
 
 const subCats = ["IT", "Creative", "Legal", "Marketing", "Admin", "Consulting", "Support", "Development", "Design"];
+
+// PERFORMANCE: Debounce preview updates to save CPU cycles
+let updateTimeout;
+function debounceUpdate() {
+    clearTimeout(updateTimeout);
+    updateTimeout = setTimeout(updatePreview, 150);
+}
 
 function checkTheme(sel) {
     if ((sel.value === "#059669" || sel.value === "#dc2626") && selectedPlan !== 'pro') {
@@ -226,7 +238,7 @@ function updatePreview() {
         .total-box { background: ${accent}; color: white; padding: 25px; border-radius: 12px; display: inline-block; min-width: 200px; margin-top: 30px; text-align: right; }
     </style></head><body>${watermark}
         <div class="header">
-            <div>${logoBase64 ? `<img src="${logoBase64}" style="max-height:60px; margin-bottom:15px;">` : `<h2 style="color:${accent}; margin:0; font-size:24px;">${document.getElementById("fromName").value || 'BRAND'}</h2>`}
+            <div>${logoBase64 ? `<img src="${logoBase64}" style="max-height:60px; margin-bottom:15px;" alt="Logo">` : `<h2 style="color:${accent}; margin:0; font-size:24px;">${document.getElementById("fromName").value || 'BRAND'}</h2>`}
             <p style="font-size:12px; color:#64748b; margin:0;">${document.getElementById("fromAddr").value}</p>
             <p style="font-size:12px; color:#64748b; margin:0;">${document.getElementById("fromEmail").value} | ${document.getElementById("fromPhone").value}</p></div>
             <div style="text-align:right;"><h1 style="margin:0; font-size:36px; color:${accent}; font-weight:800;">${currentDocType}</h1>
@@ -256,11 +268,11 @@ function renderItems() {
     const container = document.getElementById("itemsContainer"); container.innerHTML = "";
     items.forEach((item, idx) => {
         const div = document.createElement("div"); div.style = "display:grid; grid-template-columns: 2.2fr 1.5fr 0.8fr 1.2fr 30px; gap:5px; margin-bottom:8px;";
-        div.innerHTML = `<input value="${item.n}" oninput="items[${idx}].n=this.value;updatePreview()">
+        div.innerHTML = `<input value="${item.n}" oninput="items[${idx}].n=this.value;debounceUpdate()">
             <select onchange="items[${idx}].c=this.value;updatePreview()">${subCats.map(cat => `<option value="${cat}" ${item.c===cat?'selected':''}>${cat}</option>`).join('')}</select>
-            <input type="number" value="${item.q}" oninput="items[${idx}].q=Number(this.value);updatePreview()">
-            <input type="number" value="${item.p}" oninput="items[${idx}].p=Number(this.value);updatePreview()">
-            <button class="remove-btn" onclick="removeItem(${idx})">✕</button>`;
+            <input type="number" value="${item.q}" oninput="items[${idx}].q=Number(this.value);debounceUpdate()">
+            <input type="number" value="${item.p}" oninput="items[${idx}].p=Number(this.value);debounceUpdate()">
+            <button class="remove-btn" onclick="removeItem(${idx})" aria-label="Remove Item">✕</button>`;
         container.appendChild(div);
     });
 }
@@ -288,9 +300,20 @@ document.getElementById('logoUpload').onchange = (e) => {
     reader.readAsDataURL(e.target.files[0]);
 };
 
-function createPayBtn(id, plan){ paypal.Buttons({ style:{color:'blue', shape:'rect', height:25}, onApprove:() => updatePlan(plan) }).render(`#${id}`); }
-createPayBtn("paypal-basic","basic"); createPayBtn("paypal-pro","pro");
-window.onload = () => { addItem(); updatePreview(); };
+function createPayBtn(id, plan){ 
+    if(typeof paypal !== 'undefined') {
+        paypal.Buttons({ style:{color:'blue', shape:'rect', height:25}, onApprove:() => updatePlan(plan) }).render(`#${id}`); 
+    } else {
+        setTimeout(() => createPayBtn(id, plan), 1000); // Wait if SDK isn't loaded yet
+    }
+}
+
+window.onload = () => { 
+    addItem(); 
+    updatePreview(); 
+    createPayBtn("paypal-basic","basic"); 
+    createPayBtn("paypal-pro","pro");
+};
 </script>
 </body>
 </html>
