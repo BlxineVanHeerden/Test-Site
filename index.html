@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Smart Invoice Tool | Free PDF Invoice & Quote Generator</title>
+    <meta name="description" content="A professional, privacy-focused invoice and quote generator. Create, customize, and export PDF invoices instantly. No registration required.">
+    <meta name="keywords" content="Invoice Generator, PDF Quote Tool, Freelance Billing, Free Invoice Creator, Privacy Focused Invoice">
+    <meta name="author" content="Smart Invoice Tool">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:title" content="Smart Invoice Tool | Professional Billing Made Easy">
+    <meta property="og:description" content="Generate professional PDF invoices and quotes in seconds. Secure, local-first, and water-mark free options.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourusername.github.io/your-repo-name/">
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧾</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -205,7 +215,7 @@
 
     function clearAllData() {
         if(confirm("Are you sure? This will reset all current fields.")) {
-            document.querySelectorAll('input, textarea').forEach(i => i.value = "");
+            document.querySelectorAll('input:not(#docNum), textarea').forEach(i => i.value = "");
             document.getElementById('docNum').value = "INV-101";
             items = [];
             addItem();
@@ -269,7 +279,6 @@
     }
 
     function addItem(n="", c="Consulting", q=1, p=0) {
-        // Fix: Ensure we don't pass the MouseEvent as the name 'n'
         const desc = (typeof n === 'string') ? n : "";
         items.push({n: desc, c, q, p});
         renderItems();
