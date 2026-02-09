@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Invoice Tool - Professional Business Suite</title>
-    <meta name="description" content="Generate professional invoices, quotes, and receipts instantly. Custom branding, tax calculations, and PDF export.">
+    <title>Smart Invoice Tool | Free PDF Invoice & Quote Generator</title>
+    <meta name="description" content="A fast, professional PDF invoice generator for freelancers. Create quotes, receipts, and invoices with tax calculations and custom branding.">
     
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧾</text></svg>">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
     <style>
-        /* --- DESIGN SYSTEM (Optimized for Speed) --- */
         body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1f2937; margin: 0; padding: 0; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
         .main-wrapper { display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; gap: 20px; padding: 15px; }
 
@@ -70,6 +71,24 @@
                 <div class="plan-box" id="p-pro">
                     <b>Pro</b><p>Branding & Logos</p>
                     <div id="paypal-pro" style="margin-top:10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="background: #f8fafc; border: 1px dashed #6366f1;">
+            <h3 style="border-left-color: #111827;">How It Works</h3>
+            <div style="display: grid; gap: 12px; font-size: 12px; color: #4b5563;">
+                <div style="display: flex; gap: 10px;">
+                    <b style="color: #6366f1;">01.</b> 
+                    <span>Choose your document type (Invoice, Quote, or Receipt) and select a license.</span>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <b style="color: #6366f1;">02.</b> 
+                    <span>Enter your business details and line items. The live preview updates instantly.</span>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <b style="color: #6366f1;">03.</b> 
+                    <span>Download your professional PDF. <b>Pro</b> users can add custom logos and premium themes.</span>
                 </div>
             </div>
         </div>
@@ -183,7 +202,6 @@
 
     const subCats = ["IT", "Creative", "Legal", "Marketing", "Admin", "Consulting", "Support", "Development", "Design"];
 
-    // PERFORMANCE: Debounce updates to keep Interaction to Next Paint (INP) low
     function debounceUpdate() {
         clearTimeout(updateTimeout);
         updateTimeout = setTimeout(updatePreview, 150);
@@ -312,4 +330,4 @@
     };
 </script>
 </body>
-</html>
+</html
