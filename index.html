@@ -3,59 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Invoice Tool | Free PDF Invoice & Quote Generator</title>
-    
+    <title>Smart Invoice Tool | Professional One-Time License Invoicing</title>
+    <meta name="title" content="Smart Invoice Tool | Professional One-Time License Invoicing">
+    <meta name="description" content="Generate professional invoices and quotes instantly. No subscriptions, no tracking, and no accounts required. Pay once for lifetime access to premium branding.">
+    <meta name="keywords" content="invoice generator, freelance billing, professional quotes, privacy-first invoicing, one-time payment software">
+    <meta name="author" content="Smart Invoice Tool">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#4338ca">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com/">
+    <meta property="og:title" content="Smart Invoice Tool | Professional Invoicing">
+    <meta property="og:description" content="Stop paying monthly fees for simple invoices. Create, preview, and export professional PDFs with our privacy-focused tool.">
+    <meta property="og:image" content="https://yourdomain.com/og-image.jpg">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yourdomain.com/">
+    <meta property="twitter:title" content="Smart Invoice Tool | Professional Invoicing">
+    <meta property="twitter:description" content="Generate professional invoices and quotes instantly. No subscriptions. Data stays on your device.">
+    <meta property="twitter:image" content="https://yourdomain.com/og-image.jpg">
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧾</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f5f7fb; color: #1f2937; margin: 0; padding: 0; }
-        .main-wrapper { display: flex; flex-direction: column; max-width: 1400px; margin: 0 auto; gap: 20px; padding: 15px; }
-
-        @media(min-width: 1024px) {
-            .main-wrapper { flex-direction: row; height: 95vh; padding: 25px; }
-            .editor-pane { flex: 0 0 550px; overflow-y: auto; padding-right: 15px; height: 100%; scrollbar-width: thin; }
-            .preview-pane { flex: 1; height: 100%; position: sticky; top: 0; }
-        }
-
+        body { font-family: 'Inter', Arial, sans-serif; max-width: 1400px; margin: auto; padding: 20px; background: #f5f7fb; color: #1f2937; }
+        .promo-banner { background: linear-gradient(90deg, #4338ca 0%, #6366f1 100%); color: white; padding: 15px; border-radius: 12px; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+        .promo-banner h2 { margin: 0; font-size: 18px; font-weight: 800; }
+        .promo-banner p { margin: 5px 0 0; font-size: 13px; opacity: 0.9; }
+        .main-wrapper { display: flex; flex-direction: column; gap: 20px; }
+        @media(min-width: 1024px) { .main-wrapper { flex-direction: row; height: 95vh; } .editor-pane { flex: 0 0 550px; overflow-y: auto; padding-right: 15px; height: 100%; scrollbar-width: thin; } .preview-pane { flex: 1; height: 100%; position: sticky; top: 0; } }
         .section { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #edf2f7; }
         h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: #111827; letter-spacing: -1px; }
-        .sub-heading { font-size: 14px; color: #6366f1; font-weight: 600; margin-bottom: 25px; display: block; }
+        .sub-heading { font-size: 14px; color: #6366f1; font-weight: 600; margin-bottom: 8px; display: block; }
+        .privacy-box { background: #eef2ff; padding: 12px; border-radius: 8px; border: 1px solid #e0e7ff; margin-bottom: 25px; position: relative; }
+        .privacy-box b { font-size: 12px; color: #4338ca; display: block; margin-bottom: 4px; }
+        .privacy-box p { font-size: 11px; color: #6366f1; margin: 0; line-height: 1.4; }
         h3 { font-size: 10px; text-transform: uppercase; color: #94a3b8; margin-bottom: 12px; letter-spacing: 1.5px; font-weight: 800; border-left: 3px solid #6366f1; padding-left: 8px; }
-
-        label { font-size: 10px; font-weight: 700; color: #4b5563; text-transform: uppercase; display: flex; align-items: center; margin-bottom: 4px; }
-        input, select, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 13px; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
-
+        label { font-size: 10px; font-weight: 700; color: #4b5563; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        input, select, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 13px; box-sizing: border-box; margin-bottom: 12px; font-family: inherit; }
+        .button-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 12px; transition: 0.2s ease; background: #4CAF50; color: white; }
+        button:hover { background: #43a047; }
+        .btn-main { background: #111827; }
+        .btn-locked { background: #cbd5e1 !important; cursor: not-allowed; color: #94a3b8; }
+        .btn-save { background: #10b981; }
+        .btn-clear { background: #f43f5e; }
         .plan-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .plan-box { border: 2px solid #e5e7eb; padding: 15px 10px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s ease; background: #fff; }
         .plan-box.active { border-color: #6366f1; background: #f5f3ff; }
         .plan-box b { display: block; font-size: 14px; margin-bottom: 5px; }
         .plan-box p { font-size: 9px; line-height: 1.3; color: #64748b; margin: 0; }
-
-        .doc-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .doc-btn { padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; text-align: center; font-size: 11px; font-weight: 700; background: #fff; }
-        .doc-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
-
-        iframe { width: 100%; height: 100%; border-radius: 16px; border: 1px solid #e5e7eb; background: #fff; }
-
-        button { padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 12px; transition: 0.2s ease; }
-        .btn-main { background: #111827; color: white; width: 48%; }
-        .btn-locked { background: #cbd5e1 !important; cursor: not-allowed; color: #94a3b8; }
-        .btn-save { background: #10b981; color: white; width: 48%; }
-        .btn-clear { background: #f43f5e; color: white; width: 48%; }
-
-        .remove-btn { background: none; color: #f43f5e; font-size: 16px; border: none; cursor: pointer; }
+        iframe { width: 100%; height: 100%; border-radius: 16px; border: 1px solid #ccc; background: #fff; }
+        .remove-btn { background: none; color: #f43f5e; font-size: 16px; border: none; cursor: pointer; width: auto; margin-bottom: 0; }
         .badge-pro { font-size: 8px; background: #fbbf24; color: #78350f; padding: 1px 4px; border-radius: 4px; margin-left: 4px; }
-
         .faq-box { display: none; background: #1e293b; color: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 15px; font-size: 12px; line-height: 1.6; }
-        .faq-box b { color: #818cf8; display: block; margin-top: 10px; }
-        
-        #addBtn.locked { background: #f1f5f9; color: #94a3b8; border-color: #cbd5e1; cursor: not-allowed; }
+        .header-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        #weatherBtn { background: #fff; color: #6366f1; border: 1px solid #e0e7ff; padding: 5px 10px; width: auto; font-size: 10px; }
     </style>
 </head>
 <body>
+
+<div class="promo-banner">
+    <h2>Stop paying $20/month just to send an invoice.</h2>
+    <p>Buy a lifetime license. <b>No subscriptions. No tracking. Pure Privacy.</b></p>
+</div>
 
 <div class="main-wrapper">
     <div class="editor-pane">
@@ -64,17 +78,24 @@
                 <h1>Smart Invoice Tool</h1>
                 <span class="sub-heading">Professional Billing Suite</span>
             </div>
-            <button onclick="toggleFAQ()" style="background:#e0e7ff; color:#4338ca; padding:8px 12px; font-size:10px;">Help & FAQ</button>
+            <div class="header-actions">
+                <button onclick="toggleFAQ()" style="background:#e0e7ff; color:#4338ca; padding:8px 12px; font-size:10px; width: auto;">Help & Changelog</button>
+                <button id="weatherBtn" onclick="fetchWeather()">📍 Get Weather</button>
+            </div>
+        </div>
+
+        <div class="privacy-box">
+            <b>No Accounts. No Cloud. No Problem.</b>
+            <p>Built for solo-entrepreneurs and freelancers who value ownership. We use Local Storage so your data remains yours.</p>
         </div>
 
         <div id="faqSection" class="faq-box">
-            <h3 style="border-left-color:#818cf8; color:#fff">Support & FAQ</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #475569; padding-bottom:10px; margin-bottom:10px;">
+                <h3 style="border-left:none; padding:0; margin:0; color:#fff">Support & Product Pulse</h3>
+                <span style="font-size:9px; background:#6366f1; padding:2px 6px; border-radius:10px; font-weight:800;">v1.6 LIVE</span>
+            </div>
             <b>Is the preview free?</b>
-            <span>Yes, the live renderer is 100% free. Professional features like logo removal and PDF export require a license.</span>
-            <b>How do I save my business info?</b>
-            <span>Fill out Section 4 and click "Save Business". Your data is stored locally in your browser so it's ready for your next session.</span>
-            <b>Line Item Limits</b>
-            <span>Free plan is limited to 2 items. Upgrade to Basic/Pro for unlimited rows.</span>
+            <span>Yes. The live renderer is 100% free. Pro features require a license.</span>
         </div>
 
         <div class="section">
@@ -84,101 +105,102 @@
                     <b>Free</b><p>Max 2 Items & Watermark</p>
                 </div>
                 <div class="plan-box" id="p-basic">
-                    <b>Basic</b><p>Clean PDF & CSV</p>
+                    <b>Basic ($4.99)</b><p>Clean PDF & Themes</p>
                     <div id="paypal-basic" style="margin-top:10px;"></div>
                 </div>
                 <div class="plan-box" id="p-pro">
-                    <b>Pro</b><p>Branding & Logos</p>
+                    <b>Pro ($9.99)</b><p>Branding & Logos</p>
                     <div id="paypal-pro" style="margin-top:10px;"></div>
                 </div>
             </div>
         </div>
 
         <div class="section">
-            <h3>2. Document Purpose</h3>
-            <div class="doc-type-grid">
-                <div id="btn-INVOICE" class="doc-btn active" onclick="setDocType('INVOICE', 'INV-')">Invoice</div>
-                <div id="btn-QUOTE" class="doc-btn" onclick="setDocType('QUOTE', 'QT-')">Quote</div>
-                <div id="btn-RECEIPT" class="doc-btn" onclick="setDocType('RECEIPT', 'RCP-')">Receipt</div>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-                <div><label>Doc ID</label><input id="docNum" value="INV-101" oninput="debounceUpdate()"></div>
-                <div><label>Project Term</label><input type="text" id="projectDate" placeholder="e.g. Feb 2026" oninput="debounceUpdate()"></div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>3. Visual Identity</h3>
+            <h3>2. Visual Identity</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                 <div>
-                    <label>Currency</label>
-                    <select id="currency" onchange="updatePreview()">
-                        <option value="$">USD ($)</option><option value="€">EUR (€)</option><option value="£">GBP (£)</option>
-                        <option value="R">ZAR (R)</option><option value="¥">JPY (¥)</option><option value="₹">INR (₹)</option>
-                        <option value="A$">AUD (A$)</option><option value="C$">CAD (C$)</option><option value="AED ">AED</option>
+                    <label>Doc Type</label>
+                    <select id="docType" onchange="updatePreview()">
+                        <option value="INVOICE">Invoice</option>
+                        <option value="QUOTE">Quote</option>
                     </select>
                 </div>
                 <div>
-                    <label>Theme</label>
-                    <select id="themeChoice" onchange="checkTheme(this)">
-                        <option value="#3b82f6">Blue</option><option value="#111827">Dark</option>
-                        <option value="#059669">Emerald (Pro)</option><option value="#dc2626">Crimson (Pro)</option>
+                    <label>Currency</label>
+                    <select id="currency" onchange="changeCurrency()">
+                        <option value="$">USD ($)</option>
+                        <option value="€">EUR (€)</option>
+                        <option value="£">GBP (£)</option>
+                        <option value="₹">INR (₹)</option>
+                        <option value="¥">JPY (¥)</option>
+                        <option value="A$">AUD (A$)</option>
+                        <option value="C$">CAD (C$)</option>
+                        <option value="CHF">CHF (Fr)</option>
+                        <option value="kr">SEK (kr)</option>
+                        <option value="R">ZAR (R)</option>
                     </select>
                 </div>
             </div>
-            <label style="margin-top:10px;">Company Logo <span class="badge-pro">PRO</span></label>
-            <input type="file" id="logoUpload" disabled onchange="handleLogo(this)">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                <div>
+                    <label>Theme</label>
+                    <select id="themeChoice" onchange="updatePreview()">
+                        <option value="#3b82f6">Blue (Free)</option>
+                        <option value="#111827">Dark (Free)</option>
+                        <option value="#10b981">Green (Free)</option>
+                        <option value="#f59e0b" id="opt-gold" disabled>Gold (Basic+)</option>
+                        <option value="#8b5cf6" id="opt-purple" disabled>Purple (Basic+)</option>
+                        <option value="#ec4899" id="opt-pink" disabled>Pink (Pro)</option>
+                        <option value="#000000" id="opt-stealth" disabled>Stealth (Pro)</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Tax Rate (%)</label>
+                    <input type="number" id="taxRate" value="0" oninput="debounceUpdate()">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                <div>
+                    <label>Late Fee (%) <span class="badge-pro">PAID</span></label>
+                    <input type="number" id="lateFee" value="0" disabled oninput="debounceUpdate()">
+                </div>
+                <div>
+                    <label>Company Logo <span class="badge-pro">PRO</span></label>
+                    <input type="file" id="logoUpload" disabled onchange="handleLogo(this)">
+                </div>
+            </div>
         </div>
 
         <div class="section">
-            <h3>4. Entity Details</h3>
+            <h3>3. Entity Details</h3>
             <label style="color:#6366f1">Issuer (You)</label>
             <input id="fromName" placeholder="Your Name" oninput="debounceUpdate()">
+            <input id="fromPhone" placeholder="Your Phone Number" oninput="debounceUpdate()">
+            <input id="fromTaxId" placeholder="Your VAT / Tax ID" oninput="debounceUpdate()">
             <input id="fromCompany" placeholder="Your Company Name" oninput="debounceUpdate()">
-            <input id="fromEmail" placeholder="Your Email" oninput="debounceUpdate()">
-            <input id="fromVat" placeholder="Your VAT / Tax ID" oninput="debounceUpdate()">
             <textarea id="fromAddr" placeholder="Your Address" oninput="debounceUpdate()" style="height:45px;"></textarea>
             
-            <label style="margin-top:10px; color:#10b981">Payment Instructions</label>
-            <textarea id="paymentInfo" placeholder="Bank Name, IBAN, etc." oninput="debounceUpdate()" style="height:45px;"></textarea>
-
-            <label style="margin-top:10px; color:#f59e0b">Notes & Terms</label>
-            <textarea id="docNotes" placeholder="e.g. Net 30 days." oninput="debounceUpdate()" style="height:45px;"></textarea>
-
-            <div style="display:flex; gap:10px;">
+            <div class="button-row">
                 <button class="btn-save" onclick="saveBusinessInfo()">💾 Save Business</button>
                 <button class="btn-clear" onclick="clearAllData()">🗑️ Clear All</button>
             </div>
 
             <label style="margin-top:20px; color:#6366f1">Recipient (Client)</label>
             <input id="toName" placeholder="Client Name" oninput="debounceUpdate()">
-            <input id="toCompany" placeholder="Client Company" oninput="debounceUpdate()">
-            <input id="toEmail" placeholder="Client Email" oninput="debounceUpdate()">
-            <input id="toVat" placeholder="Client VAT / Tax ID" oninput="debounceUpdate()">
+            <input id="toPhone" placeholder="Client Phone Number" oninput="debounceUpdate()">
+            <input id="toTaxId" placeholder="Client VAT / Tax ID" oninput="debounceUpdate()">
             <textarea id="toAddr" placeholder="Client Address" oninput="debounceUpdate()" style="height:45px;"></textarea>
         </div>
 
         <div class="section">
-            <h3>5. Line Items <span id="itemCountDisplay" style="float:right; color:#94a3b8; font-size:9px;"></span></h3>
+            <h3>4. Line Items</h3>
             <div id="itemsContainer"></div>
-            <button id="addBtn" onclick="addItem()" style="background:#f8fafc; color:#6366f1; width:100%; margin-top:10px; border:1px dashed #6366f1;">+ Add Item</button>
+            <button id="addBtn" onclick="addItem()" style="background:#f8fafc; color:#6366f1; width:100%; border:1px dashed #6366f1;">+ Add Item</button>
         </div>
 
         <div class="section">
-            <h3>6. Financial Summary</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div><label>Tax %</label><input type="number" id="tax" value="0" oninput="debounceUpdate()"></div>
-                <div><label>Late Fee <span class="badge-pro">PRO</span></label>
-                    <select id="lateFee" disabled onchange="debounceUpdate()">
-                        <option value="0">None</option>
-                        <option value="5">5% Late Fee</option>
-                        <option value="10">10% Late Fee</option>
-                    </select>
-                </div>
-            </div>
-            <div style="text-align:center; padding:15px; background:#f5f3ff; border-radius:10px; margin-top:10px;">
-                <b id="totalNet" style="font-size:20px; color:#4338ca;">Balance Due: $0.00</b>
-            </div>
+            <h3>5. Terms & Notes</h3>
+            <textarea id="terms" placeholder="Enter terms, bank details, or payment instructions..." oninput="debounceUpdate()" style="height:80px;"></textarea>
         </div>
 
         <div style="margin-bottom: 80px;">
@@ -187,31 +209,60 @@
     </div>
 
     <div class="preview-pane">
-        <iframe id="preview"></iframe>
+        <iframe id="preview" name="preview"></iframe>
     </div>
 </div>
 
-<script src="https://www.paypal.com/sdk/js?client-id=AX6SEngE_MrJHnM87AOoeOMYjECeo9Hu2QY3QMEzUKV97ahN1ttvJJndvcGhk9G27A8qEZGsGb95idNX&currency=USD" defer></script>
+<div id="paypal-script-container"></div>
 
 <script>
     let items = [];
     let selectedPlan = 'free';
-    let currentType = 'INVOICE';
     let logoData = "";
-    const subCats = ["Consulting", "Creative", "Software", "Marketing", "Legal", "Admin"];
+    const currencyMap = { "$": "USD", "€": "EUR", "£": "GBP", "₹": "INR", "¥": "JPY", "A$": "AUD", "C$": "CAD", "CHF": "CHF", "kr": "SEK", "R": "ZAR" };
 
     function toggleFAQ() {
         const f = document.getElementById('faqSection');
         f.style.display = f.style.display === 'block' ? 'none' : 'block';
     }
 
+    async function fetchWeather() {
+        const btn = document.getElementById('weatherBtn');
+        btn.innerText = "Checking...";
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`);
+            const data = await res.json();
+            btn.innerText = `☀️ ${data.current_weather.temperature}°C`;
+        }, () => btn.innerText = "Blocked");
+    }
+
+    function saveBusinessInfo() {
+        const info = { 
+            name: document.getElementById('fromName').value, 
+            phone: document.getElementById('fromPhone').value,
+            taxId: document.getElementById('fromTaxId').value,
+            company: document.getElementById('fromCompany').value, 
+            addr: document.getElementById('fromAddr').value 
+        };
+        localStorage.setItem('issuerInfo', JSON.stringify(info));
+        alert('Saved locally!');
+    }
+
+    function loadBusinessInfo() {
+        const info = JSON.parse(localStorage.getItem('issuerInfo'));
+        if(info) {
+            document.getElementById('fromName').value = info.name || '';
+            document.getElementById('fromPhone').value = info.phone || '';
+            document.getElementById('fromTaxId').value = info.taxId || '';
+            document.getElementById('fromCompany').value = info.company || '';
+            document.getElementById('fromAddr').value = info.addr || '';
+        }
+    }
+
     function clearAllData() {
-        if(confirm("Are you sure? This will reset all current fields.")) {
+        if(confirm("Clear all?")) {
             document.querySelectorAll('input, textarea').forEach(i => i.value = "");
-            document.getElementById('docNum').value = "INV-101";
-            items = [];
-            addItem();
-            updatePreview();
+            items = []; addItem(); updatePreview();
         }
     }
 
@@ -219,95 +270,25 @@
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                logoData = e.target.result;
-                updatePreview();
-            };
+            reader.onload = e => { logoData = e.target.result; updatePreview(); };
             reader.readAsDataURL(file);
         }
     }
 
-    function saveBusinessInfo() {
-        const info = {
-            name: document.getElementById('fromName').value,
-            company: document.getElementById('fromCompany').value,
-            email: document.getElementById('fromEmail').value,
-            vat: document.getElementById('fromVat').value,
-            addr: document.getElementById('fromAddr').value,
-            payment: document.getElementById('paymentInfo').value,
-            notes: document.getElementById('docNotes').value
-        };
-        localStorage.setItem('issuerInfo', JSON.stringify(info));
-        alert('Business info saved locally!');
-    }
-
-    function loadBusinessInfo() {
-        const info = JSON.parse(localStorage.getItem('issuerInfo'));
-        if(info) {
-            document.getElementById('fromName').value = info.name || '';
-            document.getElementById('fromCompany').value = info.company || '';
-            document.getElementById('fromEmail').value = info.email || '';
-            document.getElementById('fromVat').value = info.vat || '';
-            document.getElementById('fromAddr').value = info.addr || '';
-            document.getElementById('paymentInfo').value = info.payment || '';
-            document.getElementById('docNotes').value = info.notes || '';
-        }
-    }
-
-    function setDocType(type, prefix) {
-        currentType = type;
-        document.getElementById('docNum').value = prefix + Math.floor(100 + Math.random() * 900);
-        document.querySelectorAll('.doc-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('btn-' + type).classList.add('active');
-        updatePreview();
-    }
-
-    function checkTheme(sel) {
-        if ((sel.value === "#059669" || sel.value === "#dc2626") && selectedPlan !== 'pro') {
-            alert("Upgrade to Pro to unlock premium themes!");
-            sel.value = "#3b82f6";
-        }
-        updatePreview();
-    }
-
-    // UPDATED: Logic to lock 2 product lines on free plan
-    function addItem(n="", c="Consulting", q=1, p=0) {
-        if (selectedPlan === 'free' && items.length >= 2) {
-            alert("Free plan is limited to 2 product lines. Please upgrade for unlimited items.");
-            return;
-        }
-        items.push({n, c, q, p});
-        renderItems();
-        updatePreview();
+    function addItem(n="", q=1, p=0) {
+        if (selectedPlan === 'free' && items.length >= 2) return;
+        items.push({n, q, p});
+        renderItems(); updatePreview();
     }
 
     function renderItems() {
         const container = document.getElementById("itemsContainer"); 
         container.innerHTML = "";
-        const addBtn = document.getElementById('addBtn');
-        const countDisplay = document.getElementById('itemCountDisplay');
-        
-        // Update Button Visuals based on limit
-        if (selectedPlan === 'free') {
-            countDisplay.innerText = `(${items.length}/2 Items)`;
-            if (items.length >= 2) {
-                addBtn.classList.add('locked');
-                addBtn.innerText = "+ Add Item (Free Limit Reached)";
-            } else {
-                addBtn.classList.remove('locked');
-                addBtn.innerText = "+ Add Item";
-            }
-        } else {
-            countDisplay.innerText = `(${items.length} Items)`;
-            addBtn.classList.remove('locked');
-            addBtn.innerText = "+ Add Item";
-        }
-
         items.forEach((item, idx) => {
             const div = document.createElement("div"); 
-            div.style = "display:grid; grid-template-columns: 2fr 1.5fr 0.6fr 1.2fr 30px; gap:5px; margin-bottom:8px;";
-            div.innerHTML = `<input value="${item.n}" placeholder="Item name" oninput="items[${idx}].n=this.value;updatePreview()">
-                <select onchange="items[${idx}].c=this.value;updatePreview()">${subCats.map(cat => `<option value="${cat}" ${item.c===cat?'selected':''}>${cat}</option>`).join('')}</select>
+            div.style = "display:grid; grid-template-columns: 2fr 0.6fr 1.2fr 30px; gap:5px; margin-bottom:8px;";
+            div.innerHTML = `
+                <input value="${item.n}" placeholder="Item" oninput="items[${idx}].n=this.value;updatePreview()">
                 <input type="number" value="${item.q}" oninput="items[${idx}].q=Number(this.value);updatePreview()">
                 <input type="number" value="${item.p}" oninput="items[${idx}].p=Number(this.value);updatePreview()">
                 <button class="remove-btn" onclick="items.splice(${idx},1);renderItems();updatePreview()">✕</button>`;
@@ -316,52 +297,71 @@
     }
 
     function updatePreview() {
+        const type = document.getElementById("docType").value;
         const cur = document.getElementById("currency").value;
         const accent = document.getElementById("themeChoice").value;
-        const pay = document.getElementById("paymentInfo").value;
-        const notes = document.getElementById("docNotes").value;
+        const taxR = parseFloat(document.getElementById("taxRate").value) || 0;
+        const lateP = (selectedPlan === 'free') ? 0 : (parseFloat(document.getElementById("lateFee").value) || 0);
+        const terms = document.getElementById("terms").value;
+
+        // User Data
+        const fromName = document.getElementById("fromName").value;
+        const fromPhone = document.getElementById("fromPhone").value;
+        const fromTaxId = document.getElementById("fromTaxId").value;
+        const fromCompany = document.getElementById("fromCompany").value;
+        const fromAddr = document.getElementById("fromAddr").value;
+
+        // Client Data
+        const toName = document.getElementById("toName").value;
+        const toPhone = document.getElementById("toPhone").value;
+        const toTaxId = document.getElementById("toTaxId").value;
+        const toAddr = document.getElementById("toAddr").value;
         
         let sub = 0;
         const rows = items.map(i => {
             const l = i.q * i.p; sub += l;
-            return `<tr><td style="padding:10px; border-bottom:1px solid #eee;"><b>${i.n || 'Unnamed Item'}</b><br><small style="color:#64748b">${i.c}</small></td><td style="text-align:right; padding:10px; border-bottom:1px solid #eee;">${cur}${l.toLocaleString()}</td></tr>`;
+            return `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.n || 'Item'}</td><td style="text-align:right; padding:10px; border-bottom:1px solid #eee;">${cur}${l.toLocaleString()}</td></tr>`;
         }).join("");
 
-        const taxRate = Number(document.getElementById('tax').value) / 100;
-        const lateRate = Number(document.getElementById('lateFee').value) / 100;
-        const total = sub + (sub * taxRate) + (sub * lateRate);
-        
-        document.getElementById('totalNet').innerText = `Balance Due: ${cur}${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        const taxAmt = sub * (taxR / 100);
+        const lateAmt = sub * (lateP / 100);
+        const total = sub + taxAmt + lateAmt;
+        const watermark = (selectedPlan === 'free') ? `<div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-45deg); font-size:70px; color:rgba(0,0,0,0.05); z-index:9999; pointer-events:none; font-weight:800; white-space:nowrap;">PREVIEW ONLY</div>` : '';
 
-        const html = `<html><body style="font-family:'Inter', sans-serif; padding:40px; color:#1e293b;">
+        const html = `<html><body style="font-family:'Inter', sans-serif; padding:40px; color:#1e293b; position:relative;">
+            ${watermark}
             <div style="display:flex; justify-content:space-between; border-bottom:5px solid ${accent}; padding-bottom:20px; margin-bottom:30px;">
                 <div>
-                    ${(selectedPlan === 'pro' && logoData) ? `<img src="${logoData}" style="max-height:60px;margin-bottom:10px;"><br>` : ''}
-                    <h2 style="color:${accent}; margin:0;">${document.getElementById("fromCompany").value || 'YOUR BRAND'}</h2>
-                    <p style="font-size:11px; margin:0;">${document.getElementById("fromName").value}<br>VAT: ${document.getElementById("fromVat").value}<br>${document.getElementById("fromAddr").value}</p>
+                    ${(selectedPlan === 'pro' && logoData) ? `<img src="${logoData}" style="max-height:50px; margin-bottom:10px;"><br>` : ''}
+                    <h2 style="color:${accent}; margin:0;">${fromCompany || 'BRAND'}</h2>
+                    <p style="font-size:11px; margin:0;">
+                        ${fromName}<br>
+                        ${fromPhone ? `Ph: ${fromPhone}<br>` : ''}
+                        ${fromTaxId ? `Tax ID: ${fromTaxId}<br>` : ''}
+                        ${fromAddr}
+                    </p>
                 </div>
-                <div style="text-align:right;">
-                    <h1 style="margin:0; color:${accent};">${currentType}</h1>
-                    <p>#${document.getElementById("docNum").value}</p>
-                    <p style="font-size:12px;">${document.getElementById("projectDate").value}</p>
-                </div>
+                <div style="text-align:right;"><h1 style="color:#d1d5db; margin:0;">${type}</h1></div>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; margin-bottom:30px; font-size:11px;">
-                <div><b>BILL TO:</b><br>${document.getElementById("toCompany").value}<br>${document.getElementById("toName").value}<br>${document.getElementById("toAddr").value}</div>
-                <div style="text-align:right;"><b>CLIENT VAT:</b> ${document.getElementById("toVat").value}</div>
+            <div style="margin-bottom:30px; font-size:11px;">
+                <b>BILL TO:</b><br>${toName}<br>
+                ${toPhone ? `Ph: ${toPhone}<br>` : ''}
+                ${toTaxId ? `Tax ID: ${toTaxId}<br>` : ''}
+                ${toAddr}
             </div>
             <table style="width:100%; border-collapse:collapse;">
-                <thead><tr style="background:#f8fafc;"><th style="text-align:left; padding:10px;">Description</th><th style="text-align:right; padding:10px;">Total</th></tr></thead>
+                <thead><tr style="background:#f8fafc;"><th style="text-align:left; padding:10px;">Item</th><th style="text-align:right; padding:10px;">Total</th></tr></thead>
                 <tbody>${rows}</tbody>
             </table>
-            <div style="text-align:right; margin-top:30px; background:${accent}; color:white; padding:20px; border-radius:10px;">
-                <small>BALANCE DUE</small><br><b style="font-size:28px;">${cur}${total.toLocaleString(undefined, {minimumFractionDigits: 2})}</b>
+            <div style="text-align:right; margin-top:30px;">
+                <p style="font-size:12px; margin:0;">Subtotal: ${cur}${sub.toLocaleString()}</p>
+                ${taxR > 0 ? `<p style="font-size:12px; margin:5px 0;">Tax (${taxR}%): ${cur}${taxAmt.toLocaleString()}</p>` : ''}
+                ${lateAmt > 0 ? `<p style="font-size:12px; margin:5px 0;">Late Fee (${lateP}%): ${cur}${lateAmt.toLocaleString()}</p>` : ''}
+                <div style="background:${accent}; color:white; padding:20px; border-radius:10px; display:inline-block; margin-top:10px;">
+                    <small>TOTAL DUE</small><br><b style="font-size:28px;">${cur}${total.toLocaleString()}</b>
+                </div>
             </div>
-            <div style="margin-top:40px; display:grid; grid-template-columns: 1fr 1fr; gap:20px; font-size:10px; border-top:1px solid #eee; padding-top:10px;">
-                <div>${pay ? `<b>Payment Instructions:</b><br>${pay.replace(/\n/g, '<br>')}` : ''}</div>
-                <div>${notes ? `<b>Notes & Terms:</b><br>${notes.replace(/\n/g, '<br>')}` : ''}</div>
-            </div>
-            ${selectedPlan === 'free' ? '<div style="margin-top:40px; text-align:center; color:#ccc; font-size:9px;">Smart Invoice Tool Free Preview - 2 Item Limit</div>' : ''}
+            ${terms ? `<div style="margin-top:40px; padding-top:20px; border-top:1px solid #eee; font-size:10px; color:#64748b;"><b>NOTES/TERMS:</b><br>${terms.replace(/\n/g, '<br>')}</div>` : ''}
         </body></html>`;
 
         const d = document.getElementById('preview').contentWindow.document;
@@ -372,44 +372,73 @@
         selectedPlan = plan;
         document.querySelectorAll('.plan-box').forEach(b => b.classList.remove('active'));
         document.getElementById(`p-${plan}`).classList.add('active');
-        
-        // Truncate items if moving back to free
-        if(plan === 'free' && items.length > 2) {
-            items = items.slice(0, 2);
-        }
-
         const pdfBtn = document.getElementById('pdfBtn');
-        if (plan !== 'free') {
-            pdfBtn.className = "btn-main";
-            pdfBtn.innerText = "Export PDF";
-            document.getElementById('lateFee').disabled = false;
-        } else {
-            pdfBtn.className = "btn-main btn-locked";
-            pdfBtn.innerText = "Export PDF (License Required)";
-            document.getElementById('lateFee').disabled = true;
-        }
-        
+        pdfBtn.className = plan === 'free' ? "btn-main btn-locked" : "btn-main";
+        pdfBtn.innerText = plan === 'free' ? "Export PDF (License Required)" : "Export PDF";
         document.getElementById('logoUpload').disabled = (plan !== 'pro');
-        
-        renderItems();
+        document.getElementById('lateFee').disabled = (plan === 'free');
+        document.getElementById('opt-gold').disabled = (plan === 'free');
+        document.getElementById('opt-purple').disabled = (plan === 'free');
+        document.getElementById('opt-pink').disabled = (plan !== 'pro');
+        document.getElementById('opt-stealth').disabled = (plan !== 'pro');
+        renderItems(); updatePreview();
+    }
+
+    function changeCurrency() {
+        const curCode = currencyMap[document.getElementById("currency").value] || "USD";
+        loadPayPalSDK(curCode);
         updatePreview();
     }
 
-    function exportPDF() {
-        if (selectedPlan === 'free') return;
-        const frame = document.getElementById('preview');
-        frame.contentWindow.focus();
-        frame.contentWindow.print();
+    function loadPayPalSDK(currency) {
+        const container = document.getElementById('paypal-script-container');
+        container.innerHTML = "";
+        const script = document.createElement('script');
+        script.src = `https://www.paypal.com/sdk/js?client-id=AZbQUFNPqlulEkrjmQ50JBFPNU_4ZoeRh_RwDHnLKdNN59Hfq6rCBuX11XC0P7EwVeexWlRrT4ZhXTPk&currency=${currency}`;
+        script.onload = refreshPayments;
+        container.appendChild(script);
+    }
+
+    function refreshPayments() {
+        createPayBtn("paypal-basic", "basic");
+        createPayBtn("paypal-pro", "pro");
     }
 
     function createPayBtn(id, plan){ 
-        if(typeof paypal !== 'undefined') {
-            paypal.Buttons({ style:{color:'blue', shape:'rect', height:25}, onApprove:() => updatePlan(plan) }).render(`#${id}`); 
-        } else { setTimeout(() => createPayBtn(id, plan), 1000); }
+        const container = document.getElementById(id);
+        container.innerHTML = "";
+        const targetCurrency = currencyMap[document.getElementById("currency").value] || "USD";
+        const price = (plan === 'pro') ? "9.99" : "4.99";
+
+        if(typeof paypal !== 'undefined') { 
+            paypal.Buttons({ 
+                style:{color:'blue', shape:'rect', height:25}, 
+                createOrder: (data, actions) => {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: { currency_code: targetCurrency, value: price },
+                            description: `Smart Invoice ${plan.toUpperCase()} Lifetime License`
+                        }]
+                    });
+                },
+                onApprove: (data, actions) => {
+                    return actions.order.capture().then(details => {
+                        updatePlan(plan);
+                        alert(`Success! ${details.payer.name.given_name}, your ${plan.toUpperCase()} license is active.`);
+                    });
+                }
+            }).render(`#${id}`); 
+        }
     }
 
+    function exportPDF() { if (selectedPlan !== 'free') { window.frames["preview"].focus(); window.frames["preview"].print(); } }
     function debounceUpdate() { updatePreview(); }
-    window.onload = () => { loadBusinessInfo(); addItem(); updatePreview(); createPayBtn("paypal-basic","basic"); createPayBtn("paypal-pro","pro"); };
+    
+    window.onload = () => { 
+        loadBusinessInfo(); 
+        addItem(); 
+        changeCurrency();
+    };
 </script>
 </body>
 </html>
